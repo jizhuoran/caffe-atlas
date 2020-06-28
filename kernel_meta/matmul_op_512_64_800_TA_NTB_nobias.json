@@ -1,0 +1,13 @@
+{
+    "binFileName":"matmul_op_512_64_800_TA_NTB_nobias",
+    "binFileSuffix":".o",
+    "blockDim":1,
+    "kernelName":"matmul_op_512_64_800_TA_NTB_nobias__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF",
+    "parameters":[
+        0,
+        0,
+        0
+    ],
+    "sha256":"1eb57255ff2be8ad7d42ce3284963e901faf5c564beba6369ac9e7506ba8462c"
+}
