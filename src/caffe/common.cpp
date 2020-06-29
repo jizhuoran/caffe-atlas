@@ -54,10 +54,12 @@ void GlobalInit(int* pargc, char*** pargv) {
 Caffe::Caffe()
     : random_generator_(), mode_(Caffe::CPU),
       solver_count_(1), solver_rank_(0), multiprocess_(false) {
-        block_dim_hacker = aligned_alloc(32, 32 * sizeof(std::vector<uint32_t>)); //UGLY make sure the last 8 bits are 0
+        block_dim_hacker = aligned_alloc(65536, 65536* sizeof(std::vector<uint32_t>)); //UGLY make sure the last 16 bits are 0, we also assume that 65536 is enough for placement new a vector at 0xXXXXX2048
       }
 
-Caffe::~Caffe() { }
+Caffe::~Caffe() {
+  free (block_dim_hacker);
+}
 
 void Caffe::set_random_seed(const unsigned int seed) {
   // RNG seed
@@ -105,9 +107,9 @@ void* Caffe::RNG::generator() {
 }
 
 std::vector<uint32_t>* Caffe::encode_block_dim_into_workspace_size(const std::vector<uint32_t> &workspace_size, uint64_t block_dim) {
-  assert(block_dim < 256 && "block_dim must < 256");
+  assert(block_dim < 2048 && "block_dim must < 2048");
   if(vector_holder_hacker != nullptr) {
-    delete vector_holder_hacker;
+    vector_holder_hacker->~vector<uint32_t>();
   }
   vector_holder_hacker = reinterpret_cast<std::vector<uint32_t>*>(reinterpret_cast<uint64_t>(block_dim_hacker) + block_dim);
   return new (vector_holder_hacker) std::vector<uint32_t>(workspace_size);

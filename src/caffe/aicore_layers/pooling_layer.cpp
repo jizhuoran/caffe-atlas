@@ -39,7 +39,8 @@ void PoolingLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
                                        kernel_h_, kernel_w_, stride_h_, stride_w_),
                                    {bottom_five.aicore_data()},
                                    {top_five.mutable_aicore_data()},
-                                   {top_five.count() * static_cast<unsigned int>(sizeof(half))});
+                                   {top_five.count() * static_cast<unsigned int>(sizeof(half))},
+                                   *Caffe::Get().encode_block_dim_into_workspace_size({}, 1));
 
   AICORE_CHECK(err);
   five2four(top_five.cpu_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));

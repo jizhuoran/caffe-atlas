@@ -17,7 +17,7 @@ void SoftmaxLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
                                    {bottom[0]->aicore_data()},
                                    {top[0]->mutable_aicore_data()},
                                    {top[0]->count() * static_cast<unsigned int>(sizeof(half))},
-                                   {128, 128, 1280, 1280});
+                                   *Caffe::Get().encode_block_dim_into_workspace_size({128, 128, 1280, 1280}, 1));
 
   AICORE_CHECK(err);
 

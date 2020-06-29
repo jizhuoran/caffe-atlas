@@ -32,7 +32,8 @@ void ReLULayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                    fmt::format("{}/ReLU_bw_{}.o", Caffe::kernel_dir(), bottom[0]->count()),
                                    {bottom[0]->aicore_data(), top[0]->aicore_diff()},
                                    {bottom[0]->mutable_aicore_diff()},
-                                   {bottom[0]->count() * static_cast<unsigned int>(sizeof(half))});
+                                   {bottom[0]->count() * static_cast<unsigned int>(sizeof(half))},
+                                   *Caffe::Get().encode_block_dim_into_workspace_size({}, 2));
     AICORE_CHECK(err); 
   }                  
 }
