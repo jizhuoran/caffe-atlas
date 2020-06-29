@@ -53,7 +53,9 @@ void GlobalInit(int* pargc, char*** pargv) {
 
 Caffe::Caffe()
     : random_generator_(), mode_(Caffe::CPU),
-      solver_count_(1), solver_rank_(0), multiprocess_(false) { }
+      solver_count_(1), solver_rank_(0), multiprocess_(false) {
+        block_dim_hacker = aligned_alloc(32, 32 * sizeof(std::vector<uint32_t>)); //UGLY make sure the last 8 bits are 0
+      }
 
 Caffe::~Caffe() { }
 
@@ -101,6 +103,17 @@ Caffe::RNG& Caffe::RNG::operator=(const RNG& other) {
 void* Caffe::RNG::generator() {
   return static_cast<void*>(generator_->rng());
 }
+
+std::vector<uint32_t>* Caffe::encode_block_dim_into_workspace_size(const std::vector<uint32_t> &workspace_size, uint64_t block_dim) {
+  assert(block_dim < 256 && "block_dim must < 256");
+  if(vector_holder_hacker != nullptr) {
+    delete vector_holder_hacker;
+  }
+  vector_holder_hacker = reinterpret_cast<std::vector<uint32_t>*>(reinterpret_cast<uint64_t>(block_dim_hacker) + block_dim);
+  return new (vector_holder_hacker) std::vector<uint32_t>(workspace_size);
+}
+
+
 
 #else  // Normal GPU + CPU Caffe.
 

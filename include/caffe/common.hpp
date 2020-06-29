@@ -2,6 +2,7 @@
 #define CAFFE_COMMON_HPP_
 
 #include <boost/shared_ptr.hpp>
+#include <cstddef>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 
@@ -163,6 +164,7 @@ class Caffe {
   inline static Brew mode() { return Get().mode_; }
   inline static std::string aicore_dir() { return "aicore_dir/"; }
   inline static std::string kernel_dir() { return "kernel_meta"; }
+  std::vector<uint32_t>* encode_block_dim_into_workspace_size(const std::vector<uint32_t> &workspace_size, uint64_t block_dim);
   // The setters for the variables
   // Sets the mode. It is recommended that you don't change the mode halfway
   // into the program since that may cause allocation of pinned memory being
@@ -207,7 +209,8 @@ class Caffe {
  private:
   // The private constructor to avoid duplicate instantiation.
   Caffe();
-
+  void* block_dim_hacker = nullptr;
+  std::vector<uint32_t>* vector_holder_hacker = nullptr;
   DISABLE_COPY_AND_ASSIGN(Caffe);
 };
 
