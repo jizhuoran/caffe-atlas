@@ -22,7 +22,6 @@ endif()
 # ---[ Caffe project
 project(Caffe C CXX)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_BUILD_TYPE Debug)
 
 # ---[ Caffe version

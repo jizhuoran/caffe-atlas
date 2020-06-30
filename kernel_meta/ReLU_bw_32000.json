@@ -1,0 +1,13 @@
+{
+    "binFileName":"ReLU_bw_32000",
+    "binFileSuffix":".o",
+    "blockDim":1,
+    "kernelName":"ReLU_bw_32000__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF",
+    "parameters":[
+        0,
+        0,
+        0
+    ],
+    "sha256":"bcefdeb5bd3c3ec1ccaf19ff26adbb3ff5b8e896ee31f11e6dae673debe151f6"
+}

@@ -15,8 +15,7 @@ void ReLULayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
                                    fmt::format("{}/ReLU_fw_{}.o", Caffe::kernel_dir(), bottom[0]->count()),
                                    {bottom[0]->aicore_data()},
                                    {top[0]->mutable_aicore_data()},
-                                   {bottom[0]->count() * static_cast<unsigned int>(sizeof(half))},
-                                   *Caffe::Get().encode_block_dim_into_workspace_size({}, 2));
+                                   {bottom[0]->count() * static_cast<unsigned int>(sizeof(half))});
 
   AICORE_CHECK(err);
 }
