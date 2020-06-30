@@ -7,6 +7,7 @@ if(POLICY CMP0054)
 endif()
 
 if(CROSS_BUILD) #FIXME
+  set(CMAKE_BUILD_TYPE Debug)
   message(STATUS "Going to cross build, Good Luck!!!")
   message(STATUS "Going to cross build, Good Luck!!!")
   message(STATUS "Going to cross build, Good Luck!!!")
@@ -22,7 +23,6 @@ endif()
 # ---[ Caffe project
 project(Caffe C CXX)
 
-set(CMAKE_BUILD_TYPE Debug)
 
 # ---[ Caffe version
 set(CAFFE_TARGET_VERSION "1.0.0" CACHE STRING "Caffe logical version")
