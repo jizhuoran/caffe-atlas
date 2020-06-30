@@ -97,7 +97,7 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
   if (this->bias_term_) {
     input_datas.push_back(this->blobs_[1]->aicore_data());
   }
-  auto err = custom::custom_op_run(*hack_str, 
+  auto err = custom::op_run(*hack_str, 
                                    0,
                                    fmt::format("{}/{}.o", Caffe::kernel_dir(), kernel_identifier()),
                                    input_datas,
@@ -174,7 +174,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 
   auto weight_fraz_diff_32 = Caffe::aicore_dir() + "/" + (*hack_str_weight);
 
-  auto err_weight = custom::custom_op_run(*hack_str_weight, 
+  auto err_weight = custom::op_run(*hack_str_weight, 
                                    0,
                                    fmt::format("{}/conv_bw_weight_op_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(),
                                                 this->num_,
@@ -216,7 +216,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                                 this->stride_.cpu_data()[0],
                                                 this->stride_.cpu_data()[1]));
 
-  auto err = custom::custom_op_run(*hack_str, 
+  auto err = custom::op_run(*hack_str, 
                                    0,
                                    fmt::format("{}/conv_bw_input_op_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(),
                                                 this->num_,

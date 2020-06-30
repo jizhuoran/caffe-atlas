@@ -43,10 +43,11 @@ namespace custom
     * return              错误信息. 其中, 错误码: 0成功，其余错误
     * detail:自定义算子单算子调测入口函数
     */
-    ErrorInfo custom_op_run(const std::string& name, int32_t type, const std::string& bin_file,
+    ErrorInfo op_run(const std::string& name, int32_t type, const std::string& bin_file,
                          const std::vector< std::string >& in_files,
                          const std::vector< std::string >& out_files,
                          const std::vector< uint32_t >&    out_buf_sizes,
+                         uint32_t block_dim = 1,
                          const std::vector< uint32_t >& workspace_sizes = std::vector<uint32_t>(),
                          const std::string& op_cfg_file = "", const void *param = nullptr, int param_len = 0);
     /**

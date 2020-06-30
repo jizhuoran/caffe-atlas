@@ -60,7 +60,7 @@ void InnerProductLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom
         inputs.push_back(aligned_bias->aicore_data());
     }
 
-    auto err = custom::custom_op_run(*hack_str, 
+    auto err = custom::op_run(*hack_str, 
                                    0,
                                    fmt::format("{}/matmul_op_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(), M_, ALIGN_SIZE(K_),
                                        ALIGN_SIZE(N_), "NTA", 
@@ -116,7 +116,7 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                        "TA",
                                        "NTB",
                                        "nobias"));
-            auto err = custom::custom_op_run(*hack_str, 
+            auto err = custom::op_run(*hack_str, 
                                         0,
                                         fmt::format("{}/matmul_op_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(), ALIGN_SIZE(K_), ALIGN_SIZE(N_),
                                             ALIGN_SIZE(M_), 
@@ -134,7 +134,7 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                        "TA",
                                        "NTB",
                                        "nobias"));
-                auto err = custom::custom_op_run(*hack_str, 
+                auto err = custom::op_run(*hack_str, 
                                         0,
                                         fmt::format("{}/matmul_op_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(), ALIGN_SIZE(N_), ALIGN_SIZE(M_),
                                             ALIGN_SIZE(K_), 
@@ -177,7 +177,7 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                        "NTA",
                                        transpose_ ? "TB" : "NTB",
                                        "nobias"));
-        auto err = custom::custom_op_run(*hack_str, 
+        auto err = custom::op_run(*hack_str, 
                                         0,
                                         fmt::format("{}/matmul_op_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(), ALIGN_SIZE(M_), ALIGN_SIZE(N_),
                                             ALIGN_SIZE(K_), 

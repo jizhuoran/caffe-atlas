@@ -26,8 +26,10 @@ endif()
 # ---[ AICORE
 
 if(CROSS_BUILD)
+  list(APPEND Caffe_LINKER_LIBS PUBLIC /home/zrji/arm_root/usr/lib64/libcustom_op_run.so)
   list(APPEND Caffe_LINKER_LIBS PUBLIC /home/zrji/arm_root/usr/lib64/libome.so)
 else()
+  list(APPEND Caffe_LINKER_LIBS PUBLIC /usr/lib64/libcustom_op_run.so)
   list(APPEND Caffe_LINKER_LIBS PUBLIC /usr/lib64/libome.so)
 endif()
 

@@ -32,7 +32,7 @@ void PoolingLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
                                        bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3), 
                                        kernel_h_, kernel_w_, stride_h_, stride_w_));
 
-  auto err = custom::custom_op_run(*hack_str,
+  auto err = custom::op_run(*hack_str,
                                    0,
                                    fmt::format("{}/pooling_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(), pooling_mode, "SAME",
                                        bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3), 
@@ -55,7 +55,7 @@ void PoolingLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 
   // if (propagate_down[0]) {
   //   auto hack_str = new std::string(fmt::format("ReLU_bw_{}__kernel0", bottom[0]->count()));
-  //   auto err = custom::custom_op_run(*hack_str, 
+  //   auto err = custom::op_run(*hack_str, 
   //                                  0,
   //                                  fmt::format("{}/ReLU_bw_{}.o", Caffe::kernel_dir(), bottom[0]->count()),
   //                                  {bottom[0]->aicore_data(), top[0]->aicore_diff()},
