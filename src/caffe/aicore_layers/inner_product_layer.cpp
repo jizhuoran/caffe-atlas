@@ -68,8 +68,7 @@ void InnerProductLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom
                                        (bias_term_ ? "bias" : "nobias")),
                                    inputs,
                                    {aligned_top.mutable_aicore_data()},
-                                   {aligned_top.count() * static_cast<unsigned int>(sizeof(half))},
-                                   *Caffe::Get().encode_block_dim_into_workspace_size({}, 1));
+                                   {aligned_top.count() * static_cast<unsigned int>(sizeof(half))});
 
     AICORE_CHECK(err);
 
@@ -126,8 +125,7 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                             "nobias"),
                                         {aligned_bottom.aicore_data(), aligned_top.aicore_diff()},
                                         {aligned_weight.mutable_aicore_diff()},
-                                        {aligned_weight.count() * static_cast<unsigned int>(sizeof(half))},
-                                        *Caffe::Get().encode_block_dim_into_workspace_size({}, 1));
+                                        {aligned_weight.count() * static_cast<unsigned int>(sizeof(half))});
             AICORE_CHECK(err);
 
         } else {
@@ -145,8 +143,7 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                             "nobias"),
                                         {aligned_top.aicore_diff(), aligned_bottom.aicore_data()},
                                         {aligned_weight.mutable_aicore_diff()},
-                                        {aligned_weight.count() * static_cast<unsigned int>(sizeof(half))},
-                                        *Caffe::Get().encode_block_dim_into_workspace_size({}, 1));
+                                        {aligned_weight.count() * static_cast<unsigned int>(sizeof(half))});
                 AICORE_CHECK(err);
 
         }
@@ -189,8 +186,7 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                             "nobias"),
                                         {aligned_top.aicore_diff(), aligned_weight.aicore_data()},
                                         {aligned_bottom.mutable_aicore_diff()},
-                                        {aligned_bottom.count() * static_cast<unsigned int>(sizeof(half))},
-                                        *Caffe::Get().encode_block_dim_into_workspace_size({}, 1));
+                                        {aligned_bottom.count() * static_cast<unsigned int>(sizeof(half))});
         AICORE_CHECK(err);
 
 

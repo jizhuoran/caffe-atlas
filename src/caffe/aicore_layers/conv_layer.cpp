@@ -102,8 +102,7 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
                                    fmt::format("{}/{}.o", Caffe::kernel_dir(), kernel_identifier()),
                                    input_datas,
                                    {top_five.aicore_data()},
-                                   {top_five.count() * static_cast<unsigned int>(sizeof(half))},
-                                   *Caffe::Get().encode_block_dim_into_workspace_size({}, 1));
+                                   {top_five.count() * static_cast<unsigned int>(sizeof(half))});
   AICORE_CHECK(err);
   five2four(top_five.cpu_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
 
@@ -191,8 +190,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                                 this->stride_.cpu_data()[1]),
                                    {bottom_five.aicore_data(), top_five.aicore_diff()},
                                    {weight_fraz_diff_32},
-                                   {weight_fraz->count() * static_cast<unsigned int>(sizeof(float))},
-                                   *Caffe::Get().encode_block_dim_into_workspace_size({}, 1)); //!!! THIS MUST BE FP32
+                                   {weight_fraz->count() * static_cast<unsigned int>(sizeof(float))}); //!!! THIS MUST BE FP32
   caffe_aicore_memcpy(weight_fraz->count() * static_cast<unsigned int>(sizeof(float)), weight_fraz_diff_32, weight_fraz->mutable_cpu_diff());
   std::remove(weight_fraz_diff_32.c_str());
 
@@ -234,8 +232,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                                 this->stride_.cpu_data()[1]),
                                    {weight_fraz->aicore_data(), top_five.aicore_diff()},
                                    {bottom_five.mutable_aicore_diff()},
-                                   {bottom_five.count() * static_cast<unsigned int>(sizeof(half))},
-                                   *Caffe::Get().encode_block_dim_into_workspace_size({}, 1));
+                                   {bottom_five.count() * static_cast<unsigned int>(sizeof(half))});
 
   AICORE_CHECK(err);
   five2four(bottom_five.cpu_diff(), bottom[0]->mutable_cpu_diff(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
