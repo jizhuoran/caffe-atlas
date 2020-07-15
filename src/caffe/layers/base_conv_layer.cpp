@@ -1,12 +1,29 @@
 #include <algorithm>
 #include <vector>
-
+//#include <typeinfo>
 #include "caffe/filler.hpp"
 #include "caffe/layers/base_conv_layer.hpp"
 #include "caffe/util/im2col.hpp"
 #include "caffe/util/math_functions.hpp"
-
+using namespace std;
 namespace caffe {
+
+template <typename Dtype>
+void ochw2fracZ(Blob<Dtype>* ochw, Blob<Dtype>* fracZ, int channel_out, int channel_in, int kernel_h, int kernel_w) {
+  std::vector<int> fracZ_shape{ kernel_h * kernel_w * ((channel_in + 15) / 16) , (channel_out + 15) / 16 ,16, 16};
+  //std::shared_ptr<Blob<Dtype>> fracZ = std::make_shared<Blob<Dtype>>(fracZ_shape[0], fracZ_shape[1], fracZ_shape[2], fracZ_shape[3]);
+  auto fracZ_data = *reinterpret_cast<Dtype (*)[fracZ_shape[0]][fracZ_shape[1]][fracZ_shape[2]][fracZ_shape[3]]>(fracZ->mutable_cpu_data());
+  auto ochw_data = *reinterpret_cast<const Dtype (*)[channel_out][channel_in][kernel_h][kernel_w]>(ochw->cpu_data());
+  for (int o_i = 0; o_i < channel_out; o_i++) {
+    for (int c_i = 0; c_i < channel_in; c_i++) {
+      for (int h_i = 0; h_i < kernel_h; h_i++) {
+        for (int w_i = 0; w_i < kernel_w; w_i++) {
+          fracZ_data[(h_i * kernel_w + w_i) * ((channel_in+15)/16) + (c_i/16)][(o_i)/16][o_i%16][c_i%16] = ochw_data[o_i][c_i][h_i][w_i];
+        }
+      }
+    }
+  }
+}
 
 template <typename Dtype>
 void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
@@ -131,14 +148,25 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   // Handle the parameters: weights and biases.
   // - blobs_[0] holds the filter weights
   // - blobs_[1] holds the biases (optional)
-  vector<int> weight_shape(2);
-  weight_shape[0] = conv_out_channels_;
-  weight_shape[1] = conv_in_channels_ / group_;
+
+  //fraz C1*KH*KW, Cout//C0_out, C0_out, C0
+  //kernel_h * kernel_w * ((channel_in + 15) / 16) , (channel_out + 15) / 16 ,16, 16
+  // fraz shape by hedebin
+  vector<int> weight_shape(4);
+  weight_shape[0] = kernel_shape_data[0]*kernel_shape_data[1]*(((conv_in_channels_ / group_)+15)/16);
+  weight_shape[1] = (conv_out_channels_+15)/16;
+  weight_shape[2] = 16;
+  weight_shape[3] = 16;
+  vector<int> ochw_weight_shape(2);
+  ochw_weight_shape[0] = conv_out_channels_;
+  ochw_weight_shape[1] = conv_in_channels_ / group_;
   for (int i = 0; i < num_spatial_axes_; ++i) {
-    weight_shape.push_back(kernel_shape_data[i]);
+    ochw_weight_shape.push_back(kernel_shape_data[i]);
   }
   bias_term_ = this->layer_param_.convolution_param().bias_term();
+  //cout<<typeid(bias_term_).name()<<endl;
   vector<int> bias_shape(bias_term_, num_output_);
+  //cout<<num_output_<<endl;
   if (this->blobs_.size() > 0) {
     CHECK_EQ(1 + bias_term_, this->blobs_.size())
         << "Incorrect number of weight blobs.";
@@ -161,13 +189,22 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     } else {
       this->blobs_.resize(1);
     }
+
+    // weight initialize
     // Initialize and fill the weights:
     // output channels x input channels per-group x kernel height x kernel width
     this->blobs_[0].reset(new Blob<Dtype>(weight_shape));
     shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
         this->layer_param_.convolution_param().weight_filler()));
-    weight_filler->Fill(this->blobs_[0].get());
+
+    // Fill Fraz by hedebin
+    //int fan_in = kernel_shape_data[0]*kernel_shape_data[1]*conv_in_channels_;
+    //int fan_out = kernel_shape_data[0]*kernel_shape_data[1]*conv_out_channels_;
+    Blob<Dtype> ochw_weight(ochw_weight_shape);
+    weight_filler->Fill(&ochw_weight);
     // If necessary, initialize and fill the biases.
+    ochw2fracZ<Dtype>(&ochw_weight, this->blobs_[0].get(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
+
     if (bias_term_) {
       this->blobs_[1].reset(new Blob<Dtype>(bias_shape));
       shared_ptr<Filler<Dtype> > bias_filler(GetFiller<Dtype>(

@@ -32,9 +32,8 @@ void InnerProductLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom
     //     return;
     // }
 
-    Blob<Dtype> aligned_weight(std::vector<int>{ALIGN_SIZE(this->blobs_[0]->shape(0)), ALIGN_SIZE(this->blobs_[0]->shape(1))});
-    align_mm(this->blobs_[0]->cpu_data(), aligned_weight.mutable_cpu_data(), this->blobs_[0]->shape(0), this->blobs_[0]->shape(1));
-
+    auto aligned_weight = this->blobs_[0].get();
+    //align_mm(this->blobs_[0]->cpu_data(), aligned_weight.mutable_cpu_data(), this->blobs_[0]->shape(0), this->blobs_[0]->shape(1));
     Blob<Dtype> aligned_bottom(std::vector<int>{ALIGN_SIZE(bottom[0]->shape(0)), ALIGN_SIZE(K_)});
     align_mm(bottom[0]->cpu_data(), aligned_bottom.mutable_cpu_data(), bottom[0]->shape(0), K_);
 
@@ -47,7 +46,7 @@ void InnerProductLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom
 
     std::unique_ptr<Blob<Dtype>> aligned_bias;
 
-    std::vector<std::string> inputs {aligned_bottom.aicore_data(), aligned_weight.aicore_data()};
+    std::vector<std::string> inputs {aligned_bottom.aicore_data(), aligned_weight->aicore_data()};
     if(bias_term_) {
         vector<int> bias_shape{top[0]->shape(0), ALIGN_SIZE(N_)};
         aligned_bias.reset(new Blob<Dtype>(bias_shape));
@@ -103,8 +102,9 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
     Blob<Dtype> aligned_top(std::vector<int>{ALIGN_SIZE(top[0]->shape(0)), ALIGN_SIZE(top[0]->shape(1))});
     align_mm(top[0]->cpu_diff(), aligned_top.mutable_cpu_diff(), top[0]->shape(0), top[0]->shape(1));
        
-    Blob<Dtype> aligned_weight(std::vector<int>{ALIGN_SIZE(this->blobs_[0]->shape(0)), ALIGN_SIZE(this->blobs_[0]->shape(1))});
-    align_mm(this->blobs_[0]->cpu_data(), aligned_weight.mutable_cpu_data(), this->blobs_[0]->shape(0), this->blobs_[0]->shape(1));
+    auto aligned_weight = this->blobs_[0].get();
+    //Blob<Dtype> aligned_weight(std::vector<int>{ALIGN_SIZE(this->blobs_[0]->shape(0)), ALIGN_SIZE(this->blobs_[0]->shape(1))});
+    //align_mm(this->blobs_[0]->cpu_data(), aligned_weight.mutable_cpu_data(), this->blobs_[0]->shape(0), this->blobs_[0]->shape(1));
 
 
     if (this->param_propagate_down_[0]) {
@@ -124,8 +124,8 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                             "NTB",
                                             "nobias"),
                                         {aligned_bottom.aicore_data(), aligned_top.aicore_diff()},
-                                        {aligned_weight.mutable_aicore_diff()},
-                                        {aligned_weight.count() * static_cast<unsigned int>(sizeof(half))});
+                                        {aligned_weight->mutable_aicore_diff()},
+                                        {aligned_weight->count() * static_cast<unsigned int>(sizeof(half))});
             AICORE_CHECK(err);
 
         } else {
@@ -142,18 +142,18 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                             "NTB",
                                             "nobias"),
                                         {aligned_top.aicore_diff(), aligned_bottom.aicore_data()},
-                                        {aligned_weight.mutable_aicore_diff()},
-                                        {aligned_weight.count() * static_cast<unsigned int>(sizeof(half))});
+                                        {aligned_weight->mutable_aicore_diff()},
+                                        {aligned_weight->count() * static_cast<unsigned int>(sizeof(half))});
                 AICORE_CHECK(err);
 
         }
 
-        Dtype* weight_diff = this->blobs_[0]->mutable_cpu_diff();
-        const Dtype* aligned_weight_diff = aligned_weight.cpu_diff();
+        //Dtype* weight_diff = this->blobs_[0]->mutable_cpu_diff();
+        //const Dtype* aligned_weight_diff = aligned_weight.cpu_diff();
 
-        for(int i = 0; i < this->blobs_[0]->shape(0); ++i) {
-            caffe_copy(this->blobs_[0]->shape(1), aligned_weight_diff + i * aligned_weight.shape(1), weight_diff + i * this->blobs_[0]->shape(1));
-        }
+        //for(int i = 0; i < this->blobs_[0]->shape(0); ++i) {
+        //    caffe_copy(this->blobs_[0]->shape(1), aligned_weight_diff + i * aligned_weight.shape(1), weight_diff + i * this->blobs_[0]->shape(1));
+        //}
 
     }
 
@@ -184,7 +184,7 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                             "NTA",
                                             transpose_ ? "TB" : "NTB",
                                             "nobias"),
-                                        {aligned_top.aicore_diff(), aligned_weight.aicore_data()},
+                                        {aligned_top.aicore_diff(), aligned_weight->aicore_data()},
                                         {aligned_bottom.mutable_aicore_diff()},
                                         {aligned_bottom.count() * static_cast<unsigned int>(sizeof(half))});
         AICORE_CHECK(err);

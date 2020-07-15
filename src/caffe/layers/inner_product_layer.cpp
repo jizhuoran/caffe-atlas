@@ -7,6 +7,20 @@
 namespace caffe {
 
 template <typename Dtype>
+void align_mm(const Blob<Dtype> *x, Dtype *out, int M, int N) {
+    const Dtype *in = x->cpu_data();
+    int aligned_N = ALIGN_SIZE(N);
+    if(aligned_N == N) {
+        caffe_copy(M*N, in, out);
+    } else {
+        for(int m = 0; m < M; ++m) {
+            caffe_copy(N, in + m * N, out + m * aligned_N);
+        }
+    }
+
+}
+
+template <typename Dtype>
 void InnerProductLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   const int num_output = this->layer_param_.inner_product_param().num_output();
@@ -31,17 +45,33 @@ void InnerProductLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     // Initialize the weights
     vector<int> weight_shape(2);
     if (transpose_) {
-      weight_shape[0] = K_;
-      weight_shape[1] = N_;
+      weight_shape[0] = ALIGN_SIZE(K_);
+      weight_shape[1] = ALIGN_SIZE(N_);
     } else {
-      weight_shape[0] = N_;
-      weight_shape[1] = K_;
+      weight_shape[0] = ALIGN_SIZE(N_);
+      weight_shape[1] = ALIGN_SIZE(K_);
+    }
+
+    vector<int> raw_weight_shape(2);
+    if (transpose_) {
+      raw_weight_shape[0] = K_;
+      raw_weight_shape[1] = N_;
+    } else {
+      raw_weight_shape[0] = N_;
+      raw_weight_shape[1] = K_;
     }
     this->blobs_[0].reset(new Blob<Dtype>(weight_shape));
+
     // fill the weights
     shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
         this->layer_param_.inner_product_param().weight_filler()));
-    weight_filler->Fill(this->blobs_[0].get());
+
+    // by hedebin
+    Blob<Dtype> raw_weight(raw_weight_shape);
+    weight_filler->Fill(&raw_weight);
+    //weight_filler->Fill(this->blobs_[0].get());
+    align_mm(&raw_weight, this->blobs_[0]->mutable_cpu_data(), raw_weight_shape[0], raw_weight_shape[1]);
+
     // If necessary, initialize and fill the bias term
     if (bias_term_) {
       vector<int> bias_shape(1, N_);

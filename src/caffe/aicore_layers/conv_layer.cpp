@@ -82,8 +82,8 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
   }
 
 
-  auto weight_fraz = ochw2fracZ<Dtype>(this->blobs_[0].get(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
-
+  //auto weight_fraz = ochw2fracZ<Dtype>(this->blobs_[0].get(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
+  //Blob<Dtype>* weight = this->blobs_[0].get();
   Blob<Dtype> bottom_five(bottom[0]->shape(0), (bottom[0]->shape(1)+15)/16*16, bottom[0]->shape(2), bottom[0]->shape(3));
   four2five(bottom[0]->cpu_data(), bottom_five.mutable_cpu_data(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
 
@@ -93,7 +93,9 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
   
   auto hack_str = new std::string(fmt::format("{}__kernel0", kernel_identifier()));
 
-  std::vector<std::string> input_datas = {bottom_five.aicore_data(), weight_fraz->aicore_data()};
+  //std::vector<std::string> input_datas = {bottom_five.aicore_data(), weight_fraz->aicore_data()};
+  std::vector<std::string> input_datas = {bottom_five.aicore_data(), this->blobs_[0]->aicore_data()};
+  //std::cout<<this->blobs_[0]->aicore_data()<<std::endl;
   if (this->bias_term_) {
     input_datas.push_back(this->blobs_[1]->aicore_data());
   }
@@ -108,6 +110,8 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
 
 }
 
+
+
 template <typename Dtype>
 void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
@@ -119,7 +123,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
     return;
   }
 
-  if (this->stride_.cpu_data()[0] != 1 || this->stride_.cpu_data()[0] != 1) {
+  if (this->stride_.cpu_data()[0] != 1 || this->stride_.cpu_data()[1] != 1) {
     Backward_cpu(top, propagate_down, bottom);
     return;
   }
@@ -155,7 +159,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
   Blob<Dtype> top_five(top[0]->shape(0), (top[0]->shape(1)+15)/16*16, top[0]->shape(2), top[0]->shape(3));
   four2five(top[0]->cpu_diff(), top_five.mutable_cpu_diff(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
 
-  auto weight_fraz = ochw2fracZ<Dtype>(this->blobs_[0].get(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
+  //auto weight_fraz = ochw2fracZ<Dtype>(this->blobs_[0].get(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
 
 
 
@@ -172,6 +176,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                                 this->stride_.cpu_data()[0],
                                                 this->stride_.cpu_data()[1]));
 
+  auto weight_fraz = this->blobs_[0].get();
   auto weight_fraz_diff_32 = Caffe::aicore_dir() + "/" + (*hack_str_weight);
 
   auto err_weight = custom::op_run(*hack_str_weight, 
@@ -194,7 +199,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
   caffe_aicore_memcpy(weight_fraz->count() * static_cast<unsigned int>(sizeof(float)), weight_fraz_diff_32, weight_fraz->mutable_cpu_diff());
   std::remove(weight_fraz_diff_32.c_str());
 
-  fracZ2ochw(weight_fraz->cpu_diff(), this->blobs_[0]->mutable_cpu_diff(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
+  //fracZ2ochw(weight_fraz->cpu_diff(), this->blobs_[0]->mutable_cpu_diff(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
 
   AICORE_CHECK(err_weight);
 

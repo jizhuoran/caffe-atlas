@@ -150,6 +150,30 @@ class Blob {
     return shape(index);
   }
 
+  /// @brief Deprecated legacy shape accessor num: use shape(0) instead.
+  inline int aicore_num() const { return AicoreLegacyShape(0); }
+  /// @brief Deprecated legacy shape accessor channels: use shape(1) instead.
+  inline int aircore_channels_1() const { return AicoreLegacyShape(1); }
+  /// @brief Deprecated legacy shape accessor height: use shape(2) instead.
+  inline int aicore_height() const { return AicoreLegacyShape(2); }
+  /// @brief Deprecated legacy shape accessor width: use shape(3) instead.
+  inline int aicore_width() const { return AicoreLegacyShape(3); }
+  inline int aircore_channels_0() const { return AicoreLegacyShape(4); }
+
+    inline int AicoreLegacyShape(int index) const {
+    CHECK_LE(num_axes(), 5)
+        << "Cannot use aicore legacy accessors on Blobs with > 5 axes.";
+    CHECK_LT(index, 5);
+    CHECK_GE(index, -5);
+    if (index >= num_axes() || index < -num_axes()) {
+      // Axis is out of range, but still in [0, 3] (or [-4, -1] for reverse
+      // indexing) -- this special case simulates the one-padding used to fill
+      // extraneous axes of legacy blobs.
+      return 1;
+    }
+    return shape(index);
+  }
+
   inline int offset(const int n, const int c = 0, const int h = 0,
       const int w = 0) const {
     CHECK_GE(n, 0);
