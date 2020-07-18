@@ -10,17 +10,18 @@ template <typename Dtype>
 void SoftmaxLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
   
-  auto hack_str = new std::string(fmt::format("softmax_fw_{}_{}__kernel0", outer_num_, bottom[0]->count() / outer_num_));
-  auto err = custom::op_run(*hack_str, 
-                                   0,
-                                   fmt::format("{}/softmax_fw_{}_{}.o", Caffe::kernel_dir(), outer_num_, bottom[0]->count() / outer_num_),
-                                   {bottom[0]->aicore_data()},
-                                   {top[0]->mutable_aicore_data()},
-                                   {top[0]->count() * static_cast<unsigned int>(sizeof(half))},
-                                   1,
-                                   {128, 128, 1280, 1280});
+  // auto hack_str = new std::string(fmt::format("softmax_fw_{}_{}__kernel0", outer_num_, bottom[0]->count() / outer_num_));
+  // auto err = custom::op_run(*hack_str, 
+  //                                  0,
+  //                                  fmt::format("{}/softmax_fw_{}_{}.o", Caffe::kernel_dir(), outer_num_, bottom[0]->count() / outer_num_),
+  //                                  {bottom[0]->aicore_data()},
+  //                                  {top[0]->mutable_aicore_data()},
+  //                                  {top[0]->count() * static_cast<unsigned int>(sizeof(half))},
+  //                                  1,
+  //                                  {128, 128, 1280, 1280});
 
-  AICORE_CHECK(err);
+  // AICORE_CHECK(err);
+  Forward_cpu(bottom, top);
 
 }
  

@@ -18,6 +18,7 @@
 #include "caffe/util/insert_splits.hpp"
 #include "caffe/util/math_functions.hpp"
 #include "caffe/util/upgrade_proto.hpp"
+#include "caffe/util/benchmark.hpp"
 
 namespace caffe {
 
@@ -523,7 +524,12 @@ Dtype Net<Dtype>::ForwardFromTo(int start, int end) {
     for (int c = 0; c < before_forward_.size(); ++c) {
       before_forward_[c]->run(i);
     }
+
+    // CPUTimer layer_timer;
+    // layer_timer.Start();
     Dtype layer_loss = layers_[i]->Forward(bottom_vecs_[i], top_vecs_[i]);
+    // layer_timer.Stop();
+    // LOG(INFO) << "Forward Layer " << i << ": " << layers_[i]->type() << " " << layer_timer.MilliSeconds() << " ms.";
     loss += layer_loss;
     if (debug_info_) { ForwardDebugInfo(i); }
     for (int c = 0; c < after_forward_.size(); ++c) {
@@ -573,11 +579,16 @@ void Net<Dtype>::BackwardFromTo(int start, int end) {
     for (int c = 0; c < before_backward_.size(); ++c) {
       before_backward_[c]->run(i);
     }
+    // CPUTimer layer_timer;
+    // layer_timer.Start();
     if (layer_need_backward_[i]) {
       layers_[i]->Backward(
           top_vecs_[i], bottom_need_backward_[i], bottom_vecs_[i]);
       if (debug_info_) { BackwardDebugInfo(i); }
     }
+    // layer_timer.Stop();
+    // LOG(INFO) << "Backward Layer " << i << ": " << layers_[i]->type() << " " << layer_timer.MilliSeconds() << " ms.";
+
     for (int c = 0; c < after_backward_.size(); ++c) {
       after_backward_[c]->run(i);
     }
