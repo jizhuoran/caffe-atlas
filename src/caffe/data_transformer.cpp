@@ -396,12 +396,12 @@ void DataTransformer<Dtype>::Transform(Blob<Dtype>* input_blob,
     CHECK(mean_values_.size() == 1 || mean_values_.size() == input_channels) <<
      "Specify either 1 mean_value or as many as channels: " << input_channels;
     if (mean_values_.size() == 1) {
-      caffe_add_scalar(input_blob->count(), -(mean_values_[0]), input_data);
+      caffe_add_scalar(input_blob->count(), Dtype(-(mean_values_[0])), input_data);
     } else {
       for (int n = 0; n < input_num; ++n) {
         for (int c = 0; c < input_channels; ++c) {
           int offset = input_blob->offset(n, c);
-          caffe_add_scalar(input_height * input_width, -(mean_values_[c]),
+          caffe_add_scalar(input_height * input_width, Dtype(-(mean_values_[c])),
             input_data + offset);
         }
       }
