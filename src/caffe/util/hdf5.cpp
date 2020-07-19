@@ -105,6 +105,17 @@ void hdf5_load_nd_dataset<double>(hid_t file_id, const char* dataset_name_,
 }
 
 template <>
+void hdf5_load_nd_dataset<_Float16>(hid_t file_id, const char* dataset_name_,
+        int min_dim, int max_dim, Blob<_Float16>* blob, bool reshape) {
+  UGLY_TO_BE_IMPLEMENT;
+  // hdf5_load_nd_dataset_helper(file_id, dataset_name_, min_dim, max_dim, blob,
+  //                             reshape);
+  // herr_t status = H5LTread_dataset__short(
+  //   file_id, dataset_name_, blob->mutable_cpu_data());
+  // CHECK_GE(status, 0) << "Failed to read _Float16 dataset " << dataset_name_;
+}
+
+template <>
 void hdf5_save_nd_dataset<float>(
     const hid_t file_id, const string& dataset_name, const Blob<float>& blob,
     bool write_diff) {
@@ -144,6 +155,30 @@ void hdf5_save_nd_dataset<double>(
       file_id, dataset_name.c_str(), num_axes, dims, data);
   CHECK_GE(status, 0) << "Failed to make double dataset " << dataset_name;
   delete[] dims;
+}
+
+template <>
+void hdf5_save_nd_dataset<_Float16>(
+    hid_t file_id, const string& dataset_name, const Blob<_Float16>& blob,
+    bool write_diff) {
+
+  UGLY_TO_BE_IMPLEMENT;
+  
+  // int num_axes = blob.num_axes();
+  // hsize_t *dims = new hsize_t[num_axes];
+  // for (int i = 0; i < num_axes; ++i) {
+  //   dims[i] = blob.shape(i);
+  // }
+  // const _Float16* data;
+  // if (write_diff) {
+  //   data = blob.cpu_diff();
+  // } else {
+  //   data = blob.cpu_data();
+  // }
+  // herr_t status = H5LTmake_dataset_double(
+  //     file_id, dataset_name.c_str(), num_axes, dims, data);
+  // CHECK_GE(status, 0) << "Failed to make double dataset " << dataset_name;
+  // delete[] dims;
 }
 
 string hdf5_load_string(hid_t loc_id, const string& dataset_name) {

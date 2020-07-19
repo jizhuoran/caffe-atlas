@@ -29,7 +29,7 @@ void NesterovSolver<Dtype>::ComputeUpdateValue(int param_id, Dtype rate) {
               this->history_[param_id]->mutable_cpu_data());
 
     // compute update: step back then over step
-    caffe_cpu_axpby(net_params[param_id]->count(), Dtype(1) + momentum,
+    caffe_cpu_axpby(net_params[param_id]->count(), Dtype(Dtype(1) + momentum),
         this->history_[param_id]->cpu_data(), -momentum,
         this->update_[param_id]->mutable_cpu_data());
 
