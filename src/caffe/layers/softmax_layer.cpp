@@ -44,13 +44,31 @@ void SoftmaxLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       }
     }
     // subtraction
-    caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, channels, inner_num_,
-        1, -1., sum_multiplier_.cpu_data(), scale_data, 1., top_data);
+    // caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, channels, inner_num_,
+    //     1, -1., sum_multiplier_.cpu_data(), scale_data, 1., top_data);
+
+    for (int j = 0; j < channels; j++) {
+      for (int k = 0; k < inner_num_; k++) {
+        top_data[j * inner_num_ + k] -= scale_data[k];
+      }
+    }
+
+
     // exponentiation
     caffe_exp<Dtype>(dim, top_data, top_data);
     // sum after exp
-    caffe_cpu_gemv<Dtype>(CblasTrans, channels, inner_num_, 1.,
-        top_data, sum_multiplier_.cpu_data(), 0., scale_data);
+
+    // caffe_cpu_gemv<Dtype>(CblasTrans, channels, inner_num_, 1.,
+    //     top_data, sum_multiplier_.cpu_data(), 0., scale_data);
+    for (int k = 0; k < inner_num_; k++) {
+      scale_data[k] = Dtype(0);
+    }
+    for (int j = 0; j < channels; j++) {
+      for (int k = 0; k < inner_num_; k++) {
+        scale_data[k] += top_data[j * inner_num_ + k];
+      }
+    }
+
     // division
     for (int j = 0; j < channels; j++) {
       caffe_div(inner_num_, top_data, scale_data, top_data);

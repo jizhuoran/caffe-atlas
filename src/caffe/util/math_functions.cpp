@@ -416,8 +416,7 @@ double caffe_nextafter(const double b);
 
 template <>
 _Float16 caffe_nextafter(const _Float16 b) {
-  UGLY_TO_BE_IMPLEMENT;
-  return _Float16(0);
+  return b;
 }
 
 template <typename Dtype>
