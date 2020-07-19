@@ -9,6 +9,9 @@ namespace caffe {
 template <typename Dtype>
 void ReLULayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
+  Forward_cpu(bottom, top);
+  return;
+  
   auto hack_str = new std::string(fmt::format("ReLU_fw_{}__kernel0", bottom[0]->count()));
   auto err = custom::op_run(*hack_str, 
                                    0,
@@ -25,6 +28,8 @@ template <typename Dtype>
 void ReLULayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
+  Backward_cpu(top, propagate_down, bottom);
+  return;
   if (propagate_down[0]) {
     auto hack_str = new std::string(fmt::format("ReLU_bw_{}__kernel0", bottom[0]->count()));
     auto err = custom::op_run(*hack_str, 

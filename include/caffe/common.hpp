@@ -15,6 +15,7 @@
 #include <string>
 #include <utility>  // pair
 #include <vector>
+#include <arm_fp16.h>
 
 #include "caffe/util/device_alternate.hpp"
 
