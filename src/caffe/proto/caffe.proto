@@ -321,6 +321,13 @@ message ParamSpec {
   optional float decay_mult = 4 [default = 1.0];
 }
 
+
+message AicoreKerel {
+  required string kernelfile = 1;
+  required string kernelname = 2;
+  optional uint32 block_num = 3 [default = 1];
+}
+
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
@@ -330,6 +337,8 @@ message LayerParameter {
   optional string type = 2; // the layer type
   repeated string bottom = 3; // the name of each bottom blob
   repeated string top = 4; // the name of each top blob
+
+  repeated AicoreKerel aicorekernel = 12; // the name of the aicore kernel
 
   // The train / test phase for computation.
   optional Phase phase = 10;

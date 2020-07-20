@@ -17,9 +17,12 @@ template <typename Dtype>
 void caffe_aicore_set(const int N, const Dtype alpha, std::string X);
 
 void caffe_aicore_memset(const size_t N, const char alpha, std::string X);
+void caffe_aicore_memset(const size_t N, const int alpha, void* X);
 
 void caffe_aicore_memcpy(const size_t N, std::string X, void *Y);
 void caffe_aicore_memcpy(const size_t N, const void *X, std::string Y);
+
+// void caffe_aicore_memcpy(const size_t N, const void *X, void *Y);
 
 
 template <typename Dtype>

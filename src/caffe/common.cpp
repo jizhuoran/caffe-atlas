@@ -60,6 +60,54 @@ Caffe::Caffe()
 
 Caffe::~Caffe() { }
 
+
+
+char * readBinFile(const char *file_name, uint64_t *fileSize) {
+    std::filebuf *pbuf;
+    std::ifstream filestr;
+    size_t size;
+    filestr.open(file_name, std::ios::binary);
+    if (!filestr) {
+      LOG(ERROR) << "file:" << file_name << " open failed!";
+      return NULL;
+    }
+
+    pbuf = filestr.rdbuf();
+    size = pbuf->pubseekoff(0, std::ios::end, std::ios::in);
+    pbuf->pubseekpos(0, std::ios::in);
+    char * buffer = (char*)malloc(size);
+    if (NULL == buffer)
+    {
+      LOG(ERROR) << "NULL == buffer!";
+      return NULL;
+    }
+    //new char[size];
+    pbuf->sgetn(buffer, size);
+    *fileSize = size;
+
+    filestr.close();
+    return buffer;
+}
+
+
+void Caffe::load_aicore_kernel(std::string kernel_file, std::string kernel_name, std::vector<char>& holder, char* stub) {
+
+  void *binHandle;
+  rtDevBinary_t binary;
+  binary.data = readBinFile(kernel_file.c_str(), &binary.length);
+  binary.magic = RT_DEV_BINARY_MAGIC_ELF;
+  binary.version = 0;
+
+  holder = std::vector<char>(kernel_name.begin(), kernel_name.end());
+  stub = holder.data();
+
+  AICORE_CHECK(rtDevBinaryRegister(&binary, &binHandle));
+  AICORE_CHECK(rtFunctionRegister(binHandle, stub, stub, (void *)stub, 0));
+
+}
+
+
+
 void Caffe::set_random_seed(const unsigned int seed) {
   // RNG seed
   Get().random_generator_.reset(new RNG(seed));

@@ -32,6 +32,7 @@
   
 // Stub out GPU calls as unavailable.
 
+
 #define NO_GPU LOG(FATAL) << "Cannot use GPU in CPU-only Caffe: check mode."
 #define UGLY_TO_BE_IMPLEMENT LOG(FATAL) << "Not Implemented Yet"
 

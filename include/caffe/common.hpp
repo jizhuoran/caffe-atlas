@@ -174,6 +174,8 @@ class Caffe {
   inline static std::string kernel_dir() { return "kernel_meta"; }
 
   rtStream_t aiocre_stream;
+  void load_aicore_kernel(std::string kernel_file, std::string kernel_name, std::vector<char>& holder, char* stub);
+  // std::map<std::string, rtDevBinary_t> aiocre_kernels;
 
 
   // The setters for the variables

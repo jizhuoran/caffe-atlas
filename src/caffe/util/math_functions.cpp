@@ -23,6 +23,12 @@ template void caffe_aicore_set<float>(const int N, const float alpha, std::strin
 template void caffe_aicore_set<double>(const int N, const double alpha, std::string Y);
 template void caffe_aicore_set<_Float16>(const int N, const _Float16 alpha, std::string Y);
 
+// void caffe_aicore_memcpy(const size_t N, const void *X, void *Y){
+//   if (X != Y) {
+//     AICORE_CHECK(cudaMemcpy(Y, X, N, cudaMemcpyDefault));  // NOLINT(caffe/alt_fn)
+//   }
+// }
+
 void caffe_aicore_memcpy(const size_t N, std::string X, void *Y) {
   std::ifstream f(X, std::ios::binary);
   f.read(reinterpret_cast<char*>(Y), N);
@@ -39,6 +45,10 @@ void caffe_aicore_memset(const size_t N, const char alpha, std::string X) {
   std::ofstream f(X, std::ios::binary | std::ios::trunc);
   f.write(data.data(), N);
   f.close();
+}
+
+void caffe_aicore_memset(const size_t N, const int alpha, void* X) {
+  AICORE_CHECK(rtMemset(X, N, alpha, N));
 }
 
 template <typename Dtype>

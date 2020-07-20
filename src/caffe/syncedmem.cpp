@@ -71,8 +71,7 @@ inline void SyncedMemory::to_cpu() {
       CaffeMallocHost(&cpu_ptr_, size_, &cpu_malloc_use_cuda_, &cpu_malloc_use_aicore_);
       own_cpu_data_ = true;
     }
-    caffe_aicore_memcpy(size_, aicore_ptr_, cpu_ptr_);
-    // half2float(size_ / 4, reinterpret_cast<half*>(debug_cpu_ptr_), reinterpret_cast<float*>(cpu_ptr_));
+    AICORE_CHECK(rtMemcpy(cpu_ptr_, size_, new_aicore_ptr_, size_, RT_MEMCPY_DEVICE_TO_HOST));
     head_ = SYNCED;
     break;
   case HEAD_AT_CPU:
@@ -113,22 +112,33 @@ inline void SyncedMemory::to_aicore() {
   check_device();
   switch (head_) {
   case UNINITIALIZED:
-    assert(aicore_ptr_ == "" && "The aicore_ptr_ should be null if UNINITIALIZED");
-    aicore_ptr_ = Caffe::aicore_dir() + std::to_string(reinterpret_cast<unsigned long long int>(this)); //FIX ME: only valid for 64bit machine
-    caffe_aicore_memset(size_, 0, aicore_ptr_); //FIX_ME
+    AICORE_CHECK(rtMalloc(&new_aicore_ptr_, size_, RT_MEMORY_HBM));
+    caffe_aicore_memset(size_, 0, new_aicore_ptr_);
     head_ = HEAD_AT_AICORE;
+    own_aicore_data_ = true;
+    // assert(aicore_ptr_ == "" && "The aicore_ptr_ should be null if UNINITIALIZED");
+    // aicore_ptr_ = Caffe::aicore_dir() + std::to_string(reinterpret_cast<unsigned long long int>(this)); //FIX ME: only valid for 64bit machine
+    // caffe_aicore_memset(size_, 0, aicore_ptr_); //FIX_ME
+    // head_ = HEAD_AT_AICORE;
     break;
   case HEAD_AT_GPU:
     NO_GPU;
     break;
   case HEAD_AT_CPU:
-    if (aicore_ptr_ == "") {
-      aicore_ptr_ = Caffe::aicore_dir() + std::to_string(reinterpret_cast<unsigned long long int>(this)); //FIX ME: only valid for 64bit machine
+    if (new_aicore_ptr_ == NULL) {
+      AICORE_CHECK(rtMalloc(&new_aicore_ptr_, size_, RT_MEMORY_HBM));
+      own_aicore_data_ = true;
     }
-    // float2half(size_ / 4, reinterpret_cast<float*>(cpu_ptr_), reinterpret_cast<half*>(debug_cpu_ptr_));
-    caffe_aicore_memcpy(size_, cpu_ptr_, aicore_ptr_);
+    AICORE_CHECK(rtMemcpy(new_aicore_ptr_, size_, cpu_ptr_, size_, RT_MEMCPY_HOST_TO_DEVICE));
     head_ = SYNCED;
     break;
+    // if (aicore_ptr_ == "") {
+    //   aicore_ptr_ = Caffe::aicore_dir() + std::to_string(reinterpret_cast<unsigned long long int>(this)); //FIX ME: only valid for 64bit machine
+    // }
+    // // float2half(size_ / 4, reinterpret_cast<float*>(cpu_ptr_), reinterpret_cast<half*>(debug_cpu_ptr_));
+    // caffe_aicore_memcpy(size_, cpu_ptr_, aicore_ptr_);
+    // head_ = SYNCED;
+    // break;
   case HEAD_AT_AICORE:
   case SYNCED:
     break;
