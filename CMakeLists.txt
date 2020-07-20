@@ -75,6 +75,11 @@ if(UNIX OR APPLE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC -Wall")
 endif()
 
+if(NOSITE)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv8.2a+fp16")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv8.2a+fp16")
+endif()
+
 caffe_set_caffe_link()
 
 if(USE_libstdcpp)
