@@ -30,15 +30,15 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
 
   AicoreKerel fw_param = this->layer_param_.aicorekernel(0);
-  Caffe::Get().load_aicore_kernel(fw_param.kernelfile(), fw_param.kernelname(), fw_holder, fw_kernel);
+  Caffe::Get().load_aicore_kernel(fw_param.kernelfile(), fw_param.kernelname(), fw_holder, &fw_kernel);
   fw_block_num = fw_param.block_num();
 
-  AicoreKerel bw_weight_param = this->layer_param_.aicorekernel(0);
-  Caffe::Get().load_aicore_kernel(bw_weight_param.kernelfile(), bw_weight_param.kernelname(), bw_weight_holder, bw_weight_kernel);
+  AicoreKerel bw_weight_param = this->layer_param_.aicorekernel(1);
+  Caffe::Get().load_aicore_kernel(bw_weight_param.kernelfile(), bw_weight_param.kernelname(), bw_weight_holder, &bw_weight_kernel);
   bw_weight_block_num = bw_weight_param.block_num();
 
-  AicoreKerel bw_input_param = this->layer_param_.aicorekernel(0);
-  Caffe::Get().load_aicore_kernel(bw_input_param.kernelfile(), bw_input_param.kernelname(), bw_input_holder, bw_input_kernel);
+  AicoreKerel bw_input_param = this->layer_param_.aicorekernel(2);
+  Caffe::Get().load_aicore_kernel(bw_input_param.kernelfile(), bw_input_param.kernelname(), bw_input_holder, &bw_input_kernel);
   bw_input_block_num = bw_input_param.block_num();
 
 

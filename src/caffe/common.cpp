@@ -55,7 +55,7 @@ Caffe::Caffe()
     : random_generator_(), mode_(Caffe::CPU),
       solver_count_(1), solver_rank_(0), multiprocess_(false) {
   AICORE_CHECK(rtSetDevice(0));
-  AICORE_CHECK(rtStreamCreate(&aiocre_stream, 0));
+  AICORE_CHECK(rtStreamCreate(&aicore_stream, 0));
 }
 
 Caffe::~Caffe() { }
@@ -90,19 +90,20 @@ char * readBinFile(const char *file_name, uint64_t *fileSize) {
 }
 
 
-void Caffe::load_aicore_kernel(std::string kernel_file, std::string kernel_name, std::vector<char>& holder, char* stub) {
+void Caffe::load_aicore_kernel(std::string kernel_file, std::string kernel_name, std::vector<char>& holder, char** stub) {
 
   void *binHandle;
   rtDevBinary_t binary;
-  binary.data = readBinFile(kernel_file.c_str(), &binary.length);
+  binary.data = readBinFile((new_kernel_dir() + kernel_file).c_str(), &binary.length);
   binary.magic = RT_DEV_BINARY_MAGIC_ELF;
   binary.version = 0;
 
-  holder = std::vector<char>(kernel_name.begin(), kernel_name.end());
-  stub = holder.data();
+  std::copy(kernel_name.begin(), kernel_name.end(), std::back_inserter(holder));
+  holder.push_back(0);
+  *stub = holder.data();
 
   AICORE_CHECK(rtDevBinaryRegister(&binary, &binHandle));
-  AICORE_CHECK(rtFunctionRegister(binHandle, stub, stub, (void *)stub, 0));
+  AICORE_CHECK(rtFunctionRegister(binHandle, *stub, *stub, (void *)*stub, 0));
 
 }
 

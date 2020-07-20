@@ -146,6 +146,18 @@ layer {
       type: "constant"
     }
   }
+  aicorekernel {
+    kernelfile: "matmul_op_64_800_512_NTA_TB_bias.o"
+    kernelname: "matmul_op_64_800_512_NTA_TB_bias__kernel0"
+  }
+  aicorekernel {
+    kernelfile: "matmul_op_512_64_800_TA_NTB_nobias.o"
+    kernelname: "matmul_op_512_64_800_TA_NTB_nobias__kernel0"
+  }
+  aicorekernel {
+    kernelfile: "matmul_op_64_512_800_NTA_NTB_nobias.o"
+    kernelname: "matmul_op_64_512_800_NTA_NTB_nobias__kernel0"
+  }
 }
 layer {
   name: "relu1"
@@ -172,6 +184,18 @@ layer {
     bias_filler {
       type: "constant"
     }
+  }
+  aicorekernel {
+    kernelfile: "matmul_op_64_512_16_NTA_TB_bias.o"
+    kernelname: "matmul_op_64_512_16_NTA_TB_bias__kernel0"
+  }
+  aicorekernel {
+    kernelfile: "matmul_op_16_64_512_TA_NTB_nobias.o"
+    kernelname: "matmul_op_16_64_512_TA_NTB_nobias__kernel0"
+  }
+  aicorekernel {
+    kernelfile: "matmul_op_64_16_512_NTA_NTB_nobias.o"
+    kernelname: "matmul_op_64_16_512_NTA_NTB_nobias__kernel0"
   }
 }
 layer {

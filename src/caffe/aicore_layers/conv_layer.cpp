@@ -71,19 +71,16 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
   
 
-  if (this->kernel_shape_.cpu_data()[0] == 1 && this->kernel_shape_.cpu_data()[1] == 1) {
-    Forward_cpu(bottom, top);
-    return;
-  }
+  // if (this->kernel_shape_.cpu_data()[0] == 1 && this->kernel_shape_.cpu_data()[1] == 1) {
+  //   Forward_cpu(bottom, top);
+  //   return;
+  // }
 
-  if (this->stride_.cpu_data()[0] != 1 || this->stride_.cpu_data()[0] != 1) {
-    Forward_cpu(bottom, top);
-    return;
-  }
+  // if (this->stride_.cpu_data()[0] != 1 || this->stride_.cpu_data()[0] != 1) {
+  //   Forward_cpu(bottom, top);
+  //   return;
+  // }
 
-
-  //auto weight_fraz = ochw2fracZ<Dtype>(this->blobs_[0].get(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
-  //Blob<Dtype>* weight = this->blobs_[0].get();
   Blob<Dtype> bottom_five(bottom[0]->shape(0), (bottom[0]->shape(1)+15)/16*16, bottom[0]->shape(2), bottom[0]->shape(3));
   four2five(bottom[0]->cpu_data(), bottom_five.mutable_cpu_data(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
 
@@ -91,22 +88,37 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
   std::vector<int> top_five_shape{top[0]->shape(0), (top[0]->shape(1) + 15) / 16, top[0]->shape(2), top[0]->shape(3) * 16};
   Blob<Dtype> top_five(top_five_shape);
   
-  auto hack_str = new std::string(fmt::format("{}__kernel0", kernel_identifier()));
+  // auto hack_str = new std::string(fmt::format("{}__kernel0", kernel_identifier()));
 
-  //std::vector<std::string> input_datas = {bottom_five.aicore_data(), weight_fraz->aicore_data()};
-  std::vector<std::string> input_datas = {bottom_five.aicore_data(), this->blobs_[0]->aicore_data()};
-  //std::cout<<this->blobs_[0]->aicore_data()<<std::endl;
+  // std::vector<std::string> input_datas = {bottom_five.aicore_data(), this->blobs_[0]->aicore_data()};
+  // if (this->bias_term_) {
+  //   input_datas.push_back(this->blobs_[1]->aicore_data());
+  // }
+  // auto err = custom::op_run(*hack_str, 
+  //                                  0,
+  //                                  fmt::format("{}/{}.o", Caffe::kernel_dir(), kernel_identifier()),
+  //                                  input_datas,
+  //                                  {top_five.aicore_data()},
+  //                                  {top_five.count() * static_cast<unsigned int>(sizeof(half))});
+
+
+  // AICORE_EXEC_CHECK(err);
+
+
+  std::vector<void*> args = {(void*)bottom_five.new_aicore_data(), (void*)this->blobs_[0]->new_aicore_data()};
   if (this->bias_term_) {
-    input_datas.push_back(this->blobs_[1]->aicore_data());
+    args.push_back((void*)this->blobs_[1]->new_aicore_data());
   }
-  auto err = custom::op_run(*hack_str, 
-                                   0,
-                                   fmt::format("{}/{}.o", Caffe::kernel_dir(), kernel_identifier()),
-                                   input_datas,
-                                   {top_five.aicore_data()},
-                                   {top_five.count() * static_cast<unsigned int>(sizeof(half))});
-  AICORE_EXEC_CHECK(err);
-  five2four(top_five.cpu_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
+  args.push_back((void*)top_five.new_aicore_data());
+
+  AICORE_CHECK(rtKernelLaunch(this->fw_kernel, this->fw_block_num, args.data(), args.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
+  AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
+
+  vector<Dtype> tttt(top_five.count(), Dtype(.0));
+
+  AICORE_CHECK(rtMemcpy(tttt.data(), top_five.count() * sizeof(Dtype), (void *)top_five.new_aicore_data(), top_five.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
+
+  five2four(tttt.data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
 
 }
 
@@ -118,15 +130,15 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
     const vector<Blob<Dtype>*>& bottom) {
 
 
-  if (this->kernel_shape_.cpu_data()[0] == 1 && this->kernel_shape_.cpu_data()[1] == 1) {
-    Backward_cpu(top, propagate_down, bottom);
-    return;
-  }
+  // if (this->kernel_shape_.cpu_data()[0] == 1 && this->kernel_shape_.cpu_data()[1] == 1) {
+  //   Backward_cpu(top, propagate_down, bottom);
+  //   return;
+  // }
 
-  if (this->stride_.cpu_data()[0] != 1 || this->stride_.cpu_data()[1] != 1) {
-    Backward_cpu(top, propagate_down, bottom);
-    return;
-  }
+  // if (this->stride_.cpu_data()[0] != 1 || this->stride_.cpu_data()[1] != 1) {
+  //   Backward_cpu(top, propagate_down, bottom);
+  //   return;
+  // }
 
 
   const Dtype* weight = this->blobs_[0]->cpu_data();
@@ -177,88 +189,87 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 
 
 
-  auto hack_str_weight = new std::string(fmt::format("conv_bw_weight_op_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}__kernel0", 
-                                                this->num_,
-                                                this->channels_,
-                                                this->num_output_,
-                                                this->input_shape(1),
-                                                this->input_shape(2),
-                                                this->kernel_shape_.cpu_data()[0],
-                                                this->kernel_shape_.cpu_data()[1],
-                                                this->pad_.cpu_data()[0],
-                                                this->pad_.cpu_data()[1],
-                                                this->stride_.cpu_data()[0],
-                                                this->stride_.cpu_data()[1]));
+  // auto hack_str_weight = new std::string(fmt::format("conv_bw_weight_op_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}__kernel0", 
+  //                                               this->num_,
+  //                                               this->channels_,
+  //                                               this->num_output_,
+  //                                               this->input_shape(1),
+  //                                               this->input_shape(2),
+  //                                               this->kernel_shape_.cpu_data()[0],
+  //                                               this->kernel_shape_.cpu_data()[1],
+  //                                               this->pad_.cpu_data()[0],
+  //                                               this->pad_.cpu_data()[1],
+  //                                               this->stride_.cpu_data()[0],
+  //                                               this->stride_.cpu_data()[1]));
+
+  // auto weight_fraz_diff_32 = Caffe::aicore_dir() + "/" + (*hack_str_weight);
+
+
+
+  // auto err_weight = custom::op_run(*hack_str_weight, 
+  //                                  0,
+  //                                  fmt::format("{}/conv_bw_weight_op_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(),
+  //                                               this->num_,
+  //                                               this->channels_,
+  //                                               this->num_output_,
+  //                                               this->input_shape(1),
+  //                                               this->input_shape(2),
+  //                                               this->kernel_shape_.cpu_data()[0],
+  //                                               this->kernel_shape_.cpu_data()[1],
+  //                                               this->pad_.cpu_data()[0],
+  //                                               this->pad_.cpu_data()[1],
+  //                                               this->stride_.cpu_data()[0],
+  //                                               this->stride_.cpu_data()[1]),
+  //                                  {bottom_five.aicore_data(), top_five.aicore_diff()},
+  //                                  {weight_fraz_diff_32},
+  //                                  {weight_fraz->count() * static_cast<unsigned int>(sizeof(float))}); //!!! THIS MUST BE FP32
+  // std::vector<float> weight_fraz_cpu_diff_32(weight_fraz->count());
+  // caffe_aicore_memcpy(weight_fraz->count() * static_cast<unsigned int>(sizeof(float)), weight_fraz_diff_32, weight_fraz_cpu_diff_32.data());
+  // std::remove(weight_fraz_diff_32.c_str());
+
+  // for(int i = 0; i < weight_fraz->count(); ++i) {
+  //   weight_fraz->mutable_cpu_diff()[i] = Dtype(weight_fraz_cpu_diff_32[i]);
+  // }
+  // //fracZ2ochw(weight_fraz->cpu_diff(), this->blobs_[0]->mutable_cpu_diff(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
+
+  // AICORE_EXEC_CHECK(err_weight);
 
   auto weight_fraz = this->blobs_[0].get();
-  auto weight_fraz_diff_32 = Caffe::aicore_dir() + "/" + (*hack_str_weight);
 
-  auto err_weight = custom::op_run(*hack_str_weight, 
-                                   0,
-                                   fmt::format("{}/conv_bw_weight_op_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(),
-                                                this->num_,
-                                                this->channels_,
-                                                this->num_output_,
-                                                this->input_shape(1),
-                                                this->input_shape(2),
-                                                this->kernel_shape_.cpu_data()[0],
-                                                this->kernel_shape_.cpu_data()[1],
-                                                this->pad_.cpu_data()[0],
-                                                this->pad_.cpu_data()[1],
-                                                this->stride_.cpu_data()[0],
-                                                this->stride_.cpu_data()[1]),
-                                   {bottom_five.aicore_data(), top_five.aicore_diff()},
-                                   {weight_fraz_diff_32},
-                                   {weight_fraz->count() * static_cast<unsigned int>(sizeof(float))}); //!!! THIS MUST BE FP32
-  std::vector<float> weight_fraz_cpu_diff_32(weight_fraz->count());
-  caffe_aicore_memcpy(weight_fraz->count() * static_cast<unsigned int>(sizeof(float)), weight_fraz_diff_32, weight_fraz_cpu_diff_32.data());
-  std::remove(weight_fraz_diff_32.c_str());
 
+  Blob<float> weight_fraz_diff_fp32({weight_fraz->count()});
+  std::vector<void*> args = { (void*)bottom_five.new_aicore_data(), 
+                              (void*)top_five.new_aicore_diff(),
+                              (void*)weight_fraz_diff_fp32.new_mutable_aicore_diff()};
+
+  AICORE_CHECK(rtKernelLaunch(this->bw_weight_kernel, this->bw_weight_block_num, args.data(), args.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
+  AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
+
+  vector<float> tttt1(weight_fraz_diff_fp32.count(), float(.0));
+
+  AICORE_CHECK(rtMemcpy(tttt1.data(), weight_fraz_diff_fp32.count() * sizeof(Dtype), (void *)weight_fraz_diff_fp32.new_aicore_diff(), weight_fraz_diff_fp32.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
+  
   for(int i = 0; i < weight_fraz->count(); ++i) {
-    weight_fraz->mutable_cpu_diff()[i] = Dtype(weight_fraz_cpu_diff_32[i]);
+    weight_fraz->mutable_cpu_diff()[i] = Dtype(tttt1[i]);
   }
-  //fracZ2ochw(weight_fraz->cpu_diff(), this->blobs_[0]->mutable_cpu_diff(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
 
-  AICORE_EXEC_CHECK(err_weight);
 
 
   // DO WEIGHT
 
+  std::vector<void*> args1 = { (void*)weight_fraz->new_aicore_data(), 
+                              (void*)top_five.new_aicore_diff(),
+                              (void*)bottom_five.new_mutable_aicore_diff()};
 
+  AICORE_CHECK(rtKernelLaunch(this->bw_input_kernel, this->bw_input_block_num, args1.data(), args1.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
+  AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
-  auto hack_str = new std::string(fmt::format("conv_bw_input_op_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}__kernel0", 
-                                                this->num_,
-                                                this->channels_,
-                                                this->num_output_,
-                                                this->input_shape(1),
-                                                this->input_shape(2),
-                                                this->kernel_shape_.cpu_data()[0],
-                                                this->kernel_shape_.cpu_data()[1],
-                                                this->pad_.cpu_data()[0],
-                                                this->pad_.cpu_data()[1],
-                                                this->stride_.cpu_data()[0],
-                                                this->stride_.cpu_data()[1]));
+  vector<Dtype> tttt(bottom_five.count(), Dtype(.0));
 
-  auto err = custom::op_run(*hack_str, 
-                                   0,
-                                   fmt::format("{}/conv_bw_input_op_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(),
-                                                this->num_,
-                                                this->channels_,
-                                                this->num_output_,
-                                                this->input_shape(1),
-                                                this->input_shape(2),
-                                                this->kernel_shape_.cpu_data()[0],
-                                                this->kernel_shape_.cpu_data()[1],
-                                                this->pad_.cpu_data()[0],
-                                                this->pad_.cpu_data()[1],
-                                                this->stride_.cpu_data()[0],
-                                                this->stride_.cpu_data()[1]),
-                                   {weight_fraz->aicore_data(), top_five.aicore_diff()},
-                                   {bottom_five.mutable_aicore_diff()},
-                                   {bottom_five.count() * static_cast<unsigned int>(sizeof(half))});
+  AICORE_CHECK(rtMemcpy(tttt.data(), bottom_five.count() * sizeof(Dtype), (void *)bottom_five.new_aicore_diff(), bottom_five.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
 
-  AICORE_EXEC_CHECK(err);
-  five2four(bottom_five.cpu_diff(), bottom[0]->mutable_cpu_diff(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
+  five2four(tttt.data(), bottom[0]->mutable_cpu_diff(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
+
 
 }
 

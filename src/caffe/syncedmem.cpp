@@ -72,6 +72,9 @@ inline void SyncedMemory::to_cpu() {
       own_cpu_data_ = true;
     }
     AICORE_CHECK(rtMemcpy(cpu_ptr_, size_, new_aicore_ptr_, size_, RT_MEMCPY_DEVICE_TO_HOST));
+
+    caffe_aicore_memcpy(size_, aicore_ptr_, cpu_ptr_); //OLD
+
     head_ = SYNCED;
     break;
   case HEAD_AT_CPU:
@@ -79,6 +82,7 @@ inline void SyncedMemory::to_cpu() {
     break;
   }
 }
+
 
 inline void SyncedMemory::to_gpu() {
   check_device();
@@ -116,10 +120,9 @@ inline void SyncedMemory::to_aicore() {
     caffe_aicore_memset(size_, 0, new_aicore_ptr_);
     head_ = HEAD_AT_AICORE;
     own_aicore_data_ = true;
-    // assert(aicore_ptr_ == "" && "The aicore_ptr_ should be null if UNINITIALIZED");
-    // aicore_ptr_ = Caffe::aicore_dir() + std::to_string(reinterpret_cast<unsigned long long int>(this)); //FIX ME: only valid for 64bit machine
-    // caffe_aicore_memset(size_, 0, aicore_ptr_); //FIX_ME
-    // head_ = HEAD_AT_AICORE;
+    assert(aicore_ptr_ == "" && "The aicore_ptr_ should be null if UNINITIALIZED"); //OLD
+    aicore_ptr_ = Caffe::aicore_dir() + std::to_string(reinterpret_cast<unsigned long long int>(this)); //OLD
+    caffe_aicore_memset(size_, 0, aicore_ptr_); //OLD
     break;
   case HEAD_AT_GPU:
     NO_GPU;
@@ -130,15 +133,12 @@ inline void SyncedMemory::to_aicore() {
       own_aicore_data_ = true;
     }
     AICORE_CHECK(rtMemcpy(new_aicore_ptr_, size_, cpu_ptr_, size_, RT_MEMCPY_HOST_TO_DEVICE));
+    if (aicore_ptr_ == "") {
+      aicore_ptr_ = Caffe::aicore_dir() + std::to_string(reinterpret_cast<unsigned long long int>(this)); //OLD
+    }
+    caffe_aicore_memcpy(size_, cpu_ptr_, aicore_ptr_); //OLD
     head_ = SYNCED;
     break;
-    // if (aicore_ptr_ == "") {
-    //   aicore_ptr_ = Caffe::aicore_dir() + std::to_string(reinterpret_cast<unsigned long long int>(this)); //FIX ME: only valid for 64bit machine
-    // }
-    // // float2half(size_ / 4, reinterpret_cast<float*>(cpu_ptr_), reinterpret_cast<half*>(debug_cpu_ptr_));
-    // caffe_aicore_memcpy(size_, cpu_ptr_, aicore_ptr_);
-    // head_ = SYNCED;
-    // break;
   case HEAD_AT_AICORE:
   case SYNCED:
     break;
@@ -194,7 +194,11 @@ std::string SyncedMemory::aicore_data() {
   return aicore_ptr_;
 }
 
-
+const void* SyncedMemory::new_aicore_data() {
+  check_device();
+  to_aicore();
+  return new_aicore_ptr_;
+}
 
 
 void* SyncedMemory::mutable_cpu_data() {
@@ -221,6 +225,13 @@ std::string SyncedMemory::mutable_aicore_data() {
   to_aicore();
   head_ = HEAD_AT_AICORE;
   return aicore_ptr_;
+}
+
+void* SyncedMemory::new_mutable_aicore_data() {
+  check_device();
+  to_aicore();
+  head_ = HEAD_AT_AICORE;
+  return new_aicore_ptr_;
 }
 
 #ifndef CPU_ONLY

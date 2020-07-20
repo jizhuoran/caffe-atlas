@@ -124,6 +124,12 @@ std::string Blob<Dtype>::aicore_data() {
 }
 
 template <typename Dtype>
+const Dtype* Blob<Dtype>::new_aicore_data() {
+  CHECK(data_);
+  return (const Dtype*)data_->new_aicore_data();
+}
+
+template <typename Dtype>
 const Dtype* Blob<Dtype>::cpu_diff() const {
   CHECK(diff_);
   return (const Dtype*)diff_->cpu_data();
@@ -139,6 +145,12 @@ template <typename Dtype>
 std::string Blob<Dtype>::aicore_diff() {
   CHECK(diff_);
   return diff_->aicore_data();
+}
+
+template <typename Dtype>
+const Dtype* Blob<Dtype>::new_aicore_diff() {
+  CHECK(diff_);
+  return (const Dtype*)diff_->new_aicore_data();
 }
 
 template <typename Dtype>
@@ -159,6 +171,12 @@ std::string Blob<Dtype>::mutable_aicore_data() {
   return data_->mutable_aicore_data();
 }
 
+template <typename Dtype>
+Dtype* Blob<Dtype>::new_mutable_aicore_data() {
+  CHECK(data_);
+  return static_cast<Dtype*>(data_->new_mutable_aicore_data());
+}
+
 
 template <typename Dtype>
 Dtype* Blob<Dtype>::mutable_cpu_diff() {
@@ -176,6 +194,12 @@ template <typename Dtype>
 std::string Blob<Dtype>::mutable_aicore_diff() {
   CHECK(diff_);
   return diff_->mutable_aicore_data();
+}
+
+template <typename Dtype>
+Dtype* Blob<Dtype>::new_mutable_aicore_diff() {
+  CHECK(diff_);
+  return static_cast<Dtype*>(diff_->new_mutable_aicore_data());
 }
 
 template <typename Dtype>

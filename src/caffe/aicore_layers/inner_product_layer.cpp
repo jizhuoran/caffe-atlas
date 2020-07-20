@@ -44,6 +44,8 @@ void InnerProductLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom
                                        transpose_? "NTB" : "TB",
                                        (bias_term_ ? "bias" : "nobias")));
 
+
+    std::cout << "fw: " << *hack_str << std::endl;
     std::unique_ptr<Blob<Dtype>> aligned_bias;
 
     std::vector<std::string> inputs {aligned_bottom.aicore_data(), aligned_weight->aicore_data()};
@@ -116,6 +118,10 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                        "TA",
                                        "NTB",
                                        "nobias"));
+
+            std::cout << "bw w: " << *hack_str << std::endl;
+
+
             auto err = custom::op_run(*hack_str, 
                                         0,
                                         fmt::format("{}/matmul_op_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(), ALIGN_SIZE(K_), ALIGN_SIZE(N_),
@@ -134,6 +140,8 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                        "TA",
                                        "NTB",
                                        "nobias"));
+            std::cout << "bw w: " << *hack_str << std::endl;
+                        
                 auto err = custom::op_run(*hack_str, 
                                         0,
                                         fmt::format("{}/matmul_op_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(), ALIGN_SIZE(N_), ALIGN_SIZE(M_),
@@ -185,6 +193,9 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                        "NTA",
                                        transpose_ ? "TB" : "NTB",
                                        "nobias"));
+
+            std::cout << "bw i: " << *hack_str << std::endl;
+
         auto err = custom::op_run(*hack_str, 
                                         0,
                                         fmt::format("{}/matmul_op_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(), ALIGN_SIZE(M_), ALIGN_SIZE(N_),
