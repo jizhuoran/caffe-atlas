@@ -39,13 +39,13 @@ void InnerProductLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom
 
     Blob<Dtype> aligned_top(std::vector<int>{ALIGN_SIZE(top[0]->shape(0)), ALIGN_SIZE(top[0]->shape(1))});
 
-    auto hack_str = new std::string(fmt::format("matmul_op_{}_{}_{}_{}_{}_{}__kernel0", M_, ALIGN_SIZE(K_),
-                                       ALIGN_SIZE(N_), "NTA", 
-                                       transpose_? "NTB" : "TB",
-                                       (bias_term_ ? "bias" : "nobias")));
+    // auto hack_str = new std::string(fmt::format("matmul_op_{}_{}_{}_{}_{}_{}__kernel0", M_, ALIGN_SIZE(K_),
+    //                                    ALIGN_SIZE(N_), "NTA", 
+    //                                    transpose_? "NTB" : "TB",
+    //                                    (bias_term_ ? "bias" : "nobias")));
 
 
-    std::cout << "fw: " << *hack_str << std::endl;
+    // std::cout << "fw: " << *hack_str << std::endl;
     std::unique_ptr<Blob<Dtype>> aligned_bias;
 
     std::vector<std::string> inputs {aligned_bottom.aicore_data(), aligned_weight->aicore_data()};
@@ -61,35 +61,40 @@ void InnerProductLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom
         inputs.push_back(aligned_bias->aicore_data());
     }
 
-    auto err = custom::op_run(*hack_str, 
-                                   0,
-                                   fmt::format("{}/matmul_op_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(), M_, ALIGN_SIZE(K_),
-                                       ALIGN_SIZE(N_), "NTA", 
-                                       transpose_? "NTB" : "TB",
-                                       (bias_term_ ? "bias" : "nobias")),
-                                   inputs,
-                                   {aligned_top.mutable_aicore_data()},
-                                   {aligned_top.count() * static_cast<unsigned int>(sizeof(half))});
 
-    AICORE_EXEC_CHECK(err);
 
-    // Forward_cpu(bottom, top);
+    std::vector<void*> args = {(void*)aligned_bottom.new_aicore_data(), (void*)aligned_weight->new_aicore_data()};
+    if (this->bias_term_) {
+        args.push_back((void*)aligned_bias->new_aicore_data());
+    }
+    args.push_back((void*)aligned_top.new_mutable_aicore_data());
+
+    AICORE_CHECK(rtKernelLaunch(this->fw_kernel, this->fw_block_num, args.data(), args.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
+    AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
+
+    vector<Dtype> tttt(aligned_top.count(), Dtype(.0));
+
+    AICORE_CHECK(rtMemcpy(tttt.data(), aligned_top.count() * sizeof(Dtype), (void *)aligned_top.new_aicore_data(), aligned_top.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
+
+
+    // auto err = custom::op_run(*hack_str, 
+    //                                0,
+    //                                fmt::format("{}/matmul_op_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(), M_, ALIGN_SIZE(K_),
+    //                                    ALIGN_SIZE(N_), "NTA", 
+    //                                    transpose_? "NTB" : "TB",
+    //                                    (bias_term_ ? "bias" : "nobias")),
+    //                                inputs,
+    //                                {aligned_top.mutable_aicore_data()},
+    //                                {aligned_top.count() * static_cast<unsigned int>(sizeof(half))});
+
+    // AICORE_EXEC_CHECK(err);
+
 
 
     Dtype* top_data = top[0]->mutable_cpu_data();
-    const Dtype* aligned_top_data = aligned_top.cpu_data();
-
-
-
+    const Dtype* aligned_top_data = tttt.data();
     for(int i = 0; i < top[0]->shape(0); ++i) {
         caffe_copy(top[0]->shape(1), aligned_top_data + i * aligned_top.shape(1), top_data+ i * top[0]->shape(1));
-        // for(int j = 0; j < top[0]->shape(1); ++j) {
-        //     auto my_out = (aligned_top_data+ i * aligned_top.shape(1))[j];
-        //     auto good_out = (top_data+ i * top[0]->shape(1))[j];
-        //     if(fabs(my_out - good_out) > 1e-6) {
-        //         std::cout << "(" << i << ", " << j << ")" << my_out << " " << good_out << std::endl;
-        //     }
-        // }
     }
 }
 
