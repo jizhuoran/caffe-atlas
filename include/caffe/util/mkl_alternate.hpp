@@ -18,17 +18,22 @@ extern "C" {
 #include <math.h>
 
 
-#ifdef NOSITE
-  inline _Float16 exp(_Float16 x) { return _Float16(exp(float(x))); } 
-  inline _Float16 log(_Float16 x) { return _Float16(log(float(x))); } 
-  inline _Float16 pow(_Float16 x) { return _Float16(pow(float(x))); } 
-  inline _Float16 tanh(_Float16 x) { return _Float16(tanh(float(x))); } 
-  inline _Float16 fabs(_Float16 x) { return vsqrth_f16(x); } 
-  // inline _Float16 fabs(_Float16 x) { return vsqrth_f16(x); } 
+#include <arm_fp16.h>
+inline std::ostream& operator<<(std::ostream& os, const _Float16& p) {
+    os << float(p);
+    return os;
+}
+inline _Float16 exp(_Float16 x) { return _Float16(exp(float(x))); } 
+inline _Float16 log(_Float16 x) { return _Float16(log(float(x))); } 
+inline _Float16 pow(_Float16 x, float b) { return _Float16(pow(float(x), b)); } 
+inline _Float16 tanh(_Float16 x) { return _Float16(tanh(float(x))); }
+inline _Float16 sqrt(_Float16 x) { return _Float16(sqrt(float(x))); } //vsqrth_f16(x); } 
+inline _Float16 fabs(_Float16 x) { return _Float16(fabs(float(x))); } //vabsh_f16(x); }
+inline bool isnan(_Float16 x) { return isnan(float(x)); }
+inline bool isinf(_Float16 x) { return isinf(float(x)); }
 
 
-  
-#endif
+
 
 
 // Functions that caffe uses but are not present if MKL is not linked.

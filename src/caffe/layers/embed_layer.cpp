@@ -72,7 +72,7 @@ void EmbedLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     index = static_cast<int>(bottom_data[n]);
     DCHECK_GE(index, 0);
     DCHECK_LT(index, K_);
-    DCHECK_EQ(static_cast<Dtype>(index), bottom_data[n]) << "non-integer input";
+    DCHECK_EQ(static_cast<float>(index), float(bottom_data[n])) << "non-integer input";
     caffe_copy(N_, weight + index * N_, top_data + n * N_);
   }
   if (bias_term_) {
@@ -96,7 +96,7 @@ void EmbedLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
       index = static_cast<int>(bottom_data[n]);
       DCHECK_GE(index, 0);
       DCHECK_LT(index, K_);
-      DCHECK_EQ(static_cast<Dtype>(index), bottom_data[n])
+      DCHECK_EQ(static_cast<float>(index), float(bottom_data[n]))
           << "non-integer input";
       caffe_axpy(N_, Dtype(1), top_diff + n * N_, weight_diff + index * N_);
     }

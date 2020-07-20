@@ -22,9 +22,9 @@ void BatchReindexLayer<Dtype>::check_batch_reindex(int initial_num,
                                                    int final_num,
                                                    const Dtype* ridx_data) {
   for (int i = 0; i < final_num; ++i) {
-    CHECK_GE(ridx_data[i], 0)
+    CHECK_GE(float(ridx_data[i]), 0)
         << "Index specified for reindex layer was negative.";
-    CHECK_LT(ridx_data[i], initial_num)
+    CHECK_LT(float(ridx_data[i]), initial_num)
         << "Index specified for reindex layer was greater than batch size.";
   }
 }

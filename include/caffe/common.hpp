@@ -16,10 +16,6 @@
 #include <utility>  // pair
 #include <vector>
 
-#ifdef NOSITE
-#include <arm_fp16.h>
-#endif
-
 #include "caffe/util/device_alternate.hpp"
 
 // Convert macro to string
@@ -116,8 +112,8 @@ using boost::shared_ptr;
 // Common functions and classes from std that caffe often uses.
 using std::fstream;
 using std::ios;
-using std::isnan;
-using std::isinf;
+// using std::isnan;
+// using std::isinf;
 using std::iterator;
 using std::make_pair;
 using std::map;

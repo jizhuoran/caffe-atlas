@@ -11,7 +11,7 @@ void LogLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   NeuronLayer<Dtype>::LayerSetUp(bottom, top);
   const Dtype base = this->layer_param_.log_param().base();
   if (base != Dtype(-1)) {
-    CHECK_GT(base, 0) << "base must be strictly positive.";
+    CHECK_GT(float(base), 0) << "base must be strictly positive.";
   }
   // If base == -1, interpret the base as e and set log_base = 1 exactly.
   // Otherwise, calculate its log explicitly.
