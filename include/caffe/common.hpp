@@ -16,6 +16,10 @@
 #include <utility>  // pair
 #include <vector>
 
+#ifdef NOSITE
+#include <arm_fp16.h>
+#endif
+
 #include "caffe/util/device_alternate.hpp"
 
 // Convert macro to string

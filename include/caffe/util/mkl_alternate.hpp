@@ -34,18 +34,38 @@ extern "C" {
   inline void vd##name( \
       const int n, const double* a, double* y) { \
     v##name<double>(n, a, y); \
-  } \
-  inline void vh##name( \
-      const int n, const _Float16* a, _Float16* y) { \
-    v##name<_Float16>(n, a, y); \
   }
-
-
+  
 DEFINE_VSL_UNARY_FUNC(Sqr, y[i] = a[i] * a[i])
 DEFINE_VSL_UNARY_FUNC(Sqrt, y[i] = sqrt(a[i]))
 DEFINE_VSL_UNARY_FUNC(Exp, y[i] = exp(a[i]))
 DEFINE_VSL_UNARY_FUNC(Ln, y[i] = log(a[i]))
 DEFINE_VSL_UNARY_FUNC(Abs, y[i] = fabs(a[i]))
+
+#ifdef NOSITE
+inline void vhSqr(const int n, const _Float16* a, _Float16* y) {
+  CHECK_GT(n, 0); CHECK(a); CHECK(y);
+  for (int i = 0; i < n; ++i) { y[i] = a[i] * a[i]; }
+}
+inline void vhSqrt(const int n, const _Float16* a, _Float16* y) {
+  CHECK_GT(n, 0); CHECK(a); CHECK(y);
+  for (int i = 0; i < n; ++i) { y[i] = vsqrth_f16 (a[i]); }
+}
+inline void vhExp(const int n, const _Float16* a, _Float16* y) {
+  CHECK_GT(n, 0); CHECK(a); CHECK(y);
+  for (int i = 0; i < n; ++i) { y[i] = exp(a[i]); }
+}
+inline void vhLn(const int n, const _Float16* a, _Float16* y) {
+  CHECK_GT(n, 0); CHECK(a); CHECK(y);
+  for (int i = 0; i < n; ++i) { y[i] = log(a[i]); }
+}
+inline void vhAbs(const int n, const _Float16* a, _Float16* y) {
+  CHECK_GT(n, 0); CHECK(a); CHECK(y);
+  for (int i = 0; i < n; ++i) { y[i] = vabsh_f16(a[i]); }
+}
+#endif
+
+
 
 // A simple way to define the vsl unary functions with singular parameter b.
 // The operation should be in the form e.g. y[i] = pow(a[i], b)
