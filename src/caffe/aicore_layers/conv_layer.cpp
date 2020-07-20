@@ -204,7 +204,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 
   // auto weight_fraz_diff_32 = Caffe::aicore_dir() + "/" + (*hack_str_weight);
 
-
+ 
 
   // auto err_weight = custom::op_run(*hack_str_weight, 
   //                                  0,
