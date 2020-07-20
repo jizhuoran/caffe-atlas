@@ -172,6 +172,10 @@ class Caffe {
   inline static Brew mode() { return Get().mode_; }
   inline static std::string aicore_dir() { return "aicore_dir/"; }
   inline static std::string kernel_dir() { return "kernel_meta"; }
+
+  rtStream_t aiocre_stream;
+
+
   // The setters for the variables
   // Sets the mode. It is recommended that you don't change the mode halfway
   // into the program since that may cause allocation of pinned memory being

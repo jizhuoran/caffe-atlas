@@ -8,8 +8,8 @@
 
 namespace caffe {
 SyncedMemory::SyncedMemory()
-  : cpu_ptr_(NULL), debug_cpu_ptr_(NULL), gpu_ptr_(NULL), size_(0), head_(UNINITIALIZED),
-    own_cpu_data_(false), cpu_malloc_use_cuda_(false), own_gpu_data_(false) {
+  : cpu_ptr_(NULL), gpu_ptr_(NULL), new_aicore_ptr_(NULL), size_(0), head_(UNINITIALIZED),
+    own_cpu_data_(false), cpu_malloc_use_cuda_(false), cpu_malloc_use_aicore_(false), own_gpu_data_(false), own_aicore_data_(false) {
 #ifndef CPU_ONLY
 #ifdef DEBUG
   CUDA_CHECK(cudaGetDevice(&device_));
@@ -18,27 +18,26 @@ SyncedMemory::SyncedMemory()
 }
 
 SyncedMemory::SyncedMemory(size_t size)
-  : cpu_ptr_(NULL), debug_cpu_ptr_(NULL), gpu_ptr_(NULL), size_(size), head_(UNINITIALIZED),
-    own_cpu_data_(false), cpu_malloc_use_cuda_(false), own_gpu_data_(false) {
+  : cpu_ptr_(NULL), gpu_ptr_(NULL), new_aicore_ptr_(NULL), size_(size), head_(UNINITIALIZED),
+    own_cpu_data_(false), cpu_malloc_use_cuda_(false), cpu_malloc_use_aicore_(false), own_gpu_data_(false), own_aicore_data_(false) {
 #ifndef CPU_ONLY
 #ifdef DEBUG
   CUDA_CHECK(cudaGetDevice(&device_));
 #endif
-#endif
+#endif 
 }
 
 SyncedMemory::~SyncedMemory() {
   check_device();
   if (cpu_ptr_ && own_cpu_data_) {
-    CaffeFreeHost(cpu_ptr_, cpu_malloc_use_cuda_);
+    CaffeFreeHost(cpu_ptr_, cpu_malloc_use_cuda_, cpu_malloc_use_aicore_);
   }
-  // if (debug_cpu_ptr_ && own_cpu_data_) {
-  //   CaffeFreeHost(debug_cpu_ptr_, cpu_malloc_use_cuda_);
-  // }
   if (aicore_ptr_ != "") {
     std::remove(aicore_ptr_.c_str());
   }
-
+  if (new_aicore_ptr_ && own_aicore_data_) {
+    AICORE_CHECK(rtFree(new_aicore_ptr_));
+  }
 #ifndef CPU_ONLY
   if (gpu_ptr_ && own_gpu_data_) {
     CUDA_CHECK(cudaFree(gpu_ptr_));
@@ -50,17 +49,15 @@ inline void SyncedMemory::to_cpu() {
   check_device();
   switch (head_) {
   case UNINITIALIZED:
-    CaffeMallocHost(&cpu_ptr_, size_, &cpu_malloc_use_cuda_);
-    // CaffeMallocHost(&debug_cpu_ptr_, size_/2, &cpu_malloc_use_cuda_);
+    CaffeMallocHost(&cpu_ptr_, size_, &cpu_malloc_use_cuda_, &cpu_malloc_use_aicore_);
     caffe_memset(size_, 0, cpu_ptr_);
-    // caffe_memset(size_/2, 0, debug_cpu_ptr_);
     head_ = HEAD_AT_CPU;
     own_cpu_data_ = true;
     break;
   case HEAD_AT_GPU:
 #ifndef CPU_ONLY
     if (cpu_ptr_ == NULL) {
-      CaffeMallocHost(&cpu_ptr_, size_, &cpu_malloc_use_cuda_);
+      CaffeMallocHost(&cpu_ptr_, size_, &cpu_malloc_use_cuda_, &cpu_malloc_use_aicore_);
       own_cpu_data_ = true;
     }
     caffe_gpu_memcpy(size_, gpu_ptr_, cpu_ptr_);
@@ -71,13 +68,9 @@ inline void SyncedMemory::to_cpu() {
     break;
   case HEAD_AT_AICORE:
     if (cpu_ptr_ == NULL) {
-      CaffeMallocHost(&cpu_ptr_, size_, &cpu_malloc_use_cuda_);
+      CaffeMallocHost(&cpu_ptr_, size_, &cpu_malloc_use_cuda_, &cpu_malloc_use_aicore_);
       own_cpu_data_ = true;
     }
-    // if (debug_cpu_ptr_ == NULL) {
-    //   CaffeMallocHost(&debug_cpu_ptr_, size_/2, &cpu_malloc_use_cuda_);
-    //   own_cpu_data_ = true;
-    // }
     caffe_aicore_memcpy(size_, aicore_ptr_, cpu_ptr_);
     // half2float(size_ / 4, reinterpret_cast<half*>(debug_cpu_ptr_), reinterpret_cast<float*>(cpu_ptr_));
     head_ = SYNCED;
@@ -152,11 +145,9 @@ void SyncedMemory::set_cpu_data(void* data) {
   check_device();
   CHECK(data);
   if (own_cpu_data_) {
-    CaffeFreeHost(cpu_ptr_, cpu_malloc_use_cuda_);
-    // CaffeFreeHost(debug_cpu_ptr_, cpu_malloc_use_cuda_);
+    CaffeFreeHost(cpu_ptr_, cpu_malloc_use_cuda_, cpu_malloc_use_aicore_);
   }
   cpu_ptr_ = data;
-  // CaffeMallocHost(&debug_cpu_ptr_, size_/2, &cpu_malloc_use_cuda_); //UGLY
   head_ = HEAD_AT_CPU;
   own_cpu_data_ = false;
 }

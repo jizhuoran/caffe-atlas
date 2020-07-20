@@ -28,9 +28,11 @@ endif()
 if(CROSS_BUILD)
   list(APPEND Caffe_LINKER_LIBS PUBLIC /home/zrji/arm_root/mythings_18/usr/lib64/libcustom_op_run.so)
   list(APPEND Caffe_LINKER_LIBS PUBLIC /home/zrji/arm_root/mythings_18/usr/lib64/libome.so)
+  list(APPEND Caffe_LINKER_LIBS PUBLIC /home/zrji/arm_root/mythings_18/usr/lib64/libruntime.so)
 else()
   list(APPEND Caffe_LINKER_LIBS PUBLIC /usr/lib64/libcustom_op_run.so)
   list(APPEND Caffe_LINKER_LIBS PUBLIC /usr/lib64/libome.so)
+  list(APPEND Caffe_LINKER_LIBS PUBLIC /usr/lib64/libruntime.so)
 endif()
 
 # ---[ OpenMP

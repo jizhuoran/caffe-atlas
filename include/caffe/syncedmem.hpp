@@ -16,7 +16,7 @@ namespace caffe {
 // The improvement in performance seems negligible in the single GPU case,
 // but might be more significant for parallel training. Most importantly,
 // it improved stability for large models on many GPUs.
-inline void CaffeMallocHost(void** ptr, size_t size, bool* use_cuda) {
+inline void CaffeMallocHost(void** ptr, size_t size, bool* use_cuda, bool* use_aicore) {
 #ifndef CPU_ONLY
   if (Caffe::mode() == Caffe::GPU) {
     CUDA_CHECK(cudaMallocHost(ptr, size));
@@ -24,27 +24,37 @@ inline void CaffeMallocHost(void** ptr, size_t size, bool* use_cuda) {
     return;
   }
 #endif
+  if (Caffe::mode() == Caffe::AICORE) {
+    AICORE_CHECK(rtMallocHost(ptr, size? size:4));
+    *use_aicore = true;
+    return;
+  } else {
 #ifdef USE_MKL
-  *ptr = mkl_malloc(size ? size:1, 64);
+    *ptr = mkl_malloc(size ? size:1, 64);
 #else
-  *ptr = malloc(size);
+    *ptr = malloc(size);
 #endif
-  *use_cuda = false;
+    *use_cuda = false;
+  }
   CHECK(*ptr) << "host allocation of size " << size << " failed";
 }
 
-inline void CaffeFreeHost(void* ptr, bool use_cuda) {
+inline void CaffeFreeHost(void* ptr, bool use_cuda, bool use_aicore) {
 #ifndef CPU_ONLY
   if (use_cuda) {
     CUDA_CHECK(cudaFreeHost(ptr));
     return;
   }
 #endif
+  if (use_aicore) {
+    AICORE_CHECK(rtFreeHost(ptr));
+  } else {
 #ifdef USE_MKL
-  mkl_free(ptr);
+    mkl_free(ptr);
 #else
-  free(ptr);
+    free(ptr);
 #endif
+  }
 }
 
 
@@ -70,7 +80,6 @@ class SyncedMemory {
   enum SyncedHead { UNINITIALIZED, HEAD_AT_CPU, HEAD_AT_GPU, HEAD_AT_AICORE, SYNCED };
   SyncedHead head() const { return head_; }
   size_t size() const { return size_; }
-  void* debug_cpu_ptr_;
 
 #ifndef CPU_ONLY
   void async_gpu_push(const cudaStream_t& stream);
@@ -84,12 +93,15 @@ class SyncedMemory {
   void to_aicore();
   void* cpu_ptr_;
   void* gpu_ptr_;
+  void* new_aicore_ptr_;
   std::string aicore_ptr_;
   size_t size_;
   SyncedHead head_;
   bool own_cpu_data_;
   bool cpu_malloc_use_cuda_;
   bool own_gpu_data_;
+  bool cpu_malloc_use_aicore_;
+  bool own_aicore_data_;
   int device_;
 
   DISABLE_COPY_AND_ASSIGN(SyncedMemory);

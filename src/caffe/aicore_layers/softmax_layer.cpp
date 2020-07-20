@@ -20,7 +20,7 @@ void SoftmaxLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
   //                                  1,
   //                                  {128, 128, 1280, 1280});
 
-  // AICORE_CHECK(err);
+  // AICORE_EXEC_CHECK(err);
   Forward_cpu(bottom, top);
 
 }
@@ -39,7 +39,7 @@ void SoftmaxLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 //                                    {bottom[0]->aicore_data(), top[0]->aicore_diff()},
 //                                    {bottom[0]->mutable_aicore_diff()},
 //                                    {bottom[0]->count() * static_cast<unsigned int>(sizeof(half))});
-//     AICORE_CHECK(err); 
+//     AICORE_EXEC_CHECK(err); 
 //   }                  
 }
 

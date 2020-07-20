@@ -69,7 +69,7 @@ void InnerProductLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom
                                    {aligned_top.mutable_aicore_data()},
                                    {aligned_top.count() * static_cast<unsigned int>(sizeof(half))});
 
-    AICORE_CHECK(err);
+    AICORE_EXEC_CHECK(err);
 
     // Forward_cpu(bottom, top);
 
@@ -126,7 +126,7 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                         {aligned_bottom.aicore_data(), aligned_top.aicore_diff()},
                                         {aligned_weight->mutable_aicore_diff()},
                                         {aligned_weight->count() * static_cast<unsigned int>(sizeof(half))});
-            AICORE_CHECK(err);
+            AICORE_EXEC_CHECK(err);
 
         } else {
                 auto hack_str = new std::string(fmt::format("matmul_op_{}_{}_{}_{}_{}_{}__kernel0", ALIGN_SIZE(N_), ALIGN_SIZE(M_),
@@ -144,7 +144,7 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                         {aligned_top.aicore_diff(), aligned_bottom.aicore_data()},
                                         {aligned_weight->mutable_aicore_diff()},
                                         {aligned_weight->count() * static_cast<unsigned int>(sizeof(half))});
-                AICORE_CHECK(err);
+                AICORE_EXEC_CHECK(err);
 
         }
 
@@ -195,7 +195,7 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                         {aligned_top.aicore_diff(), aligned_weight->aicore_data()},
                                         {aligned_bottom.mutable_aicore_diff()},
                                         {aligned_bottom.count() * static_cast<unsigned int>(sizeof(half))});
-        AICORE_CHECK(err);
+        AICORE_EXEC_CHECK(err);
 
 
         Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();

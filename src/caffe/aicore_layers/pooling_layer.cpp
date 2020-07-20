@@ -41,7 +41,7 @@ void PoolingLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
                                    {top_five.mutable_aicore_data()},
                                    {top_five.count() * static_cast<unsigned int>(sizeof(half))});
 
-  AICORE_CHECK(err);
+  AICORE_EXEC_CHECK(err);
   five2four(top_five.cpu_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
 
 }
@@ -61,7 +61,7 @@ void PoolingLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
   //                                  {bottom[0]->aicore_data(), top[0]->aicore_diff()},
   //                                  {bottom[0]->mutable_aicore_diff()},
   //                                  {bottom[0]->count() * static_cast<unsigned int>(sizeof(half))});
-  //   AICORE_CHECK(err); 
+  //   AICORE_EXEC_CHECK(err); 
   // }                  
 }
 

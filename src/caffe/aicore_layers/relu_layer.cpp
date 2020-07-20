@@ -21,7 +21,7 @@ void ReLULayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
                                    {bottom[0]->count() * static_cast<unsigned int>(sizeof(half))},
                                    2);
 
-  AICORE_CHECK(err);
+  AICORE_EXEC_CHECK(err);
 }
  
 template <typename Dtype>
@@ -39,7 +39,7 @@ void ReLULayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                    {bottom[0]->mutable_aicore_diff()},
                                    {bottom[0]->count() * static_cast<unsigned int>(sizeof(half))},
                                    2);
-    AICORE_CHECK(err); 
+    AICORE_EXEC_CHECK(err); 
   }                  
 }
 

@@ -105,7 +105,7 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
                                    input_datas,
                                    {top_five.aicore_data()},
                                    {top_five.count() * static_cast<unsigned int>(sizeof(half))});
-  AICORE_CHECK(err);
+  AICORE_EXEC_CHECK(err);
   five2four(top_five.cpu_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
 
 }
@@ -219,7 +219,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
   }
   //fracZ2ochw(weight_fraz->cpu_diff(), this->blobs_[0]->mutable_cpu_diff(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
 
-  AICORE_CHECK(err_weight);
+  AICORE_EXEC_CHECK(err_weight);
 
 
   // DO WEIGHT
@@ -257,7 +257,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                    {bottom_five.mutable_aicore_diff()},
                                    {bottom_five.count() * static_cast<unsigned int>(sizeof(half))});
 
-  AICORE_CHECK(err);
+  AICORE_EXEC_CHECK(err);
   five2four(bottom_five.cpu_diff(), bottom[0]->mutable_cpu_diff(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
 
 }

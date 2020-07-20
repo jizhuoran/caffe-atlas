@@ -6,7 +6,7 @@
 //
 
 // AICORE: various checks for different function calls.
-#define AICORE_CHECK(condition) \
+#define AICORE_EXEC_CHECK(condition) \
   /* Code block avoids redefinition of aicoreError_t error */ \
   do { \
     custom::ErrorInfo error = condition; \
@@ -21,6 +21,15 @@
 
 #include <vector>
 
+#include "runtime/rt.h"
+// AICORE: various checks for different function calls.
+#define AICORE_CHECK(condition) \
+  /* Code block avoids redefinition of rtError_t error */ \
+  do { \
+    rtError_t error = condition; \
+    CHECK_EQ(error, RT_ERROR_NONE) << " ERROR OCCURS! "; \
+  } while (0)
+  
 // Stub out GPU calls as unavailable.
 
 #define NO_GPU LOG(FATAL) << "Cannot use GPU in CPU-only Caffe: check mode."
