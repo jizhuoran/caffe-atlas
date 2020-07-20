@@ -75,6 +75,7 @@ models/*
 # build, distribute, and bins (+ python proto bindings)
 cross_build
 build
+on_build
 .build_debug/*
 .build_release/*
 distribute/*
