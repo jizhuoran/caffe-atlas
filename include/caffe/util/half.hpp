@@ -234,6 +234,12 @@ inline void float2half(const int n, const float *in, half_b *out) {
   }
 }
 
+inline void float2half(const int n, const float *in, _Float16 *out) {
+  for (int i = 0; i < n; ++i) {
+    out[i] = _Float16(in[i]);
+  }
+}
+
 inline void half2float(const int n, const half_b *in, float *out) {
   for (int i = 0; i < n; ++i) {
     out[i] = half2float_impl(in[i]);

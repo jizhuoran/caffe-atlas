@@ -137,10 +137,24 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
     const Dtype* bottom_data = bottom[0]->cpu_data();
     Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
     // Bias gradient, if necessary.
+    // if (this->bias_term_ && this->param_propagate_down_[1]) {
+    //   Dtype* bias_diff = this->blobs_[1]->mutable_cpu_diff();
+    //   for (int n = 0; n < this->num_; ++n) {
+    //     this->backward_cpu_bias(bias_diff, top_diff + n * this->top_dim_);
+    //   }
+    // }
+
+      // Bias gradient, if necessary.
     if (this->bias_term_ && this->param_propagate_down_[1]) {
+      const Dtype* top_diff = top[0]->cpu_diff();
       Dtype* bias_diff = this->blobs_[1]->mutable_cpu_diff();
-      for (int n = 0; n < this->num_; ++n) {
-        this->backward_cpu_bias(bias_diff, top_diff + n * this->top_dim_);
+      for (int i = 0; i < this->num_; ++i) {
+        for(int m = 0; m < this->num_output_; ++m) {
+          for(int n = 0; n < this->out_spatial_dim_; ++n) {
+            bias_diff[m] += top_diff[m * this->out_spatial_dim_ + n];
+          }
+        }
+        top_diff += this->top_dim_;
       }
     }
 
@@ -196,9 +210,13 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                                    {bottom_five.aicore_data(), top_five.aicore_diff()},
                                    {weight_fraz_diff_32},
                                    {weight_fraz->count() * static_cast<unsigned int>(sizeof(float))}); //!!! THIS MUST BE FP32
-  caffe_aicore_memcpy(weight_fraz->count() * static_cast<unsigned int>(sizeof(float)), weight_fraz_diff_32, weight_fraz->mutable_cpu_diff());
+  std::vector<float> weight_fraz_cpu_diff_32(weight_fraz->count());
+  caffe_aicore_memcpy(weight_fraz->count() * static_cast<unsigned int>(sizeof(float)), weight_fraz_diff_32, weight_fraz_cpu_diff_32.data());
   std::remove(weight_fraz_diff_32.c_str());
 
+  for(int i = 0; i < weight_fraz->count(); ++i) {
+    weight_fraz->mutable_cpu_diff()[i] = Dtype(weight_fraz_cpu_diff_32[i]);
+  }
   //fracZ2ochw(weight_fraz->cpu_diff(), this->blobs_[0]->mutable_cpu_diff(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
 
   AICORE_CHECK(err_weight);

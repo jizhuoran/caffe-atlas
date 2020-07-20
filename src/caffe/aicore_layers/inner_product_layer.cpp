@@ -163,10 +163,18 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 
     if (bias_term_ && this->param_propagate_down_[1]) {
         const Dtype* top_diff = top[0]->cpu_diff();
+        Dtype* bias_diff = this->blobs_[1]->mutable_cpu_diff();
+
+        for(int n = 0; n < N_; ++n) {
+            for(int m = 0; m < M_; ++m) {
+                // bias_diff[0] += top_diff[0];
+                bias_diff[n] += top_diff[n * M_ + m];
+            }
+        }
         // Gradient with respect to bias
-        caffe_cpu_gemv<Dtype>(CblasTrans, M_, N_, (Dtype)1., top_diff,
-            bias_multiplier_.cpu_data(), (Dtype)1.,
-            this->blobs_[1]->mutable_cpu_diff());
+        // caffe_cpu_gemv<Dtype>(CblasTrans, M_, N_, (Dtype)1., top_diff,
+        //     bias_multiplier_.cpu_data(), (Dtype)1.,
+        //     this->blobs_[1]->mutable_cpu_diff());
     }
 
 

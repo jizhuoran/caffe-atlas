@@ -34,7 +34,12 @@ extern "C" {
   inline void vd##name( \
       const int n, const double* a, double* y) { \
     v##name<double>(n, a, y); \
+  } \
+  inline void vh##name( \
+      const int n, const _Float16* a, _Float16* y) { \
+    v##name<_Float16>(n, a, y); \
   }
+
 
 DEFINE_VSL_UNARY_FUNC(Sqr, y[i] = a[i] * a[i])
 DEFINE_VSL_UNARY_FUNC(Sqrt, y[i] = sqrt(a[i]))
@@ -57,6 +62,10 @@ DEFINE_VSL_UNARY_FUNC(Abs, y[i] = fabs(a[i]))
   inline void vd##name( \
       const int n, const double* a, const float b, double* y) { \
     v##name<double>(n, a, b, y); \
+  } \
+  inline void vh##name( \
+      const int n, const _Float16* a, const _Float16 b, _Float16* y) { \
+    v##name<_Float16>(n, a, b, y); \
   }
 
 DEFINE_VSL_UNARY_FUNC_WITH_PARAM(Powx, y[i] = pow(a[i], b))
@@ -76,6 +85,10 @@ DEFINE_VSL_UNARY_FUNC_WITH_PARAM(Powx, y[i] = pow(a[i], b))
   inline void vd##name( \
       const int n, const double* a, const double* b, double* y) { \
     v##name<double>(n, a, b, y); \
+  } \
+  inline void vh##name( \
+      const int n, const _Float16* a, const _Float16* b, _Float16* y) { \
+    v##name<_Float16>(n, a, b, y); \
   }
 
 DEFINE_VSL_BINARY_FUNC(Add, y[i] = a[i] + b[i])
