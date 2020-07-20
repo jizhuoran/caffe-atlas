@@ -17,6 +17,15 @@ extern "C" {
 
 #include <math.h>
 
+
+#ifdef NOSITE
+  inline _Float16 exp(_Float16 x) { return _Float16(exp(float(x))); } 
+  inline _Float16 log(_Float16 x) { return _Float16(log(float(x))); } 
+  inline _Float16 pow(_Float16 x) { return _Float16(pow(float(x))); } 
+  inline _Float16 tanh(_Float16 x) { return _Float16(tanh(float(x))); } 
+#endif
+
+
 // Functions that caffe uses but are not present if MKL is not linked.
 
 // A simple way to define the vsl unary functions. The operation should
@@ -82,16 +91,13 @@ inline void vhAbs(const int n, const _Float16* a, _Float16* y) {
   inline void vd##name( \
       const int n, const double* a, const float b, double* y) { \
     v##name<double>(n, a, b, y); \
+  } \
+  inline void vh##name( \
+      const int n, const _Float16* a, const float b, _Float16* y) { \
+    v##name<_Float16>(n, a, b, y); \
   }
 
 DEFINE_VSL_UNARY_FUNC_WITH_PARAM(Powx, y[i] = pow(a[i], b))
-
-#ifdef NOSITE
-inline void vhPowx(const int n, const _Float16* a, const _Float16 b, _Float16* y) {
-  CHECK_GT(n, 0); CHECK(a); CHECK(y);
-  for (int i = 0; i < n; ++i) { y[i] = Dtype(pow(float(a[i]), float(b))); }
-}
-#endif
 
 // A simple way to define the vsl binary functions. The operation should
 // be in the form e.g. y[i] = a[i] + b[i]
