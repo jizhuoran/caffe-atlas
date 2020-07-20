@@ -114,11 +114,11 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
   AICORE_CHECK(rtKernelLaunch(this->fw_kernel, this->fw_block_num, args.data(), args.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
   AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
-  vector<Dtype> tttt(top_five.count(), Dtype(.0));
+  // vector<Dtype> tttt(top_five.count(), Dtype(.0));
 
-  AICORE_CHECK(rtMemcpy(tttt.data(), top_five.count() * sizeof(Dtype), (void *)top_five.new_aicore_data(), top_five.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
+  // AICORE_CHECK(rtMemcpy(tttt.data(), top_five.count() * sizeof(Dtype), (void *)top_five.new_aicore_data(), top_five.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
 
-  five2four(tttt.data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
+  five2four(top_five.new_aicore_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
 
 }
 
@@ -245,12 +245,13 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
   AICORE_CHECK(rtKernelLaunch(this->bw_weight_kernel, this->bw_weight_block_num, args.data(), args.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
   AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
-  vector<float> tttt1(weight_fraz_diff_fp32.count(), float(.0));
+  // vector<float> tttt1(weight_fraz_diff_fp32.count(), float(.0));
 
-  AICORE_CHECK(rtMemcpy(tttt1.data(), weight_fraz_diff_fp32.count() * sizeof(Dtype), (void *)weight_fraz_diff_fp32.new_aicore_diff(), weight_fraz_diff_fp32.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
+  // AICORE_CHECK(rtMemcpy(tttt1.data(), weight_fraz_diff_fp32.count() * sizeof(Dtype), (void *)weight_fraz_diff_fp32.new_aicore_diff(), weight_fraz_diff_fp32.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
   
+  const float* cpu_weight_fraz_diff_fp32 = weight_fraz_diff_fp32.new_aicore_diff();
   for(int i = 0; i < weight_fraz->count(); ++i) {
-    weight_fraz->mutable_cpu_diff()[i] = Dtype(tttt1[i]);
+    weight_fraz->mutable_cpu_diff()[i] = Dtype(cpu_weight_fraz_diff_fp32[i]);
   }
 
 
@@ -264,11 +265,11 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
   AICORE_CHECK(rtKernelLaunch(this->bw_input_kernel, this->bw_input_block_num, args1.data(), args1.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
   AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
-  vector<Dtype> tttt(bottom_five.count(), Dtype(.0));
+  // vector<Dtype> tttt(bottom_five.count(), Dtype(.0));
 
-  AICORE_CHECK(rtMemcpy(tttt.data(), bottom_five.count() * sizeof(Dtype), (void *)bottom_five.new_aicore_diff(), bottom_five.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
+  // AICORE_CHECK(rtMemcpy(tttt.data(), bottom_five.count() * sizeof(Dtype), (void *)bottom_five.new_aicore_diff(), bottom_five.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
 
-  five2four(tttt.data(), bottom[0]->mutable_cpu_diff(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
+  five2four(bottom_five.new_aicore_diff(), bottom[0]->mutable_cpu_diff(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
 
 
 }

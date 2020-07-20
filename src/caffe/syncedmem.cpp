@@ -72,9 +72,6 @@ inline void SyncedMemory::to_cpu() {
       own_cpu_data_ = true;
     }
     AICORE_CHECK(rtMemcpy(cpu_ptr_, size_, new_aicore_ptr_, size_, RT_MEMCPY_DEVICE_TO_HOST));
-
-    caffe_aicore_memcpy(size_, aicore_ptr_, cpu_ptr_); //OLD
-
     head_ = SYNCED;
     break;
   case HEAD_AT_CPU:
@@ -120,9 +117,6 @@ inline void SyncedMemory::to_aicore() {
     caffe_aicore_memset(size_, 0, new_aicore_ptr_);
     head_ = HEAD_AT_AICORE;
     own_aicore_data_ = true;
-    assert(aicore_ptr_ == "" && "The aicore_ptr_ should be null if UNINITIALIZED"); //OLD
-    aicore_ptr_ = Caffe::aicore_dir() + std::to_string(reinterpret_cast<unsigned long long int>(this)); //OLD
-    caffe_aicore_memset(size_, 0, aicore_ptr_); //OLD
     break;
   case HEAD_AT_GPU:
     NO_GPU;
@@ -133,10 +127,6 @@ inline void SyncedMemory::to_aicore() {
       own_aicore_data_ = true;
     }
     AICORE_CHECK(rtMemcpy(new_aicore_ptr_, size_, cpu_ptr_, size_, RT_MEMCPY_HOST_TO_DEVICE));
-    if (aicore_ptr_ == "") {
-      aicore_ptr_ = Caffe::aicore_dir() + std::to_string(reinterpret_cast<unsigned long long int>(this)); //OLD
-    }
-    caffe_aicore_memcpy(size_, cpu_ptr_, aicore_ptr_); //OLD
     head_ = SYNCED;
     break;
   case HEAD_AT_AICORE:

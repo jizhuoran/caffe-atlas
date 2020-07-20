@@ -7,7 +7,7 @@ if(POLICY CMP0054)
 endif()
 
 if(CROSS_BUILD) #FIXME
-  set(CMAKE_BUILD_TYPE Debug)
+  #set(CMAKE_BUILD_TYPE Debug)
   add_definitions(-D_Float16=__fp16)
   message(STATUS "Going to cross build, Good Luck!!!")
   message(STATUS "Going to cross build, Good Luck!!!")

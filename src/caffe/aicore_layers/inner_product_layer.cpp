@@ -72,9 +72,9 @@ void InnerProductLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom
     AICORE_CHECK(rtKernelLaunch(this->fw_kernel, this->fw_block_num, args.data(), args.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
     AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
-    vector<Dtype> tttt(aligned_top.count(), Dtype(.0));
+    // vector<Dtype> tttt(aligned_top.count(), Dtype(.0));
 
-    AICORE_CHECK(rtMemcpy(tttt.data(), aligned_top.count() * sizeof(Dtype), (void *)aligned_top.new_aicore_data(), aligned_top.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
+    // AICORE_CHECK(rtMemcpy(tttt.data(), aligned_top.count() * sizeof(Dtype), (void *)aligned_top.new_aicore_data(), aligned_top.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
 
 
     // auto err = custom::op_run(*hack_str, 
@@ -92,7 +92,7 @@ void InnerProductLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom
 
 
     Dtype* top_data = top[0]->mutable_cpu_data();
-    const Dtype* aligned_top_data = tttt.data();
+    const Dtype* aligned_top_data = aligned_top.new_aicore_data();
     for(int i = 0; i < top[0]->shape(0); ++i) {
         caffe_copy(top[0]->shape(1), aligned_top_data + i * aligned_top.shape(1), top_data+ i * top[0]->shape(1));
     }
@@ -181,10 +181,10 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 
         }
 
-        vector<Dtype> tttt(aligned_weight->count(), Dtype(.0));
-        AICORE_CHECK(rtMemcpy(tttt.data(), aligned_weight->count() * sizeof(Dtype), (void *)aligned_weight->new_aicore_diff(), aligned_weight->count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
+        // vector<Dtype> tttt(aligned_weight->count(), Dtype(.0));
+        // AICORE_CHECK(rtMemcpy(tttt.data(), aligned_weight->count() * sizeof(Dtype), (void *)aligned_weight->new_aicore_diff(), aligned_weight->count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
 
-        caffe_copy(aligned_weight->count(), tttt.data(), aligned_weight->mutable_cpu_diff());
+        // caffe_copy(aligned_weight->count(), tttt.data(), aligned_weight->mutable_cpu_diff());
 
 
     }
@@ -219,35 +219,13 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
         AICORE_CHECK(rtKernelLaunch(this->bw_input_kernel, this->bw_input_block_num, args1.data(), args1.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
         AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
-        vector<Dtype> tttt(aligned_bottom.count(), Dtype(.0));
+        // vector<Dtype> tttt(aligned_bottom.count(), Dtype(.0));
 
-        AICORE_CHECK(rtMemcpy(tttt.data(), aligned_bottom.count() * sizeof(Dtype), (void *)aligned_bottom.new_aicore_diff(), aligned_bottom.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
-
-
-
-        // auto hack_str = new std::string(fmt::format("matmul_op_{}_{}_{}_{}_{}_{}__kernel0", ALIGN_SIZE(M_), ALIGN_SIZE(N_),
-        //                                ALIGN_SIZE(K_),
-        //                                "NTA",
-        //                                transpose_ ? "TB" : "NTB",
-        //                                "nobias"));
-
-        //     std::cout << "bw i: " << *hack_str << std::endl;
-
-        // auto err = custom::op_run(*hack_str, 
-        //                                 0,
-        //                                 fmt::format("{}/matmul_op_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(), ALIGN_SIZE(M_), ALIGN_SIZE(N_),
-        //                                     ALIGN_SIZE(K_), 
-        //                                     "NTA",
-        //                                     transpose_ ? "TB" : "NTB",
-        //                                     "nobias"),
-        //                                 {aligned_top.aicore_diff(), aligned_weight->aicore_data()},
-        //                                 {aligned_bottom.mutable_aicore_diff()},
-        //                                 {aligned_bottom.count() * static_cast<unsigned int>(sizeof(half))});
-        // AICORE_EXEC_CHECK(err);
+        // AICORE_CHECK(rtMemcpy(tttt.data(), aligned_bottom.count() * sizeof(Dtype), (void *)aligned_bottom.new_aicore_diff(), aligned_bottom.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
 
 
         Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
-        const Dtype* aligned_bottom_diff = tttt.data();
+        const Dtype* aligned_bottom_diff = aligned_bottom.new_aicore_diff();
 
         for(int i = 0; i < bottom[0]->shape(0); ++i) {
             caffe_copy(bottom[0]->shape(1), aligned_bottom_diff + i * aligned_bottom.shape(1), bottom_diff + i * K_);
