@@ -4,6 +4,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <chrono>
 
 #ifdef USE_HDF5
 #include "hdf5.h"
@@ -521,21 +522,20 @@ Dtype Net<Dtype>::ForwardFromTo(int start, int end) {
   CHECK_LT(end, layers_.size());
   Dtype loss = 0;
   for (int i = start; i <= end; ++i) {
+    std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
     for (int c = 0; c < before_forward_.size(); ++c) {
       before_forward_[c]->run(i);
     }
-
-    // CPUTimer layer_timer;
-    // layer_timer.Start();
     Dtype layer_loss = layers_[i]->Forward(bottom_vecs_[i], top_vecs_[i]);
-    // layer_timer.Stop();
-    // LOG(INFO) << "Forward Layer " << i << ": " << layers_[i]->type() << " " << layer_timer.MilliSeconds() << " ms.";
     loss += layer_loss;
     if (debug_info_) { ForwardDebugInfo(i); }
     for (int c = 0; c < after_forward_.size(); ++c) {
       after_forward_[c]->run(i);
-    }
+    } 
+    std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
+    std::cout << "Forward Layer " << i << ": " << layers_[i]->type() << " " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
   }
+
   return loss;
 }
 
@@ -551,11 +551,14 @@ Dtype Net<Dtype>::ForwardTo(int end) {
 
 template <typename Dtype>
 const vector<Blob<Dtype>*>& Net<Dtype>::Forward(Dtype* loss) {
+  std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
   if (loss != NULL) {
     *loss = ForwardFromTo(0, layers_.size() - 1);
   } else {
     ForwardFromTo(0, layers_.size() - 1);
   }
+  std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
+  std::cout << "Total Forward Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
   return net_output_blobs_;
 }
 
@@ -576,22 +579,20 @@ void Net<Dtype>::BackwardFromTo(int start, int end) {
   CHECK_GE(end, 0);
   CHECK_LT(start, layers_.size());
   for (int i = start; i >= end; --i) {
+    std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
     for (int c = 0; c < before_backward_.size(); ++c) {
       before_backward_[c]->run(i);
     }
-    // CPUTimer layer_timer;
-    // layer_timer.Start();
     if (layer_need_backward_[i]) {
       layers_[i]->Backward(
           top_vecs_[i], bottom_need_backward_[i], bottom_vecs_[i]);
       if (debug_info_) { BackwardDebugInfo(i); }
     }
-    // layer_timer.Stop();
-    // LOG(INFO) << "Backward Layer " << i << ": " << layers_[i]->type() << " " << layer_timer.MilliSeconds() << " ms.";
-
     for (int c = 0; c < after_backward_.size(); ++c) {
       after_backward_[c]->run(i);
     }
+    std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
+    std::cout << "Backward Layer " << i << ": " << layers_[i]->type() << " " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
   }
 }
 
@@ -718,7 +719,13 @@ void Net<Dtype>::BackwardTo(int end) {
 
 template <typename Dtype>
 void Net<Dtype>::Backward() {
+  std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
+  
   BackwardFromTo(layers_.size() - 1, 0);
+  
+  std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
+  std::cout << "Total Backward Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
+
   if (debug_info_) {
     Dtype asum_data = 0, asum_diff = 0, sumsq_data = 0, sumsq_diff = 0;
     for (int i = 0; i < learnable_params_.size(); ++i) {

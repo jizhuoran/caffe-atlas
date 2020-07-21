@@ -110,7 +110,7 @@ inline void SyncedMemory::to_aicore() {
   check_device();
   switch (head_) {
   case UNINITIALIZED:
-    AICORE_CHECK(rtMalloc(&aicore_ptr_, size_, RT_MEMORY_HBM));
+    AICORE_CHECK(rtMalloc(&aicore_ptr_, size_, RT_MEMORY_DDR));
     caffe_aicore_memset(size_, 0, aicore_ptr_);
     head_ = HEAD_AT_AICORE;
     own_aicore_data_ = true;
@@ -120,7 +120,7 @@ inline void SyncedMemory::to_aicore() {
     break;
   case HEAD_AT_CPU:
     if (aicore_ptr_ == NULL) {
-      AICORE_CHECK(rtMalloc(&aicore_ptr_, size_, RT_MEMORY_HBM));
+      AICORE_CHECK(rtMalloc(&aicore_ptr_, size_, RT_MEMORY_DDR));
       own_aicore_data_ = true;
     }
     AICORE_CHECK(rtMemcpy(aicore_ptr_, size_, cpu_ptr_, size_, RT_MEMCPY_HOST_TO_DEVICE));

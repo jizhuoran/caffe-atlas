@@ -288,6 +288,7 @@ void Solver<Dtype>::Solve(const char* resume_file) {
   CHECK(Caffe::root_solver());
 
   if(Caffe::mode() == Caffe::GENERATOR) {
+    std::cout << net_->param.Utf8DebugString() << std::endl;
     net_->ForwardBackward();
     return;
   }

@@ -1,0 +1,18 @@
+test_iter: 10000
+test_interval: 10000
+base_lr: 0.1
+display: 2
+max_iter: 2000
+lr_policy: "multistep"
+gamma: 0.1
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 100000
+snapshot_prefix: "examples/resnet_18"
+net: "examples/resnet_18/train_test.prototxt"
+test_initialization: false
+stepvalue: 8000
+stepvalue: 16000
+type: "Nesterov"
+solver_mode: GENERATOR
+
