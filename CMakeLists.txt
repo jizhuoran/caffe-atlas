@@ -7,7 +7,7 @@ if(POLICY CMP0054)
 endif()
 
 if(CROSS_BUILD) #FIXME
-  #set(CMAKE_BUILD_TYPE Debug)
+  set(CMAKE_BUILD_TYPE Debug)
   add_definitions(-D_Float16=__fp16)
   message(STATUS "Going to cross build, Good Luck!!!")
   message(STATUS "Going to cross build, Good Luck!!!")
@@ -76,7 +76,7 @@ include(cmake/Dependencies.cmake)
 
 # ---[ Flags
 if(UNIX OR APPLE)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC -Wall")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++14 -fPIC -Wall")
 endif()
 
 if(NOSITE)

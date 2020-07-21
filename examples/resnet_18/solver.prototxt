@@ -13,6 +13,5 @@ net: "examples/resnet_18/train_test.prototxt"
 test_initialization: false
 stepvalue: 8000
 stepvalue: 16000
-type: "Nesterov"
 solver_mode: AICORE
 

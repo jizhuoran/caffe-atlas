@@ -127,8 +127,8 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
                               (void*)top_five.aicore_diff(),
                               (void*)weight_fraz_diff_fp32.mutable_aicore_diff()};
 
-  AICORE_CHECK(rtKernelLaunch(this->bw_weight_kernel, this->bw_weight_block_num, args.data(), args.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
-  AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
+  // AICORE_CHECK(rtKernelLaunch(this->bw_weight_kernel, this->bw_weight_block_num, args.data(), args.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
+  // AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
   const float* cpu_weight_fraz_diff_fp32 = weight_fraz_diff_fp32.aicore_diff();
   for(int i = 0; i < weight_fraz->count(); ++i) {

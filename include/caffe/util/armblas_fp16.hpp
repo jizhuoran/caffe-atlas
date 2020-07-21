@@ -12,6 +12,8 @@ _Float16  cblas_hdot(const int N, const _Float16  *X, const int incX,
 
 void cblas_hscal(const int N, const _Float16 alpha, _Float16 *X, const int incX);
 
+void cblas_hscale(const int N, const _Float16 alpha, const _Float16 *X, _Float16 *Y);
+
 void cblas_haxpy(const int N, const _Float16 alpha, const _Float16 *X,
     const int incX, _Float16 *Y, const int incY); 
 void cblas_haxpby(const int N, const _Float16 alpha, const _Float16 *X,

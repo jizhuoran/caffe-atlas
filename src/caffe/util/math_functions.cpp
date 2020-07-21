@@ -496,8 +496,12 @@ void caffe_rng_gaussian<double>(const int n, const double mu,
 template <>
 void caffe_rng_gaussian<_Float16>(const int n, const _Float16 mu,
                                 const _Float16 sigma, _Float16* r) {
-  UGLY_TO_BE_IMPLEMENT;
-
+  std::vector<float> res(n, .0);
+  caffe_rng_gaussian<float>(n, float(mu), float(sigma), res.data());
+  for(int i = 0; i < n; ++i) {
+    r[i] = _Float16(res[i]);
+  }
+  LOG(INFO) << "Call caffe_rng_gaussian too many time hurt performance!";
 }
 
 template <typename Dtype>
@@ -610,7 +614,7 @@ void caffe_cpu_scale<double>(const int n, const double alpha, const double *x,
 template <>
 void caffe_cpu_scale<_Float16>(const int n, const _Float16 alpha, const _Float16 *x,
                              _Float16* y) {
-  UGLY_TO_BE_IMPLEMENT;
+  cblas_hscale(n, alpha, x, y);
 }
 
 }  // namespace caffe

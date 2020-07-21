@@ -181,8 +181,14 @@ void ScaleLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
         const Dtype* sum_mult = sum_multiplier_.cpu_data();
         sum_result = (outer_dim_ == 1) ?
             scale->mutable_cpu_diff() : sum_result_.mutable_cpu_data();
-        caffe_cpu_gemv(CblasNoTrans, sum_result_.count(), inner_dim_,
-                       Dtype(1), product, sum_mult, Dtype(0), sum_result);
+        for(int i__ = 0; i__ < sum_result_.count(); ++i__) {
+          sum_result[i__] = Dtype(.0);
+          for(int j__ = 0; j__ < sum_result_.count(); ++j__) {
+            sum_result[i__] += product[i__ * inner_dim_ + j__] * sum_mult[j__];
+          }
+        }          
+        // caffe_cpu_gemv(CblasNoTrans, sum_result_.count(), inner_dim_,
+        //                Dtype(1), product, sum_mult, Dtype(0), sum_result);
       }
       if (outer_dim_ != 1) {
         const Dtype* sum_mult = sum_multiplier_.cpu_data();
@@ -195,9 +201,15 @@ void ScaleLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
             *scale_diff = caffe_cpu_dot(outer_dim_, sum_mult, sum_result);
           }
         } else {
-          caffe_cpu_gemv(CblasTrans, outer_dim_, scale_dim_,
-                         Dtype(1), sum_result, sum_mult, Dtype(scale_param),
-                         scale_diff);
+          // caffe_cpu_gemv(CblasTrans, outer_dim_, scale_dim_,
+          //                Dtype(1), sum_result, sum_mult, Dtype(scale_param),
+          //                scale_diff); //CHECKTHIS!!!
+          for(int i__ = 0; i__ < scale_dim_; ++i__) {
+            scale_diff[i__] = Dtype(.0);
+            for(int j__ = 0; j__ < outer_dim_; ++j__) {
+              scale_diff[i__] += sum_result[i__ * outer_dim_ + j__] * sum_mult[j__];
+            }
+          }   
         }
       }
     }
