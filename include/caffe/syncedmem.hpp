@@ -73,12 +73,10 @@ class SyncedMemory {
   void set_cpu_data(void* data);
   const void* gpu_data();
   void set_gpu_data(void* data);
-  std::string aicore_data();
-  const void* new_aicore_data();
+  const void* aicore_data();
   void* mutable_cpu_data();
   void* mutable_gpu_data();
-  std::string mutable_aicore_data();
-  void* new_mutable_aicore_data();
+  void* mutable_aicore_data();
   enum SyncedHead { UNINITIALIZED, HEAD_AT_CPU, HEAD_AT_GPU, HEAD_AT_AICORE, SYNCED };
   SyncedHead head() const { return head_; }
   size_t size() const { return size_; }
@@ -95,8 +93,7 @@ class SyncedMemory {
   void to_aicore();
   void* cpu_ptr_;
   void* gpu_ptr_;
-  void* new_aicore_ptr_;
-  std::string aicore_ptr_;
+  void* aicore_ptr_;
   size_t size_;
   SyncedHead head_;
   bool own_cpu_data_;

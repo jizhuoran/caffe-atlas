@@ -14,8 +14,8 @@ void SoftmaxLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
   // auto err = custom::op_run(*hack_str, 
   //                                  0,
   //                                  fmt::format("{}/softmax_fw_{}_{}.o", Caffe::kernel_dir(), outer_num_, bottom[0]->count() / outer_num_),
-  //                                  {bottom[0]->aicore_data()},
-  //                                  {top[0]->mutable_aicore_data()},
+  //                                  {bottom[0]->1aicore_data()},
+  //                                  {top[0]->1mutable_aicore_data()},
   //                                  {top[0]->count() * static_cast<unsigned int>(sizeof(half))},
   //                                  1,
   //                                  {128, 128, 1280, 1280});
@@ -36,8 +36,8 @@ void SoftmaxLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 //     auto err = custom::op_run(*hack_str, 
 //                                    0,
 //                                    fmt::format("{}/ReLU_bw_{}.o", Caffe::kernel_dir(), bottom[0]->count()),
-//                                    {bottom[0]->aicore_data(), top[0]->aicore_diff()},
-//                                    {bottom[0]->mutable_aicore_diff()},
+//                                    {bottom[0]->1aicore_data(), top[0]->1aicore_diff()},
+//                                    {bottom[0]->1mutable_aicore_diff()},
 //                                    {bottom[0]->count() * static_cast<unsigned int>(sizeof(half))});
 //     AICORE_EXEC_CHECK(err); 
 //   }                  

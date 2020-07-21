@@ -18,10 +18,20 @@ void caffe_aicore_set(const int N, const Dtype alpha, std::string Y) {
   caffe_aicore_memcpy(N * sizeof(_Float16), data.data(), Y); //FIXME
 }
 
+template <typename Dtype>
+void caffe_aicore_set(const int N, const Dtype alpha, Dtype* Y) {
+  AICORE_CHECK(rtMemset(Y, N * sizeof(Dtype), alpha , N));
+}
+
 template void caffe_aicore_set<int>(const int N, const int alpha, std::string Y);
 template void caffe_aicore_set<float>(const int N, const float alpha, std::string Y);
 template void caffe_aicore_set<double>(const int N, const double alpha, std::string Y);
 template void caffe_aicore_set<_Float16>(const int N, const _Float16 alpha, std::string Y);
+
+template void caffe_aicore_set<int>(const int N, const int alpha, int* Y);
+template void caffe_aicore_set<float>(const int N, const float alpha, float* Y);
+template void caffe_aicore_set<double>(const int N, const double alpha, double* Y);
+template void caffe_aicore_set<_Float16>(const int N, const _Float16 alpha, _Float16* Y);
 
 // void caffe_aicore_memcpy(const size_t N, const void *X, void *Y){
 //   if (X != Y) {

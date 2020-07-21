@@ -48,7 +48,6 @@ void InnerProductLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom
     // std::cout << "fw: " << *hack_str << std::endl;
     std::unique_ptr<Blob<Dtype>> aligned_bias;
 
-    std::vector<std::string> inputs {aligned_bottom.aicore_data(), aligned_weight->aicore_data()};
     if(bias_term_) {
         vector<int> bias_shape{top[0]->shape(0), ALIGN_SIZE(N_)};
         aligned_bias.reset(new Blob<Dtype>(bias_shape));
@@ -58,41 +57,21 @@ void InnerProductLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom
             caffe_copy(N_, bias_data, algin_bias_data+ i * aligned_bias->shape(1));
         }
         align_mm(this->blobs_[1]->cpu_data(), aligned_bias->mutable_cpu_data(), top[0]->shape(0), N_);
-        inputs.push_back(aligned_bias->aicore_data());
     }
 
 
 
-    std::vector<void*> args = {(void*)aligned_bottom.new_aicore_data(), (void*)aligned_weight->new_aicore_data()};
+    std::vector<void*> args = {(void*)aligned_bottom.aicore_data(), (void*)aligned_weight->aicore_data()};
     if (this->bias_term_) {
-        args.push_back((void*)aligned_bias->new_aicore_data());
+        args.push_back((void*)aligned_bias->aicore_data());
     }
-    args.push_back((void*)aligned_top.new_mutable_aicore_data());
+    args.push_back((void*)aligned_top.mutable_aicore_data());
 
     AICORE_CHECK(rtKernelLaunch(this->fw_kernel, this->fw_block_num, args.data(), args.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
     AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
-    // vector<Dtype> tttt(aligned_top.count(), Dtype(.0));
-
-    // AICORE_CHECK(rtMemcpy(tttt.data(), aligned_top.count() * sizeof(Dtype), (void *)aligned_top.new_aicore_data(), aligned_top.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
-
-
-    // auto err = custom::op_run(*hack_str, 
-    //                                0,
-    //                                fmt::format("{}/matmul_op_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(), M_, ALIGN_SIZE(K_),
-    //                                    ALIGN_SIZE(N_), "NTA", 
-    //                                    transpose_? "NTB" : "TB",
-    //                                    (bias_term_ ? "bias" : "nobias")),
-    //                                inputs,
-    //                                {aligned_top.mutable_aicore_data()},
-    //                                {aligned_top.count() * static_cast<unsigned int>(sizeof(half))});
-
-    // AICORE_EXEC_CHECK(err);
-
-
-
     Dtype* top_data = top[0]->mutable_cpu_data();
-    const Dtype* aligned_top_data = aligned_top.new_aicore_data();
+    const Dtype* aligned_top_data = aligned_top.aicore_data();
     for(int i = 0; i < top[0]->shape(0); ++i) {
         caffe_copy(top[0]->shape(1), aligned_top_data + i * aligned_top.shape(1), top_data+ i * top[0]->shape(1));
     }
@@ -110,81 +89,32 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
     align_mm(top[0]->cpu_diff(), aligned_top.mutable_cpu_diff(), top[0]->shape(0), top[0]->shape(1));
        
     auto aligned_weight = this->blobs_[0].get();
-    //Blob<Dtype> aligned_weight(std::vector<int>{ALIGN_SIZE(this->blobs_[0]->shape(0)), ALIGN_SIZE(this->blobs_[0]->shape(1))});
-    //align_mm(this->blobs_[0]->cpu_data(), aligned_weight.mutable_cpu_data(), this->blobs_[0]->shape(0), this->blobs_[0]->shape(1));
-
 
     if (this->param_propagate_down_[0]) {
         
         if (transpose_) {
 
 
-            std::vector<void*> args1 = { (void*)aligned_bottom.new_aicore_data(), 
-                              (void*)aligned_top.new_aicore_diff(),
-                              (void*)aligned_weight->new_mutable_aicore_diff()};
+            std::vector<void*> args1 = { (void*)aligned_bottom.aicore_data(), 
+                              (void*)aligned_top.aicore_diff(),
+                              (void*)aligned_weight->mutable_aicore_diff()};
 
             AICORE_CHECK(rtKernelLaunch(this->bw_weight_kernel, this->bw_weight_block_num, args1.data(), args1.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
             AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
 
 
-
-            // auto hack_str = new std::string(fmt::format("matmul_op_{}_{}_{}_{}_{}_{}__kernel0", ALIGN_SIZE(K_), ALIGN_SIZE(N_),
-            //                            ALIGN_SIZE(M_),
-            //                            "TA",
-            //                            "NTB",
-            //                            "nobias"));
-
-            // std::cout << "bw w: " << *hack_str << std::endl;
-
-
-            // auto err = custom::op_run(*hack_str, 
-            //                             0,
-            //                             fmt::format("{}/matmul_op_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(), ALIGN_SIZE(K_), ALIGN_SIZE(N_),
-            //                                 ALIGN_SIZE(M_), 
-            //                                 "TA", 
-            //                                 "NTB",
-            //                                 "nobias"),
-            //                             {aligned_bottom.aicore_data(), aligned_top.aicore_diff()},
-            //                             {aligned_weight->mutable_aicore_diff()},
-            //                             {aligned_weight->count() * static_cast<unsigned int>(sizeof(half))});
-            // AICORE_EXEC_CHECK(err);
 
         } else {
 
-            std::vector<void*> args1 = { (void*)aligned_top.new_aicore_diff(),
-                                         (void*)aligned_bottom.new_aicore_data(),
-                                         (void*)aligned_weight->new_mutable_aicore_diff()};
+            std::vector<void*> args1 = { (void*)aligned_top.aicore_diff(),
+                                         (void*)aligned_bottom.aicore_data(),
+                                         (void*)aligned_weight->mutable_aicore_diff()};
 
             AICORE_CHECK(rtKernelLaunch(this->bw_weight_kernel, this->bw_weight_block_num, args1.data(), args1.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
             AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
-
-            //     auto hack_str = new std::string(fmt::format("matmul_op_{}_{}_{}_{}_{}_{}__kernel0", ALIGN_SIZE(N_), ALIGN_SIZE(M_),
-            //                            ALIGN_SIZE(K_),
-            //                            "TA",
-            //                            "NTB",
-            //                            "nobias"));
-            // std::cout << "bw w: " << *hack_str << std::endl;
-                        
-            //     auto err = custom::op_run(*hack_str, 
-            //                             0,
-            //                             fmt::format("{}/matmul_op_{}_{}_{}_{}_{}_{}.o", Caffe::kernel_dir(), ALIGN_SIZE(N_), ALIGN_SIZE(M_),
-            //                                 ALIGN_SIZE(K_), 
-            //                                 "TA",
-            //                                 "NTB",
-            //                                 "nobias"),
-            //                             {aligned_top.aicore_diff(), aligned_bottom.aicore_data()},
-            //                             {aligned_weight->mutable_aicore_diff()},
-            //                             {aligned_weight->count() * static_cast<unsigned int>(sizeof(half))});
-            //     AICORE_EXEC_CHECK(err);
-
         }
-
-        // vector<Dtype> tttt(aligned_weight->count(), Dtype(.0));
-        // AICORE_CHECK(rtMemcpy(tttt.data(), aligned_weight->count() * sizeof(Dtype), (void *)aligned_weight->new_aicore_diff(), aligned_weight->count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
-
-        // caffe_copy(aligned_weight->count(), tttt.data(), aligned_weight->mutable_cpu_diff());
 
 
     }
@@ -212,20 +142,20 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 
     if (propagate_down[0]) {
 
-        std::vector<void*> args1 = { (void*)aligned_top.new_aicore_diff(),
-                                        (void*)aligned_weight->new_aicore_data(),
-                                        (void*)aligned_bottom.new_mutable_aicore_diff()};
+        std::vector<void*> args1 = { (void*)aligned_top.aicore_diff(),
+                                        (void*)aligned_weight->aicore_data(),
+                                        (void*)aligned_bottom.mutable_aicore_diff()};
 
         AICORE_CHECK(rtKernelLaunch(this->bw_input_kernel, this->bw_input_block_num, args1.data(), args1.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
         AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
         // vector<Dtype> tttt(aligned_bottom.count(), Dtype(.0));
 
-        // AICORE_CHECK(rtMemcpy(tttt.data(), aligned_bottom.count() * sizeof(Dtype), (void *)aligned_bottom.new_aicore_diff(), aligned_bottom.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
+        // AICORE_CHECK(rtMemcpy(tttt.data(), aligned_bottom.count() * sizeof(Dtype), (void *)aligned_bottom.aicore_diff(), aligned_bottom.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
 
 
         Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
-        const Dtype* aligned_bottom_diff = aligned_bottom.new_aicore_diff();
+        const Dtype* aligned_bottom_diff = aligned_bottom.aicore_diff();
 
         for(int i = 0; i < bottom[0]->shape(0); ++i) {
             caffe_copy(bottom[0]->shape(1), aligned_bottom_diff + i * aligned_bottom.shape(1), bottom_diff + i * K_);

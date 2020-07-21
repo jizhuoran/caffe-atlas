@@ -94,7 +94,7 @@ void Caffe::load_aicore_kernel(std::string kernel_file, std::string kernel_name,
 
   void *binHandle;
   rtDevBinary_t binary;
-  binary.data = readBinFile((new_kernel_dir() + kernel_file).c_str(), &binary.length);
+  binary.data = readBinFile(kernel_file.c_str(), &binary.length);
   binary.magic = RT_DEV_BINARY_MAGIC_ELF;
   binary.version = 0;
 

@@ -8,7 +8,7 @@
 
 namespace caffe {
 SyncedMemory::SyncedMemory()
-  : cpu_ptr_(NULL), gpu_ptr_(NULL), new_aicore_ptr_(NULL), size_(0), head_(UNINITIALIZED),
+  : cpu_ptr_(NULL), gpu_ptr_(NULL), aicore_ptr_(NULL), size_(0), head_(UNINITIALIZED),
     own_cpu_data_(false), cpu_malloc_use_cuda_(false), cpu_malloc_use_aicore_(false), own_gpu_data_(false), own_aicore_data_(false) {
 #ifndef CPU_ONLY
 #ifdef DEBUG
@@ -18,7 +18,7 @@ SyncedMemory::SyncedMemory()
 }
 
 SyncedMemory::SyncedMemory(size_t size)
-  : cpu_ptr_(NULL), gpu_ptr_(NULL), new_aicore_ptr_(NULL), size_(size), head_(UNINITIALIZED),
+  : cpu_ptr_(NULL), gpu_ptr_(NULL), aicore_ptr_(NULL), size_(size), head_(UNINITIALIZED),
     own_cpu_data_(false), cpu_malloc_use_cuda_(false), cpu_malloc_use_aicore_(false), own_gpu_data_(false), own_aicore_data_(false) {
 #ifndef CPU_ONLY
 #ifdef DEBUG
@@ -32,11 +32,8 @@ SyncedMemory::~SyncedMemory() {
   if (cpu_ptr_ && own_cpu_data_) {
     CaffeFreeHost(cpu_ptr_, cpu_malloc_use_cuda_, cpu_malloc_use_aicore_);
   }
-  if (aicore_ptr_ != "") {
-    std::remove(aicore_ptr_.c_str());
-  }
-  if (new_aicore_ptr_ && own_aicore_data_) {
-    AICORE_CHECK(rtFree(new_aicore_ptr_));
+  if (aicore_ptr_ && own_aicore_data_) {
+    AICORE_CHECK(rtFree(aicore_ptr_));
   }
 #ifndef CPU_ONLY
   if (gpu_ptr_ && own_gpu_data_) {
@@ -71,7 +68,7 @@ inline void SyncedMemory::to_cpu() {
       CaffeMallocHost(&cpu_ptr_, size_, &cpu_malloc_use_cuda_, &cpu_malloc_use_aicore_);
       own_cpu_data_ = true;
     }
-    AICORE_CHECK(rtMemcpy(cpu_ptr_, size_, new_aicore_ptr_, size_, RT_MEMCPY_DEVICE_TO_HOST));
+    AICORE_CHECK(rtMemcpy(cpu_ptr_, size_, aicore_ptr_, size_, RT_MEMCPY_DEVICE_TO_HOST));
     head_ = SYNCED;
     break;
   case HEAD_AT_CPU:
@@ -113,8 +110,8 @@ inline void SyncedMemory::to_aicore() {
   check_device();
   switch (head_) {
   case UNINITIALIZED:
-    AICORE_CHECK(rtMalloc(&new_aicore_ptr_, size_, RT_MEMORY_HBM));
-    caffe_aicore_memset(size_, 0, new_aicore_ptr_);
+    AICORE_CHECK(rtMalloc(&aicore_ptr_, size_, RT_MEMORY_HBM));
+    caffe_aicore_memset(size_, 0, aicore_ptr_);
     head_ = HEAD_AT_AICORE;
     own_aicore_data_ = true;
     break;
@@ -122,11 +119,11 @@ inline void SyncedMemory::to_aicore() {
     NO_GPU;
     break;
   case HEAD_AT_CPU:
-    if (new_aicore_ptr_ == NULL) {
-      AICORE_CHECK(rtMalloc(&new_aicore_ptr_, size_, RT_MEMORY_HBM));
+    if (aicore_ptr_ == NULL) {
+      AICORE_CHECK(rtMalloc(&aicore_ptr_, size_, RT_MEMORY_HBM));
       own_aicore_data_ = true;
     }
-    AICORE_CHECK(rtMemcpy(new_aicore_ptr_, size_, cpu_ptr_, size_, RT_MEMCPY_HOST_TO_DEVICE));
+    AICORE_CHECK(rtMemcpy(aicore_ptr_, size_, cpu_ptr_, size_, RT_MEMCPY_HOST_TO_DEVICE));
     head_ = SYNCED;
     break;
   case HEAD_AT_AICORE:
@@ -178,16 +175,10 @@ void SyncedMemory::set_gpu_data(void* data) {
 #endif
 }
 
-std::string SyncedMemory::aicore_data() {
+const void* SyncedMemory::aicore_data() {
   check_device();
   to_aicore();
   return aicore_ptr_;
-}
-
-const void* SyncedMemory::new_aicore_data() {
-  check_device();
-  to_aicore();
-  return new_aicore_ptr_;
 }
 
 
@@ -210,18 +201,11 @@ void* SyncedMemory::mutable_gpu_data() {
 #endif
 }
 
-std::string SyncedMemory::mutable_aicore_data() {
+void* SyncedMemory::mutable_aicore_data() {
   check_device();
   to_aicore();
   head_ = HEAD_AT_AICORE;
   return aicore_ptr_;
-}
-
-void* SyncedMemory::new_mutable_aicore_data() {
-  check_device();
-  to_aicore();
-  head_ = HEAD_AT_AICORE;
-  return new_aicore_ptr_;
 }
 
 #ifndef CPU_ONLY

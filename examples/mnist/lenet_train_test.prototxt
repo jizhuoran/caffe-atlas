@@ -56,16 +56,16 @@ layer {
     }
   }
   aicorekernel {
-    kernelfile: "conv_fw_op_64_1_20_28_28_bias_5_5_0_0_1_1.o"
-    kernelname: "conv_fw_op_64_1_20_28_28_bias_5_5_0_0_1_1__kernel0"
+    kernelfile: "kernel_meta/conv_fw_op_64_1_20_28_28_bias_5_5_0_0_1_1.o"
+    kernelname: "kernel_meta/conv_fw_op_64_1_20_28_28_bias_5_5_0_0_1_1__kernel0"
   }
   aicorekernel {
-    kernelfile: "conv_bw_weight_op_64_1_20_28_28_5_5_0_0_1_1.o"
-    kernelname: "conv_bw_weight_op_64_1_20_28_28_5_5_0_0_1_1__kernel0"
+    kernelfile: "kernel_meta/conv_bw_weight_op_64_1_20_28_28_5_5_0_0_1_1.o"
+    kernelname: "kernel_meta/conv_bw_weight_op_64_1_20_28_28_5_5_0_0_1_1__kernel0"
   }
   aicorekernel {
-    kernelfile: "conv_bw_input_op_64_1_20_28_28_5_5_0_0_1_1.o"
-    kernelname: "conv_bw_input_op_64_1_20_28_28_5_5_0_0_1_1__kernel0"
+    kernelfile: "kernel_meta/conv_bw_input_op_64_1_20_28_28_5_5_0_0_1_1.o"
+    kernelname: "kernel_meta/conv_bw_input_op_64_1_20_28_28_5_5_0_0_1_1__kernel0"
   }
 
 }
@@ -103,16 +103,16 @@ layer {
     }
   }
   aicorekernel {
-    kernelfile: "conv_fw_op_64_20_50_12_12_bias_5_5_0_0_1_1.o"
-    kernelname: "conv_fw_op_64_20_50_12_12_bias_5_5_0_0_1_1__kernel0"
+    kernelfile: "kernel_meta/conv_fw_op_64_20_50_12_12_bias_5_5_0_0_1_1.o"
+    kernelname: "kernel_meta/conv_fw_op_64_20_50_12_12_bias_5_5_0_0_1_1__kernel0"
   }
   aicorekernel {
-    kernelfile: "conv_bw_weight_op_64_20_50_12_12_5_5_0_0_1_1.o"
-    kernelname: "conv_bw_weight_op_64_20_50_12_12_5_5_0_0_1_1__kernel0"
+    kernelfile: "kernel_meta/conv_bw_weight_op_64_20_50_12_12_5_5_0_0_1_1.o"
+    kernelname: "kernel_meta/conv_bw_weight_op_64_20_50_12_12_5_5_0_0_1_1__kernel0"
   }
   aicorekernel {
-    kernelfile: "conv_bw_input_op_64_20_50_12_12_5_5_0_0_1_1.o"
-    kernelname: "conv_bw_input_op_64_20_50_12_12_5_5_0_0_1_1__kernel0"
+    kernelfile: "kernel_meta/conv_bw_input_op_64_20_50_12_12_5_5_0_0_1_1.o"
+    kernelname: "kernel_meta/conv_bw_input_op_64_20_50_12_12_5_5_0_0_1_1__kernel0"
   }
 }
 layer {
@@ -147,16 +147,16 @@ layer {
     }
   }
   aicorekernel {
-    kernelfile: "matmul_op_64_800_512_NTA_TB_bias.o"
-    kernelname: "matmul_op_64_800_512_NTA_TB_bias__kernel0"
+    kernelfile: "kernel_meta/matmul_op_64_800_512_NTA_TB_bias.o"
+    kernelname: "kernel_meta/matmul_op_64_800_512_NTA_TB_bias__kernel0"
   }
   aicorekernel {
-    kernelfile: "matmul_op_512_64_800_TA_NTB_nobias.o"
-    kernelname: "matmul_op_512_64_800_TA_NTB_nobias__kernel0"
+    kernelfile: "kernel_meta/matmul_op_512_64_800_TA_NTB_nobias.o"
+    kernelname: "kernel_meta/matmul_op_512_64_800_TA_NTB_nobias__kernel0"
   }
   aicorekernel {
-    kernelfile: "matmul_op_64_512_800_NTA_NTB_nobias.o"
-    kernelname: "matmul_op_64_512_800_NTA_NTB_nobias__kernel0"
+    kernelfile: "kernel_meta/matmul_op_64_512_800_NTA_NTB_nobias.o"
+    kernelname: "kernel_meta/matmul_op_64_512_800_NTA_NTB_nobias__kernel0"
   }
 }
 layer {
@@ -186,16 +186,16 @@ layer {
     }
   }
   aicorekernel {
-    kernelfile: "matmul_op_64_512_16_NTA_TB_bias.o"
-    kernelname: "matmul_op_64_512_16_NTA_TB_bias__kernel0"
+    kernelfile: "kernel_meta/matmul_op_64_512_16_NTA_TB_bias.o"
+    kernelname: "kernel_meta/matmul_op_64_512_16_NTA_TB_bias__kernel0"
   }
   aicorekernel {
-    kernelfile: "matmul_op_16_64_512_TA_NTB_nobias.o"
-    kernelname: "matmul_op_16_64_512_TA_NTB_nobias__kernel0"
+    kernelfile: "kernel_meta/matmul_op_16_64_512_TA_NTB_nobias.o"
+    kernelname: "kernel_meta/matmul_op_16_64_512_TA_NTB_nobias__kernel0"
   }
   aicorekernel {
-    kernelfile: "matmul_op_64_16_512_NTA_NTB_nobias.o"
-    kernelname: "matmul_op_64_16_512_NTA_NTB_nobias__kernel0"
+    kernelfile: "kernel_meta/matmul_op_64_16_512_NTA_NTB_nobias.o"
+    kernelname: "kernel_meta/matmul_op_64_16_512_NTA_NTB_nobias__kernel0"
   }
 }
 layer {

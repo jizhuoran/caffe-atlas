@@ -118,15 +118,9 @@ void Blob<Dtype>::set_gpu_data(Dtype* data) {
 }
 
 template <typename Dtype>
-std::string Blob<Dtype>::aicore_data() {
+const Dtype* Blob<Dtype>::aicore_data() {
   CHECK(data_);
-  return data_->aicore_data();
-}
-
-template <typename Dtype>
-const Dtype* Blob<Dtype>::new_aicore_data() {
-  CHECK(data_);
-  return (const Dtype*)data_->new_aicore_data();
+  return (const Dtype*)data_->aicore_data();
 }
 
 template <typename Dtype>
@@ -142,15 +136,9 @@ const Dtype* Blob<Dtype>::gpu_diff() const {
 }
 
 template <typename Dtype>
-std::string Blob<Dtype>::aicore_diff() {
+const Dtype* Blob<Dtype>::aicore_diff() {
   CHECK(diff_);
-  return diff_->aicore_data();
-}
-
-template <typename Dtype>
-const Dtype* Blob<Dtype>::new_aicore_diff() {
-  CHECK(diff_);
-  return (const Dtype*)diff_->new_aicore_data();
+  return (const Dtype*)diff_->aicore_data();
 }
 
 template <typename Dtype>
@@ -166,15 +154,9 @@ Dtype* Blob<Dtype>::mutable_gpu_data() {
 }
 
 template <typename Dtype>
-std::string Blob<Dtype>::mutable_aicore_data() {
+Dtype* Blob<Dtype>::mutable_aicore_data() {
   CHECK(data_);
-  return data_->mutable_aicore_data();
-}
-
-template <typename Dtype>
-Dtype* Blob<Dtype>::new_mutable_aicore_data() {
-  CHECK(data_);
-  return static_cast<Dtype*>(data_->new_mutable_aicore_data());
+  return static_cast<Dtype*>(data_->mutable_aicore_data());
 }
 
 
@@ -191,15 +173,9 @@ Dtype* Blob<Dtype>::mutable_gpu_diff() {
 }
 
 template <typename Dtype>
-std::string Blob<Dtype>::mutable_aicore_diff() {
+Dtype* Blob<Dtype>::mutable_aicore_diff() {
   CHECK(diff_);
-  return diff_->mutable_aicore_data();
-}
-
-template <typename Dtype>
-Dtype* Blob<Dtype>::new_mutable_aicore_diff() {
-  CHECK(diff_);
-  return static_cast<Dtype*>(diff_->new_mutable_aicore_data());
+  return static_cast<Dtype*>(diff_->mutable_aicore_data());
 }
 
 template <typename Dtype>

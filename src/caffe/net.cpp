@@ -956,10 +956,9 @@ void Net<Dtype>::ClearParamDiffs() {
                 blob->mutable_aicore_diff());
       break;
     case Caffe::GENERATOR:
-      caffe_aicore_set(blob->count(), static_cast<Dtype>(0),
-                blob->mutable_aicore_diff());
+      caffe_set(blob->count(), static_cast<Dtype>(0),
+                blob->mutable_cpu_diff());
       break;
-
     }
   }
 }
