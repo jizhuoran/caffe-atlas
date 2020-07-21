@@ -14,5 +14,5 @@ test_initialization: false
 stepvalue: 8000
 stepvalue: 16000
 type: "Nesterov"
-solver_mode: GENERATOR
+solver_mode: AICORE
 
