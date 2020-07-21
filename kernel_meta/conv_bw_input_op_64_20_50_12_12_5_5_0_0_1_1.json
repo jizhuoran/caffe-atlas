@@ -1,7 +1,7 @@
 {
     "binFileName":"conv_bw_input_op_64_20_50_12_12_5_5_0_0_1_1",
     "binFileSuffix":".o",
-    "blockDim":1,
+    "blockDim":4,
     "kernelName":"conv_bw_input_op_64_20_50_12_12_5_5_0_0_1_1__kernel0",
     "magic":"RT_DEV_BINARY_MAGIC_ELF",
     "parameters":[
@@ -9,5 +9,5 @@
         0,
         0
     ],
-    "sha256":"bdc25edd9f8d9e3cb4ca5e1339345cf0dc0c60adb2b4d7595892ff18bebc9d79"
+    "sha256":"a3c6de518637a4d2fa7833b480f9114cd4b1f98d14ef3dded695c74b29b7eccb"
 }
