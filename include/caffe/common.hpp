@@ -172,7 +172,7 @@ class Caffe {
   inline static Brew mode() { return Get().mode_; }
   // inline static std::string aicore_dir() { return "aicore_dir/"; }
   // inline static std::string kernel_dir() { return "old_kernel_meta"; }
-  // inline static std::string new_kernel_dir() { return "kernel_meta/"; }
+  inline static std::string new_kernel_dir() { return "kernel_meta/"; }
 
   rtStream_t aicore_stream;
   void load_aicore_kernel(std::string kernel_file, std::string kernel_name, std::vector<char>& holder, char** stub);
