@@ -96,44 +96,20 @@ template <typename Dtype>
 void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
-
-
-  const Dtype* weight = this->blobs_[0]->cpu_data();
-  Dtype* weight_diff = this->blobs_[0]->mutable_cpu_diff();
   
-  
+  // Bias gradient, if necessary.
+  if (this->bias_term_ && this->param_propagate_down_[1]) {
     const Dtype* top_diff = top[0]->cpu_diff();
-    const Dtype* bottom_data = bottom[0]->cpu_data();
-    Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
-    // Bias gradient, if necessary.
-    // if (this->bias_term_ && this->param_propagate_down_[1]) {
-    //   Dtype* bias_diff = this->blobs_[1]->mutable_cpu_diff();
-    //   for (int n = 0; n < this->num_; ++n) {
-    //     this->backward_cpu_bias(bias_diff, top_diff + n * this->top_dim_);
-    //   }
-    // }
-
-      // Bias gradient, if necessary.
-    if (this->bias_term_ && this->param_propagate_down_[1]) {
-      const Dtype* top_diff = top[0]->cpu_diff();
-      Dtype* bias_diff = this->blobs_[1]->mutable_cpu_diff();
-      for (int i = 0; i < this->num_; ++i) {
-        for(int m = 0; m < this->num_output_; ++m) {
-          for(int n = 0; n < this->out_spatial_dim_; ++n) {
-            bias_diff[m] += top_diff[m * this->out_spatial_dim_ + n];
-          }
+    Dtype* bias_diff = this->blobs_[1]->mutable_cpu_diff();
+    for (int i = 0; i < this->num_; ++i) {
+      for(int m = 0; m < this->num_output_; ++m) {
+        for(int n = 0; n < this->out_spatial_dim_; ++n) {
+          bias_diff[m] += top_diff[m * this->out_spatial_dim_ + n];
         }
-        top_diff += this->top_dim_;
       }
+      top_diff += this->top_dim_;
     }
-
-
-
-
-
-
-
-
+  }
 
 
   Blob<Dtype> bottom_five(bottom[0]->shape(0), (bottom[0]->shape(1)+15)/16*16, bottom[0]->shape(2), bottom[0]->shape(3));
@@ -159,8 +135,6 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
     weight_fraz->mutable_cpu_diff()[i] = Dtype(cpu_weight_fraz_diff_fp32[i]);
   }
 
-
-
   // DO WEIGHT
 
   std::vector<void*> args1 = { (void*)weight_fraz->aicore_data(), 
@@ -169,11 +143,6 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 
   AICORE_CHECK(rtKernelLaunch(this->bw_input_kernel, this->bw_input_block_num, args1.data(), args1.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
   AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
-
-  // vector<Dtype> tttt(bottom_five.count(), Dtype(.0));
-
-  // AICORE_CHECK(rtMemcpy(tttt.data(), bottom_five.count() * sizeof(Dtype), (void *)bottom_five.aicore_diff(), bottom_five.count() * sizeof(Dtype), RT_MEMCPY_DEVICE_TO_HOST));
-
   five2four(bottom_five.aicore_diff(), bottom[0]->mutable_cpu_diff(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
 
 

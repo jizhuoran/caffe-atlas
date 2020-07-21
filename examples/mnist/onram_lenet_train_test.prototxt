@@ -1,0 +1,229 @@
+name: "LeNet"
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "examples_ram/mnist/mnist_train_lmdb"
+    batch_size: 64
+    backend: LMDB
+  }
+}
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "examples_ram/mnist/mnist_test_lmdb"
+    batch_size: 100
+    backend: LMDB
+  }
+}
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 20
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_1_20_28_28_bias_5_5_0_0_1_1.o"
+    kernelname: "conv_fw_op_64_1_20_28_28_bias_5_5_0_0_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_1_20_28_28_5_5_0_0_1_1.o"
+    kernelname: "conv_bw_weight_op_64_1_20_28_28_5_5_0_0_1_1__kernel0"
+    block_num: 24
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_1_20_28_28_5_5_0_0_1_1.o"
+    kernelname: "conv_bw_input_op_64_1_20_28_28_5_5_0_0_1_1__kernel0"
+    block_num: 2
+  }
+
+}
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv2"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "conv2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 50
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_20_50_12_12_bias_5_5_0_0_1_1.o"
+    kernelname: "conv_fw_op_64_20_50_12_12_bias_5_5_0_0_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_20_50_12_12_5_5_0_0_1_1.o"
+    kernelname: "conv_bw_weight_op_64_20_50_12_12_5_5_0_0_1_1__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_20_50_12_12_5_5_0_0_1_1.o"
+    kernelname: "conv_bw_input_op_64_20_50_12_12_5_5_0_0_1_1__kernel0"
+    block_num: 4
+  }
+}
+layer {
+  name: "pool2"
+  type: "Pooling"
+  bottom: "conv2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "ip1"
+  type: "InnerProduct"
+  bottom: "pool2"
+  top: "ip1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 500
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+  aicorekernel {
+    kernelfile: "matmul_op_64_800_512_NTA_TB_bias.o"
+    kernelname: "matmul_op_64_800_512_NTA_TB_bias__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "matmul_op_512_64_800_TA_NTB_nobias.o"
+    kernelname: "matmul_op_512_64_800_TA_NTB_nobias__kernel0"
+    block_num: 4
+  }
+  aicorekernel {
+    kernelfile: "matmul_op_64_512_800_NTA_NTB_nobias.o"
+    kernelname: "matmul_op_64_512_800_NTA_NTB_nobias__kernel0"
+    block_num: 2
+  }
+}
+layer {
+  name: "relu1"
+  type: "ReLU"
+  bottom: "ip1"
+  top: "ip1"
+}
+layer {
+  name: "ip2"
+  type: "InnerProduct"
+  bottom: "ip1"
+  top: "ip2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+  aicorekernel {
+    kernelfile: "matmul_op_64_512_16_NTA_TB_bias.o"
+    kernelname: "matmul_op_64_512_16_NTA_TB_bias__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "matmul_op_16_64_512_TA_NTB_nobias.o"
+    kernelname: "matmul_op_16_64_512_TA_NTB_nobias__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "matmul_op_64_16_512_NTA_NTB_nobias.o"
+    kernelname: "matmul_op_64_16_512_NTA_NTB_nobias__kernel0"
+    block_num: 2
+  }
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "ip2"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "ip2"
+  bottom: "label"
+  top: "loss"
+}
