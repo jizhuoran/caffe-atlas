@@ -1,0 +1,146 @@
+#ifdef __CCE_KT_TEST__
+#define __aicore__ 
+#else
+#define __aicore__ [aicore]
+#endif
+
+
+#define VERIFY_L2Buffer_OK(l2DataIndex) \
+	(0x01 & (((0xFF)&(~l2_in_main)) >> (l2DataIndex)))
+
+extern "C"  __global__ __aicore__ void conv_fw_op_64_1_20_28_28_bias_5_5_0_0_1_1__kernel0(__gm__ half* __restrict__ data, __gm__ half* __restrict__ weight, __gm__ half* __restrict__ Bias, __gm__ half* __restrict__ bias_add_vector_cc_1,int64_t index0, uint64_t offset0, int64_t index1, uint64_t offset1, int64_t index2, uint64_t offset2, int64_t index3, uint64_t offset3) {
+  if (index0 >= 0) {
+    if (VERIFY_L2Buffer_OK(index0)) {
+      data = (__gm__ half*)((uint64_t)l2_vaddr_base + offset0);
+    }
+  }
+  if (index1 >= 0) {
+    if (VERIFY_L2Buffer_OK(index1)) {
+      weight = (__gm__ half*)((uint64_t)l2_vaddr_base + offset1);
+    }
+  }
+  if (index2 >= 0) {
+    if (VERIFY_L2Buffer_OK(index2)) {
+      Bias = (__gm__ half*)((uint64_t)l2_vaddr_base + offset2);
+    }
+  }
+  if (index3 >= 0) {
+    if (VERIFY_L2Buffer_OK(index3)) {
+      bias_add_vector_cc_1 = (__gm__ half*)((uint64_t)l2_vaddr_base + offset3);
+    }
+  }
+set_l1_3d_size(0);
+set_padding(0);
+set_vector_mask((uint64_t)-1, (uint64_t)-1);
+__cbuf__   half* data_local_L1 = (__cbuf__  half *)get_imm(0);
+__cc__   float* mad1 = (__cc__  float *)get_imm(0);
+__cb__   half* weight_local_L0B = (__cb__  half *)get_imm(0);
+__ca__   half* im2col_fractal = (__ca__  half *)get_imm(0);
+__ubuf__   half* Bias_local_UB = (__ubuf__  half *)get_imm(0);
+__ubuf__   half* C_UB = (__ubuf__  half *)get_imm(64);
+__ubuf__   half* C = (__ubuf__  half *)get_imm(32832);
+__cbuf__   half* data_local_L11 = (__cbuf__  half *)get_imm(24576);
+__cc__   float* mad11 = (__cc__  float *)get_imm(65536);
+__cb__   half* weight_local_L0B1 = (__cb__  half *)get_imm(1024);
+__ca__   half* im2col_fractal1 = (__ca__  half *)get_imm(16384);
+__ubuf__   half* Bias_local_UB1 = (__ubuf__  half *)get_imm(65600);
+__ubuf__   half* C_UB1 = (__ubuf__  half *)get_imm(64);
+__ubuf__   half* C1 = (__ubuf__  half *)get_imm(65664);
+  set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+  set_flag(PIPE_V, PIPE_MTE2, EVENT_ID1);
+  set_flag(PIPE_V, PIPE_M, EVENT_ID1);
+  set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+  set_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+  set_flag(PIPE_V, PIPE_M, EVENT_ID0);
+  set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+  set_flag(PIPE_M, PIPE_MTE2, EVENT_ID0);
+  set_vector_mask((uint64_t)18446744073709551615, (uint64_t)18446744073709551615);
+  for (int32_t i0_inner_outer = 0; i0_inner_outer < 64; ++i0_inner_outer) {
+    copy_gm_to_cbuf(((__cbuf__ half *)data_local_L1 + 0), ((__gm__ half *)data + (i0_inner_outer * 12544)), 0, 1, 756, 0, 0, PAD_NONE);
+    set_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    set_fmatrix((uint64_t)1769500);
+    wait_flag(PIPE_V, PIPE_M, EVENT_ID0);
+    wait_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    for (int32_t k1_outer_inner = 0; k1_outer_inner < 25; ++k1_outer_inner) {
+      wait_flag(PIPE_M, PIPE_MTE2, EVENT_ID0);
+      load_gm_to_cb(((__cb__ half *)weight_local_L0B + 0), ((__gm__ half *)weight + (k1_outer_inner * 512)), 0, 2, 1, 0);
+      set_flag(PIPE_MTE2, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+      img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal + 0), ((__cbuf__ half *)data_local_L1 + 0), ((uint64_t)(((int64_t)k1_outer_inner) % (int64_t)5)), ((uint64_t)(((int64_t)k1_outer_inner) / (int64_t)5)), (int64_t)0, (int64_t)0, (uint64_t)0, (uint64_t)1, (uint64_t)1, (uint64_t)5, (uint64_t)5, (uint64_t)1, (uint64_t)1, (uint64_t)1, (uint64_t)1, (uint64_t)32, (csize_t)0);
+      set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_MTE2, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      mad(((__cc__ float *)mad1 + 0), ((__ca__ half *)im2col_fractal + 0), ((__cb__ half *)weight_local_L0B + 0), 512, 16, 32, (k1_outer_inner == 0));
+      set_flag(PIPE_M, PIPE_MTE2, EVENT_ID0);
+      set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+    }
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+    copy_gm_to_ubuf(((__ubuf__ half *)Bias_local_UB + 0), ((__gm__ half *)Bias + 0), 0, 1, 2, 0, 0);
+    set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB + 0), ((__cc__ float *)mad1 + 0), 0, 1, 64, 0, 0, CRMODE_F32toF16_NONE);
+    set_flag(PIPE_V, PIPE_M, EVENT_ID0);
+    wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+    pipe_barrier(PIPE_V);
+    copy_ubuf_to_ubuf(((__ubuf__ half *)C + 0), ((__ubuf__ half *)C_UB + 0), 0, 1, 1024, 0, 0);
+    wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    pipe_barrier(PIPE_V);
+    for (int32_t iter_cut_axis_1 = 0; iter_cut_axis_1 < 2; ++iter_cut_axis_1) {
+      vadd(((__ubuf__ half *)C + (iter_cut_axis_1 * 8192)), ((__ubuf__ half *)C + (iter_cut_axis_1 * 8192)), ((__ubuf__ half *)Bias_local_UB + (iter_cut_axis_1 * 16)), (uint8_t)64, (uint8_t)1, (uint8_t)1, (uint8_t)0, (uint8_t)8, (uint8_t)8, (uint8_t)0);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    set_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)bias_add_vector_cc_1 + (i0_inner_outer * 18432)), ((__ubuf__ half *)C + 0), 0, 2, 512, 0, 64);
+    set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+    copy_gm_to_cbuf(((__cbuf__ half *)data_local_L11 + 0), ((__gm__ half *)data + ((i0_inner_outer * 12544) + 9408)), 0, 1, 196, 0, 0, PAD_NONE);
+    set_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    set_fmatrix((uint64_t)458780);
+    wait_flag(PIPE_V, PIPE_M, EVENT_ID1);
+    wait_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    for (int32_t k1_outer_inner1 = 0; k1_outer_inner1 < 25; ++k1_outer_inner1) {
+      wait_flag(PIPE_M, PIPE_MTE2, EVENT_ID0);
+      load_gm_to_cb(((__cb__ half *)weight_local_L0B1 + 0), ((__gm__ half *)weight + (k1_outer_inner1 * 512)), 0, 2, 1, 0);
+      set_flag(PIPE_MTE2, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+      img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal1 + 0), ((__cbuf__ half *)data_local_L11 + 0), ((uint64_t)(((int64_t)k1_outer_inner1) % (int64_t)5)), ((uint64_t)(((int64_t)k1_outer_inner1) / (int64_t)5)), (int64_t)8, (int64_t)0, (uint64_t)0, (uint64_t)1, (uint64_t)1, (uint64_t)5, (uint64_t)5, (uint64_t)1, (uint64_t)1, (uint64_t)1, (uint64_t)1, (uint64_t)4, (csize_t)0);
+      set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_MTE2, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      mad(((__cc__ float *)mad11 + 0), ((__ca__ half *)im2col_fractal1 + 0), ((__cb__ half *)weight_local_L0B1 + 0), 64, 16, 32, (k1_outer_inner1 == 0));
+      set_flag(PIPE_M, PIPE_MTE2, EVENT_ID0);
+      set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+    }
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID1);
+    copy_gm_to_ubuf(((__ubuf__ half *)Bias_local_UB1 + 0), ((__gm__ half *)Bias + 0), 0, 1, 2, 0, 0);
+    set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB1 + 0), ((__cc__ float *)mad11 + 0), 0, 1, 8, 0, 0, CRMODE_F32toF16_NONE);
+    set_flag(PIPE_V, PIPE_M, EVENT_ID1);
+    wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+    pipe_barrier(PIPE_V);
+    copy_ubuf_to_ubuf(((__ubuf__ half *)C1 + 0), ((__ubuf__ half *)C_UB1 + 0), 0, 1, 128, 0, 0);
+    wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    pipe_barrier(PIPE_V);
+    for (int32_t iter_cut_axis_11 = 0; iter_cut_axis_11 < 2; ++iter_cut_axis_11) {
+      vadd(((__ubuf__ half *)C1 + (iter_cut_axis_11 * 1024)), ((__ubuf__ half *)C1 + (iter_cut_axis_11 * 1024)), ((__ubuf__ half *)Bias_local_UB1 + (iter_cut_axis_11 * 16)), (uint8_t)8, (uint8_t)1, (uint8_t)1, (uint8_t)0, (uint8_t)8, (uint8_t)8, (uint8_t)0);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    set_flag(PIPE_V, PIPE_MTE2, EVENT_ID1);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)bias_add_vector_cc_1 + ((i0_inner_outer * 18432) + 8192)), ((__ubuf__ half *)C1 + 0), 0, 2, 64, 0, 512);
+    set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+  }
+  wait_flag(PIPE_M, PIPE_MTE2, EVENT_ID0);
+  wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+  wait_flag(PIPE_V, PIPE_M, EVENT_ID0);
+  wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+  wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+  wait_flag(PIPE_V, PIPE_M, EVENT_ID1);
+  wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID1);
+  wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+  pipe_barrier(PIPE_ALL);
+}
+

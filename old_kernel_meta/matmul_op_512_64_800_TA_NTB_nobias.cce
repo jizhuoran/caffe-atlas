@@ -1,0 +1,360 @@
+#ifdef __CCE_KT_TEST__
+#define __aicore__ 
+#else
+#define __aicore__ [aicore]
+#endif
+
+
+#define VERIFY_L2Buffer_OK(l2DataIndex) \
+	(0x01 & (((0xFF)&(~l2_in_main)) >> (l2DataIndex)))
+
+extern "C"  __global__ __aicore__ void matmul_op_512_64_800_TA_NTB_nobias__kernel0(__gm__ half* __restrict__ tensor_a, __gm__ half* __restrict__ tensor_b, __gm__ half* __restrict__ tensor_c_gm,int64_t index0, uint64_t offset0, int64_t index1, uint64_t offset1, int64_t index2, uint64_t offset2) {
+  if (index0 >= 0) {
+    if (VERIFY_L2Buffer_OK(index0)) {
+      tensor_a = (__gm__ half*)((uint64_t)l2_vaddr_base + offset0);
+    }
+  }
+  if (index1 >= 0) {
+    if (VERIFY_L2Buffer_OK(index1)) {
+      tensor_b = (__gm__ half*)((uint64_t)l2_vaddr_base + offset1);
+    }
+  }
+  if (index2 >= 0) {
+    if (VERIFY_L2Buffer_OK(index2)) {
+      tensor_c_gm = (__gm__ half*)((uint64_t)l2_vaddr_base + offset2);
+    }
+  }
+set_vector_mask((uint64_t)-1, (uint64_t)-1);
+__ubuf__   half* tensor_b_ub_1 = (__ubuf__  half *)get_imm(0);
+__ubuf__   half* tensor_b_ub_fract_2 = (__ubuf__  half *)get_imm(20480);
+__cbuf__   half* tensor_b_l1_3 = (__cbuf__  half *)get_imm(0);
+__ubuf__   half* tensor_a_ub_4 = (__ubuf__  half *)get_imm(40960);
+__ubuf__   half* tensor_a_ub_fract_5 = (__ubuf__  half *)get_imm(65536);
+__cbuf__   half* tensor_a_l1_6 = (__cbuf__  half *)get_imm(20480);
+__ca__   half* tensor_a_l0a_9 = (__ca__  half *)get_imm(0);
+__cb__   half* tensor_b_l0b_10 = (__cb__  half *)get_imm(0);
+__cc__   float* tensor_c_8 = (__cc__  float *)get_imm(0);
+__ubuf__   half* tensor_c_ub_7 = (__ubuf__  half *)get_imm(65536);
+__ubuf__   half* tensor_c_ub_fract_11 = (__ubuf__  half *)get_imm(126976);
+__ubuf__   half* tensor_a_ub_12 = (__ubuf__  half *)get_imm(188416);
+__ubuf__   half* tensor_a_ub_fract_13 = (__ubuf__  half *)get_imm(0);
+__ubuf__   half* tensor_c_ub_fract_19 = (__ubuf__  half *)get_imm(0);
+__ubuf__   half* tensor_a_ub = (__ubuf__  half *)get_imm(212992);
+__ubuf__   half* tensor_a_ub_fract = (__ubuf__  half *)get_imm(61440);
+__cbuf__   half* tensor_a_l1 = (__cbuf__  half *)get_imm(20480);
+__ca__   half* tensor_a_l0a = (__ca__  half *)get_imm(0);
+__cc__   float* tensor_c = (__cc__  float *)get_imm(0);
+__ubuf__   half* tensor_c_ub = (__ubuf__  half *)get_imm(0);
+__ubuf__   half* tensor_c_ub_fract = (__ubuf__  half *)get_imm(40960);
+__ubuf__   half* tensor_b_ub_20 = (__ubuf__  half *)get_imm(229376);
+__ubuf__   half* tensor_b_ub_fract_21 = (__ubuf__  half *)get_imm(81920);
+__ubuf__   half* tensor_a_ub_fract_24 = (__ubuf__  half *)get_imm(102400);
+__ubuf__   half* tensor_c_ub_26 = (__ubuf__  half *)get_imm(81920);
+__ubuf__   half* tensor_a_ub_31 = (__ubuf__  half *)get_imm(61440);
+__ubuf__   half* tensor_a_ub_fract_32 = (__ubuf__  half *)get_imm(143360);
+__ubuf__   half* tensor_c_ub_fract_38 = (__ubuf__  half *)get_imm(61440);
+__ubuf__   half* tensor_a_ub1 = (__ubuf__  half *)get_imm(167936);
+__ubuf__   half* tensor_a_ub_fract1 = (__ubuf__  half *)get_imm(122880);
+__ubuf__   half* tensor_c_ub1 = (__ubuf__  half *)get_imm(122880);
+__ubuf__   half* tensor_c_ub_fract1 = (__ubuf__  half *)get_imm(212992);
+__ubuf__   half* tensor_b_ub_39 = (__ubuf__  half *)get_imm(184320);
+__ubuf__   half* tensor_a_ub_42 = (__ubuf__  half *)get_imm(20480);
+__ubuf__   half* tensor_a_ub_fract_43 = (__ubuf__  half *)get_imm(45056);
+__ubuf__   half* tensor_c_ub_45 = (__ubuf__  half *)get_imm(45056);
+__ubuf__   half* tensor_c_ub_fract_49 = (__ubuf__  half *)get_imm(106496);
+__ubuf__   half* tensor_a_ub_fract_51 = (__ubuf__  half *)get_imm(204800);
+__ubuf__   half* tensor_c_ub2 = (__ubuf__  half *)get_imm(61440);
+__ubuf__   half* tensor_c_ub_fract2 = (__ubuf__  half *)get_imm(102400);
+  set_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID1);
+  set_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID0);
+  set_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+  set_vector_mask((uint64_t)18446744073709551615, (uint64_t)18446744073709551615);
+  for (int32_t i1_outer_outer_db = 0; i1_outer_outer_db < 2; ++i1_outer_outer_db) {
+    wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+    copy_gm_to_ubuf(((__ubuf__ half *)tensor_b_ub_1 + 0), ((__gm__ half *)tensor_b + (i1_outer_outer_db * 320)), 0, 64, 10, 40, 0);
+    set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    for (int32_t iter_lower_outer_0 = 0; iter_lower_outer_0 < 4; ++iter_lower_outer_0) {
+      for (int32_t iter_cut_axis_1 = 0; iter_cut_axis_1 < 2; ++iter_cut_axis_1) {
+        vmax(((__ubuf__ half *)tensor_b_ub_fract_2 + ((iter_lower_outer_0 * 2560) + (iter_cut_axis_1 * 128))), ((__ubuf__ half *)tensor_b_ub_1 + ((iter_lower_outer_0 * 2560) + (iter_cut_axis_1 * 1280))), ((__ubuf__ half *)tensor_b_ub_1 + ((iter_lower_outer_0 * 2560) + (iter_cut_axis_1 * 1280))), (uint8_t)10, (uint8_t)1, (uint8_t)10, (uint8_t)10, (uint8_t)16, (uint8_t)1, (uint8_t)1);
+      }
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_cbuf(((__cbuf__ half *)tensor_b_l1_3 + 0), ((__ubuf__ half *)tensor_b_ub_fract_2 + 0), 0, 1, 640, 0, 0);
+    wait_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID0);
+    copy_gm_to_ubuf(((__ubuf__ half *)tensor_a_ub_4 + 0), ((__gm__ half *)tensor_a + 0), 0, 64, 12, 20, 0);
+    set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    for (int32_t iter_cut_axis_11 = 0; iter_cut_axis_11 < 8; ++iter_cut_axis_11) {
+      vmax(((__ubuf__ half *)tensor_a_ub_fract_5 + (iter_cut_axis_11 * 128)), ((__ubuf__ half *)tensor_a_ub_4 + (iter_cut_axis_11 * 1536)), ((__ubuf__ half *)tensor_a_ub_4 + (iter_cut_axis_11 * 1536)), (uint8_t)12, (uint8_t)1, (uint8_t)12, (uint8_t)12, (uint8_t)64, (uint8_t)1, (uint8_t)1);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_cbuf(((__cbuf__ half *)tensor_a_l1_6 + 0), ((__ubuf__ half *)tensor_a_ub_fract_5 + 0), 0, 1, 768, 0, 0);
+    set_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+    wait_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+    load_cbuf_to_ca(((__ca__ half *)tensor_a_l0a_9 + 0), ((__cbuf__ half *)tensor_a_l1_6 + 0), 0, 48, 1, 0, 1);
+    load_cbuf_to_cb(((__cb__ half *)tensor_b_l0b_10 + 0), ((__cbuf__ half *)tensor_b_l1_3 + 0), 0, 40, 1, 0, 1);
+    set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    mad(((__cc__ float *)tensor_c_8 + 0), ((__ca__ half *)tensor_a_l0a_9 + 0), ((__cb__ half *)tensor_b_l0b_10 + 0), 192, 64, 160, (int8_t)1);
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)tensor_c_ub_7 + 0), ((__cc__ float *)tensor_c_8 + 0), 0, 1, 120, 0, 0, CRMODE_F32toF16_NONE);
+    pipe_barrier(PIPE_V);
+    for (int32_t iter_cut_axis_12 = 0; iter_cut_axis_12 < 10; ++iter_cut_axis_12) {
+      vmax(((__ubuf__ half *)tensor_c_ub_fract_11 + (iter_cut_axis_12 * 16)), ((__ubuf__ half *)tensor_c_ub_7 + (iter_cut_axis_12 * 3072)), ((__ubuf__ half *)tensor_c_ub_7 + (iter_cut_axis_12 * 3072)), (uint8_t)24, (uint8_t)10, (uint8_t)1, (uint8_t)1, (uint8_t)80, (uint8_t)8, (uint8_t)8);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)tensor_c_gm + (i1_outer_outer_db * 320)), ((__ubuf__ half *)tensor_c_ub_fract_11 + 0), 0, 192, 10, 0, 40);
+    copy_gm_to_ubuf(((__ubuf__ half *)tensor_a_ub_12 + 0), ((__gm__ half *)tensor_a + 192), 0, 64, 12, 20, 0);
+    set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    for (int32_t iter_cut_axis_13 = 0; iter_cut_axis_13 < 8; ++iter_cut_axis_13) {
+      vmax(((__ubuf__ half *)tensor_a_ub_fract_13 + (iter_cut_axis_13 * 128)), ((__ubuf__ half *)tensor_a_ub_12 + (iter_cut_axis_13 * 1536)), ((__ubuf__ half *)tensor_a_ub_12 + (iter_cut_axis_13 * 1536)), (uint8_t)12, (uint8_t)1, (uint8_t)12, (uint8_t)12, (uint8_t)64, (uint8_t)1, (uint8_t)1);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_cbuf(((__cbuf__ half *)tensor_a_l1_6 + 0), ((__ubuf__ half *)tensor_a_ub_fract_13 + 0), 0, 1, 768, 0, 0);
+    set_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+    wait_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+    load_cbuf_to_ca(((__ca__ half *)tensor_a_l0a_9 + 0), ((__cbuf__ half *)tensor_a_l1_6 + 0), 0, 48, 1, 0, 1);
+    load_cbuf_to_cb(((__cb__ half *)tensor_b_l0b_10 + 0), ((__cbuf__ half *)tensor_b_l1_3 + 0), 0, 40, 1, 0, 1);
+    set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    mad(((__cc__ float *)tensor_c_8 + 0), ((__ca__ half *)tensor_a_l0a_9 + 0), ((__cb__ half *)tensor_b_l0b_10 + 0), 192, 64, 160, (int8_t)1);
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)tensor_c_ub_fract_11 + 0), ((__cc__ float *)tensor_c_8 + 0), 0, 1, 120, 0, 0, CRMODE_F32toF16_NONE);
+    pipe_barrier(PIPE_V);
+    for (int32_t iter_cut_axis_14 = 0; iter_cut_axis_14 < 10; ++iter_cut_axis_14) {
+      vmax(((__ubuf__ half *)tensor_c_ub_fract_19 + (iter_cut_axis_14 * 16)), ((__ubuf__ half *)tensor_c_ub_fract_11 + (iter_cut_axis_14 * 3072)), ((__ubuf__ half *)tensor_c_ub_fract_11 + (iter_cut_axis_14 * 3072)), (uint8_t)24, (uint8_t)10, (uint8_t)1, (uint8_t)1, (uint8_t)80, (uint8_t)8, (uint8_t)8);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)tensor_c_gm + ((i1_outer_outer_db * 320) + 153600)), ((__ubuf__ half *)tensor_c_ub_fract_19 + 0), 0, 192, 10, 0, 40);
+    wait_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID1);
+    copy_gm_to_ubuf(((__ubuf__ half *)tensor_a_ub + 0), ((__gm__ half *)tensor_a + 384), 0, 64, 8, 24, 0);
+    set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    for (int32_t iter_cut_axis_15 = 0; iter_cut_axis_15 < 8; ++iter_cut_axis_15) {
+      vmax(((__ubuf__ half *)tensor_a_ub_fract + (iter_cut_axis_15 * 128)), ((__ubuf__ half *)tensor_a_ub + (iter_cut_axis_15 * 1024)), ((__ubuf__ half *)tensor_a_ub + (iter_cut_axis_15 * 1024)), (uint8_t)8, (uint8_t)1, (uint8_t)8, (uint8_t)8, (uint8_t)64, (uint8_t)1, (uint8_t)1);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_cbuf(((__cbuf__ half *)tensor_a_l1 + 0), ((__ubuf__ half *)tensor_a_ub_fract + 0), 0, 1, 512, 0, 0);
+    set_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+    wait_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+    load_cbuf_to_ca(((__ca__ half *)tensor_a_l0a + 0), ((__cbuf__ half *)tensor_a_l1 + 0), 0, 32, 1, 0, 1);
+    load_cbuf_to_cb(((__cb__ half *)tensor_b_l0b_10 + 0), ((__cbuf__ half *)tensor_b_l1_3 + 0), 0, 40, 1, 0, 1);
+    set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    mad(((__cc__ float *)tensor_c + 0), ((__ca__ half *)tensor_a_l0a + 0), ((__cb__ half *)tensor_b_l0b_10 + 0), 128, 64, 160, (int8_t)1);
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)tensor_c_ub + 0), ((__cc__ float *)tensor_c + 0), 0, 1, 80, 0, 0, CRMODE_F32toF16_NONE);
+    pipe_barrier(PIPE_V);
+    for (int32_t iter_cut_axis_16 = 0; iter_cut_axis_16 < 10; ++iter_cut_axis_16) {
+      vmax(((__ubuf__ half *)tensor_c_ub_fract + (iter_cut_axis_16 * 16)), ((__ubuf__ half *)tensor_c_ub + (iter_cut_axis_16 * 2048)), ((__ubuf__ half *)tensor_c_ub + (iter_cut_axis_16 * 2048)), (uint8_t)16, (uint8_t)10, (uint8_t)1, (uint8_t)1, (uint8_t)80, (uint8_t)8, (uint8_t)8);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    set_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)tensor_c_gm + ((i1_outer_outer_db * 320) + 307200)), ((__ubuf__ half *)tensor_c_ub_fract + 0), 0, 128, 10, 0, 40);
+    copy_gm_to_ubuf(((__ubuf__ half *)tensor_b_ub_20 + 0), ((__gm__ half *)tensor_b + ((i1_outer_outer_db * 320) + 160)), 0, 64, 10, 40, 0);
+    set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    for (int32_t iter_lower_outer_01 = 0; iter_lower_outer_01 < 4; ++iter_lower_outer_01) {
+      for (int32_t iter_cut_axis_17 = 0; iter_cut_axis_17 < 2; ++iter_cut_axis_17) {
+        vmax(((__ubuf__ half *)tensor_b_ub_fract_21 + ((iter_lower_outer_01 * 2560) + (iter_cut_axis_17 * 128))), ((__ubuf__ half *)tensor_b_ub_20 + ((iter_lower_outer_01 * 2560) + (iter_cut_axis_17 * 1280))), ((__ubuf__ half *)tensor_b_ub_20 + ((iter_lower_outer_01 * 2560) + (iter_cut_axis_17 * 1280))), (uint8_t)10, (uint8_t)1, (uint8_t)10, (uint8_t)10, (uint8_t)16, (uint8_t)1, (uint8_t)1);
+      }
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_cbuf(((__cbuf__ half *)tensor_b_l1_3 + 0), ((__ubuf__ half *)tensor_b_ub_fract_21 + 0), 0, 1, 640, 0, 0);
+    wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+    copy_gm_to_ubuf(((__ubuf__ half *)tensor_a_ub_fract_13 + 0), ((__gm__ half *)tensor_a + 0), 0, 64, 12, 20, 0);
+    set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    for (int32_t iter_cut_axis_18 = 0; iter_cut_axis_18 < 8; ++iter_cut_axis_18) {
+      vmax(((__ubuf__ half *)tensor_a_ub_fract_24 + (iter_cut_axis_18 * 128)), ((__ubuf__ half *)tensor_a_ub_fract_13 + (iter_cut_axis_18 * 1536)), ((__ubuf__ half *)tensor_a_ub_fract_13 + (iter_cut_axis_18 * 1536)), (uint8_t)12, (uint8_t)1, (uint8_t)12, (uint8_t)12, (uint8_t)64, (uint8_t)1, (uint8_t)1);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_cbuf(((__cbuf__ half *)tensor_a_l1_6 + 0), ((__ubuf__ half *)tensor_a_ub_fract_24 + 0), 0, 1, 768, 0, 0);
+    set_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+    wait_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+    load_cbuf_to_ca(((__ca__ half *)tensor_a_l0a_9 + 0), ((__cbuf__ half *)tensor_a_l1_6 + 0), 0, 48, 1, 0, 1);
+    load_cbuf_to_cb(((__cb__ half *)tensor_b_l0b_10 + 0), ((__cbuf__ half *)tensor_b_l1_3 + 0), 0, 40, 1, 0, 1);
+    set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    mad(((__cc__ float *)tensor_c_8 + 0), ((__ca__ half *)tensor_a_l0a_9 + 0), ((__cb__ half *)tensor_b_l0b_10 + 0), 192, 64, 160, (int8_t)1);
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)tensor_c_ub_26 + 0), ((__cc__ float *)tensor_c_8 + 0), 0, 1, 120, 0, 0, CRMODE_F32toF16_NONE);
+    pipe_barrier(PIPE_V);
+    for (int32_t iter_cut_axis_19 = 0; iter_cut_axis_19 < 10; ++iter_cut_axis_19) {
+      vmax(((__ubuf__ half *)tensor_c_ub_fract_19 + (iter_cut_axis_19 * 16)), ((__ubuf__ half *)tensor_c_ub_26 + (iter_cut_axis_19 * 3072)), ((__ubuf__ half *)tensor_c_ub_26 + (iter_cut_axis_19 * 3072)), (uint8_t)24, (uint8_t)10, (uint8_t)1, (uint8_t)1, (uint8_t)80, (uint8_t)8, (uint8_t)8);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    set_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)tensor_c_gm + ((i1_outer_outer_db * 320) + 160)), ((__ubuf__ half *)tensor_c_ub_fract_19 + 0), 0, 192, 10, 0, 40);
+    wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+    copy_gm_to_ubuf(((__ubuf__ half *)tensor_a_ub_31 + 0), ((__gm__ half *)tensor_a + 192), 0, 64, 12, 20, 0);
+    set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    for (int32_t iter_cut_axis_110 = 0; iter_cut_axis_110 < 8; ++iter_cut_axis_110) {
+      vmax(((__ubuf__ half *)tensor_a_ub_fract_32 + (iter_cut_axis_110 * 128)), ((__ubuf__ half *)tensor_a_ub_31 + (iter_cut_axis_110 * 1536)), ((__ubuf__ half *)tensor_a_ub_31 + (iter_cut_axis_110 * 1536)), (uint8_t)12, (uint8_t)1, (uint8_t)12, (uint8_t)12, (uint8_t)64, (uint8_t)1, (uint8_t)1);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_cbuf(((__cbuf__ half *)tensor_a_l1_6 + 0), ((__ubuf__ half *)tensor_a_ub_fract_32 + 0), 0, 1, 768, 0, 0);
+    set_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+    wait_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+    load_cbuf_to_ca(((__ca__ half *)tensor_a_l0a_9 + 0), ((__cbuf__ half *)tensor_a_l1_6 + 0), 0, 48, 1, 0, 1);
+    load_cbuf_to_cb(((__cb__ half *)tensor_b_l0b_10 + 0), ((__cbuf__ half *)tensor_b_l1_3 + 0), 0, 40, 1, 0, 1);
+    set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    mad(((__cc__ float *)tensor_c_8 + 0), ((__ca__ half *)tensor_a_l0a_9 + 0), ((__cb__ half *)tensor_b_l0b_10 + 0), 192, 64, 160, (int8_t)1);
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)tensor_c_ub_fract_19 + 0), ((__cc__ float *)tensor_c_8 + 0), 0, 1, 120, 0, 0, CRMODE_F32toF16_NONE);
+    pipe_barrier(PIPE_V);
+    for (int32_t iter_cut_axis_111 = 0; iter_cut_axis_111 < 10; ++iter_cut_axis_111) {
+      vmax(((__ubuf__ half *)tensor_c_ub_fract_38 + (iter_cut_axis_111 * 16)), ((__ubuf__ half *)tensor_c_ub_fract_19 + (iter_cut_axis_111 * 3072)), ((__ubuf__ half *)tensor_c_ub_fract_19 + (iter_cut_axis_111 * 3072)), (uint8_t)24, (uint8_t)10, (uint8_t)1, (uint8_t)1, (uint8_t)80, (uint8_t)8, (uint8_t)8);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    set_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)tensor_c_gm + ((i1_outer_outer_db * 320) + 153760)), ((__ubuf__ half *)tensor_c_ub_fract_38 + 0), 0, 192, 10, 0, 40);
+    set_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID0);
+    copy_gm_to_ubuf(((__ubuf__ half *)tensor_a_ub1 + 0), ((__gm__ half *)tensor_a + 384), 0, 64, 8, 24, 0);
+    set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+    for (int32_t iter_cut_axis_112 = 0; iter_cut_axis_112 < 8; ++iter_cut_axis_112) {
+      vmax(((__ubuf__ half *)tensor_a_ub_fract1 + (iter_cut_axis_112 * 128)), ((__ubuf__ half *)tensor_a_ub1 + (iter_cut_axis_112 * 1024)), ((__ubuf__ half *)tensor_a_ub1 + (iter_cut_axis_112 * 1024)), (uint8_t)8, (uint8_t)1, (uint8_t)8, (uint8_t)8, (uint8_t)64, (uint8_t)1, (uint8_t)1);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_cbuf(((__cbuf__ half *)tensor_a_l1 + 0), ((__ubuf__ half *)tensor_a_ub_fract1 + 0), 0, 1, 512, 0, 0);
+    set_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+    wait_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+    load_cbuf_to_ca(((__ca__ half *)tensor_a_l0a + 0), ((__cbuf__ half *)tensor_a_l1 + 0), 0, 32, 1, 0, 1);
+    load_cbuf_to_cb(((__cb__ half *)tensor_b_l0b_10 + 0), ((__cbuf__ half *)tensor_b_l1_3 + 0), 0, 40, 1, 0, 1);
+    set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    mad(((__cc__ float *)tensor_c + 0), ((__ca__ half *)tensor_a_l0a + 0), ((__cb__ half *)tensor_b_l0b_10 + 0), 128, 64, 160, (int8_t)1);
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)tensor_c_ub1 + 0), ((__cc__ float *)tensor_c + 0), 0, 1, 80, 0, 0, CRMODE_F32toF16_NONE);
+    pipe_barrier(PIPE_V);
+    for (int32_t iter_cut_axis_113 = 0; iter_cut_axis_113 < 10; ++iter_cut_axis_113) {
+      vmax(((__ubuf__ half *)tensor_c_ub_fract1 + (iter_cut_axis_113 * 16)), ((__ubuf__ half *)tensor_c_ub1 + (iter_cut_axis_113 * 2048)), ((__ubuf__ half *)tensor_c_ub1 + (iter_cut_axis_113 * 2048)), (uint8_t)16, (uint8_t)10, (uint8_t)1, (uint8_t)1, (uint8_t)80, (uint8_t)8, (uint8_t)8);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)tensor_c_gm + ((i1_outer_outer_db * 320) + 307360)), ((__ubuf__ half *)tensor_c_ub_fract1 + 0), 0, 128, 10, 0, 40);
+    set_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID1);
+  }
+  wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+  copy_gm_to_ubuf(((__ubuf__ half *)tensor_b_ub_39 + 0), ((__gm__ half *)tensor_b + 640), 0, 64, 10, 40, 0);
+  set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+  wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+  for (int32_t iter_lower_outer_02 = 0; iter_lower_outer_02 < 4; ++iter_lower_outer_02) {
+    for (int32_t iter_cut_axis_114 = 0; iter_cut_axis_114 < 2; ++iter_cut_axis_114) {
+      vmax(((__ubuf__ half *)tensor_b_ub_1 + ((iter_lower_outer_02 * 2560) + (iter_cut_axis_114 * 128))), ((__ubuf__ half *)tensor_b_ub_39 + ((iter_lower_outer_02 * 2560) + (iter_cut_axis_114 * 1280))), ((__ubuf__ half *)tensor_b_ub_39 + ((iter_lower_outer_02 * 2560) + (iter_cut_axis_114 * 1280))), (uint8_t)10, (uint8_t)1, (uint8_t)10, (uint8_t)10, (uint8_t)16, (uint8_t)1, (uint8_t)1);
+    }
+  }
+  set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  copy_ubuf_to_cbuf(((__cbuf__ half *)tensor_b_l1_3 + 0), ((__ubuf__ half *)tensor_b_ub_1 + 0), 0, 1, 640, 0, 0);
+  set_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID2);
+  copy_gm_to_ubuf(((__ubuf__ half *)tensor_a_ub_42 + 0), ((__gm__ half *)tensor_a + 0), 0, 64, 12, 20, 0);
+  set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+  wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+  for (int32_t iter_cut_axis_115 = 0; iter_cut_axis_115 < 8; ++iter_cut_axis_115) {
+    vmax(((__ubuf__ half *)tensor_a_ub_fract_43 + (iter_cut_axis_115 * 128)), ((__ubuf__ half *)tensor_a_ub_42 + (iter_cut_axis_115 * 1536)), ((__ubuf__ half *)tensor_a_ub_42 + (iter_cut_axis_115 * 1536)), (uint8_t)12, (uint8_t)1, (uint8_t)12, (uint8_t)12, (uint8_t)64, (uint8_t)1, (uint8_t)1);
+  }
+  set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  set_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+  wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  copy_ubuf_to_cbuf(((__cbuf__ half *)tensor_a_l1_6 + 0), ((__ubuf__ half *)tensor_a_ub_fract_43 + 0), 0, 1, 768, 0, 0);
+  set_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+  wait_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+  load_cbuf_to_ca(((__ca__ half *)tensor_a_l0a_9 + 0), ((__cbuf__ half *)tensor_a_l1_6 + 0), 0, 48, 1, 0, 1);
+  load_cbuf_to_cb(((__cb__ half *)tensor_b_l0b_10 + 0), ((__cbuf__ half *)tensor_b_l1_3 + 0), 0, 40, 1, 0, 1);
+  set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+  wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+  mad(((__cc__ float *)tensor_c_8 + 0), ((__ca__ half *)tensor_a_l0a_9 + 0), ((__cb__ half *)tensor_b_l0b_10 + 0), 192, 64, 160, (int8_t)1);
+  set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+  wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+  copy_matrix_cc_to_ubuf(((__ubuf__ half *)tensor_c_ub_45 + 0), ((__cc__ float *)tensor_c_8 + 0), 0, 1, 120, 0, 0, CRMODE_F32toF16_NONE);
+  pipe_barrier(PIPE_V);
+  for (int32_t iter_cut_axis_116 = 0; iter_cut_axis_116 < 10; ++iter_cut_axis_116) {
+    vmax(((__ubuf__ half *)tensor_c_ub_fract_49 + (iter_cut_axis_116 * 16)), ((__ubuf__ half *)tensor_c_ub_45 + (iter_cut_axis_116 * 3072)), ((__ubuf__ half *)tensor_c_ub_45 + (iter_cut_axis_116 * 3072)), (uint8_t)24, (uint8_t)10, (uint8_t)1, (uint8_t)1, (uint8_t)80, (uint8_t)8, (uint8_t)8);
+  }
+  set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  copy_ubuf_to_gm(((__gm__ half *)tensor_c_gm + 640), ((__ubuf__ half *)tensor_c_ub_fract_49 + 0), 0, 192, 10, 0, 40);
+  wait_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID1);
+  wait_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID0);
+  wait_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID2);
+  wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+  copy_gm_to_ubuf(((__ubuf__ half *)tensor_a_ub_fract_13 + 0), ((__gm__ half *)tensor_a + 192), 0, 64, 12, 20, 0);
+  set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+  wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+  for (int32_t iter_cut_axis_117 = 0; iter_cut_axis_117 < 8; ++iter_cut_axis_117) {
+    vmax(((__ubuf__ half *)tensor_a_ub_fract_51 + (iter_cut_axis_117 * 128)), ((__ubuf__ half *)tensor_a_ub_fract_13 + (iter_cut_axis_117 * 1536)), ((__ubuf__ half *)tensor_a_ub_fract_13 + (iter_cut_axis_117 * 1536)), (uint8_t)12, (uint8_t)1, (uint8_t)12, (uint8_t)12, (uint8_t)64, (uint8_t)1, (uint8_t)1);
+  }
+  set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  copy_ubuf_to_cbuf(((__cbuf__ half *)tensor_a_l1_6 + 0), ((__ubuf__ half *)tensor_a_ub_fract_51 + 0), 0, 1, 768, 0, 0);
+  set_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+  wait_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+  load_cbuf_to_ca(((__ca__ half *)tensor_a_l0a_9 + 0), ((__cbuf__ half *)tensor_a_l1_6 + 0), 0, 48, 1, 0, 1);
+  load_cbuf_to_cb(((__cb__ half *)tensor_b_l0b_10 + 0), ((__cbuf__ half *)tensor_b_l1_3 + 0), 0, 40, 1, 0, 1);
+  set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+  wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+  mad(((__cc__ float *)tensor_c_8 + 0), ((__ca__ half *)tensor_a_l0a_9 + 0), ((__cb__ half *)tensor_b_l0b_10 + 0), 192, 64, 160, (int8_t)1);
+  set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+  wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+  copy_matrix_cc_to_ubuf(((__ubuf__ half *)tensor_c_ub_fract_49 + 0), ((__cc__ float *)tensor_c_8 + 0), 0, 1, 120, 0, 0, CRMODE_F32toF16_NONE);
+  pipe_barrier(PIPE_V);
+  for (int32_t iter_cut_axis_118 = 0; iter_cut_axis_118 < 10; ++iter_cut_axis_118) {
+    vmax(((__ubuf__ half *)tensor_c_ub_fract_19 + (iter_cut_axis_118 * 16)), ((__ubuf__ half *)tensor_c_ub_fract_49 + (iter_cut_axis_118 * 3072)), ((__ubuf__ half *)tensor_c_ub_fract_49 + (iter_cut_axis_118 * 3072)), (uint8_t)24, (uint8_t)10, (uint8_t)1, (uint8_t)1, (uint8_t)80, (uint8_t)8, (uint8_t)8);
+  }
+  set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  copy_ubuf_to_gm(((__gm__ half *)tensor_c_gm + 154240), ((__ubuf__ half *)tensor_c_ub_fract_19 + 0), 0, 192, 10, 0, 40);
+  copy_gm_to_ubuf(((__ubuf__ half *)tensor_a_ub1 + 0), ((__gm__ half *)tensor_a + 384), 0, 64, 8, 24, 0);
+  set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+  wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+  for (int32_t iter_cut_axis_119 = 0; iter_cut_axis_119 < 8; ++iter_cut_axis_119) {
+    vmax(((__ubuf__ half *)tensor_a_ub_fract + (iter_cut_axis_119 * 128)), ((__ubuf__ half *)tensor_a_ub1 + (iter_cut_axis_119 * 1024)), ((__ubuf__ half *)tensor_a_ub1 + (iter_cut_axis_119 * 1024)), (uint8_t)8, (uint8_t)1, (uint8_t)8, (uint8_t)8, (uint8_t)64, (uint8_t)1, (uint8_t)1);
+  }
+  set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  copy_ubuf_to_cbuf(((__cbuf__ half *)tensor_a_l1 + 0), ((__ubuf__ half *)tensor_a_ub_fract + 0), 0, 1, 512, 0, 0);
+  set_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+  wait_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+  load_cbuf_to_ca(((__ca__ half *)tensor_a_l0a + 0), ((__cbuf__ half *)tensor_a_l1 + 0), 0, 32, 1, 0, 1);
+  load_cbuf_to_cb(((__cb__ half *)tensor_b_l0b_10 + 0), ((__cbuf__ half *)tensor_b_l1_3 + 0), 0, 40, 1, 0, 1);
+  set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+  wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+  mad(((__cc__ float *)tensor_c + 0), ((__ca__ half *)tensor_a_l0a + 0), ((__cb__ half *)tensor_b_l0b_10 + 0), 128, 64, 160, (int8_t)1);
+  set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+  wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+  copy_matrix_cc_to_ubuf(((__ubuf__ half *)tensor_c_ub2 + 0), ((__cc__ float *)tensor_c + 0), 0, 1, 80, 0, 0, CRMODE_F32toF16_NONE);
+  pipe_barrier(PIPE_V);
+  for (int32_t iter_cut_axis_120 = 0; iter_cut_axis_120 < 10; ++iter_cut_axis_120) {
+    vmax(((__ubuf__ half *)tensor_c_ub_fract2 + (iter_cut_axis_120 * 16)), ((__ubuf__ half *)tensor_c_ub2 + (iter_cut_axis_120 * 2048)), ((__ubuf__ half *)tensor_c_ub2 + (iter_cut_axis_120 * 2048)), (uint8_t)16, (uint8_t)10, (uint8_t)1, (uint8_t)1, (uint8_t)80, (uint8_t)8, (uint8_t)8);
+  }
+  set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  copy_ubuf_to_gm(((__gm__ half *)tensor_c_gm + 307840), ((__ubuf__ half *)tensor_c_ub_fract2 + 0), 0, 128, 10, 0, 40);
+  pipe_barrier(PIPE_ALL);
+}
+

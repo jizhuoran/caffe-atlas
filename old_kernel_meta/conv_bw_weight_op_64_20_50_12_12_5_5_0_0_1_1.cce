@@ -1,0 +1,99 @@
+#ifdef __CCE_KT_TEST__
+#define __aicore__ 
+#else
+#define __aicore__ [aicore]
+#endif
+
+
+#define VERIFY_L2Buffer_OK(l2DataIndex) \
+	(0x01 & (((0xFF)&(~l2_in_main)) >> (l2DataIndex)))
+
+extern "C"  __global__ __aicore__ void conv_bw_weight_op_64_20_50_12_12_5_5_0_0_1_1__kernel0(__gm__ half* __restrict__ in_data_five, __gm__ half* __restrict__ out_diff_five, __gm__ float* __restrict__ dw,int64_t index0, uint64_t offset0, int64_t index1, uint64_t offset1, int64_t index2, uint64_t offset2) {
+  if (index0 >= 0) {
+    if (VERIFY_L2Buffer_OK(index0)) {
+      in_data_five = (__gm__ half*)((uint64_t)l2_vaddr_base + offset0);
+    }
+  }
+  if (index1 >= 0) {
+    if (VERIFY_L2Buffer_OK(index1)) {
+      out_diff_five = (__gm__ half*)((uint64_t)l2_vaddr_base + offset1);
+    }
+  }
+  if (index2 >= 0) {
+    if (VERIFY_L2Buffer_OK(index2)) {
+      dw = (__gm__ float*)((uint64_t)l2_vaddr_base + offset2);
+    }
+  }
+set_l1_3d_size(0);
+set_padding(0);
+__cc__   float* dw_rf = (__cc__  float *)get_imm(0);
+__cbuf__   half* grads_2_matrix_1 = (__cbuf__  half *)get_imm(0);
+__cbuf__   half* in_data_five_local_L1_2 = (__cbuf__  half *)get_imm(4096);
+__ca__   half* grads_2_fractal_3 = (__ca__  half *)get_imm(0);
+__cb__   half* fmap_2_col_fractal = (__cb__  half *)get_imm(0);
+__cbuf__   half* grads_2_matrix_4 = (__cbuf__  half *)get_imm(10240);
+__cbuf__   half* in_data_five_local_L1_5 = (__cbuf__  half *)get_imm(14336);
+__ca__   half* grads_2_fractal_6 = (__ca__  half *)get_imm(4096);
+__ubuf__   float* dw_rf_local_UB = (__ubuf__  float *)get_imm(0);
+  set_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID3);
+  set_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID2);
+  set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+  set_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID1);
+  set_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID0);
+  set_fmatrix((uint64_t)524300);
+    for (int32_t axis_b_inner_outer = 0; axis_b_inner_outer < 64; ++axis_b_inner_outer) {
+    wait_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID0);
+    copy_gm_to_cbuf(((__cbuf__ half *)grads_2_matrix_1 + 0), ((__gm__ half *)out_diff_five + (axis_b_inner_outer * 4096)), 0, 4, 32, 32, 0, PAD_NONE);
+    set_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    wait_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID1);
+    copy_gm_to_cbuf(((__cbuf__ half *)in_data_five_local_L1_2 + 0), ((__gm__ half *)in_data_five + (axis_b_inner_outer * 4608)), 0, 2, 96, 48, 0, PAD_NONE);
+    set_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID1);
+    wait_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    load_cbuf_to_ca(((__ca__ half *)grads_2_fractal_3 + 0), ((__cbuf__ half *)grads_2_matrix_1 + 0), 0, 8, 1, 0, 1);
+    set_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID0);
+    wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+    wait_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID1);
+    for (int32_t lower = 0; lower < 2; ++lower) {
+      pipe_barrier(PIPE_MTE1);
+      img2col_cbuf_to_cb(((__cb__ half *)fmap_2_col_fractal + (lower * 12800)), ((__cbuf__ half *)in_data_five_local_L1_2 + 0), (uint64_t)0, (uint64_t)0, (int64_t)0, (((int64_t)lower) * (int64_t)2), (uint64_t)0, (uint64_t)1, (uint64_t)1, (uint64_t)5, (uint64_t)5, (uint64_t)1, (uint64_t)1, (uint64_t)1, (uint64_t)0, (uint64_t)50, (csize_t)0);
+    }
+    set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    set_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID1);
+    wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    mad(((__cc__ float *)dw_rf + 0), ((__ca__ half *)grads_2_fractal_3 + 0), ((__cb__ half *)fmap_2_col_fractal + 0), 64, 32, 800, (axis_b_inner_outer == 0));
+    set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+    wait_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID2);
+    copy_gm_to_cbuf(((__cbuf__ half *)grads_2_matrix_4 + 0), ((__gm__ half *)out_diff_five + ((axis_b_inner_outer * 4096) + 512)), 0, 4, 32, 32, 0, PAD_NONE);
+    set_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    wait_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID3);
+    copy_gm_to_cbuf(((__cbuf__ half *)in_data_five_local_L1_5 + 0), ((__gm__ half *)in_data_five + ((axis_b_inner_outer * 4608) + 768)), 0, 2, 96, 48, 0, PAD_NONE);
+    set_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID1);
+    wait_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    load_cbuf_to_ca(((__ca__ half *)grads_2_fractal_6 + 0), ((__cbuf__ half *)grads_2_matrix_4 + 0), 0, 8, 1, 0, 1);
+    set_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID2);
+    wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+    wait_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID1);
+    for (int32_t lower1 = 0; lower1 < 2; ++lower1) {
+      pipe_barrier(PIPE_MTE1);
+      img2col_cbuf_to_cb(((__cb__ half *)fmap_2_col_fractal + (lower1 * 12800)), ((__cbuf__ half *)in_data_five_local_L1_5 + 0), (uint64_t)0, (uint64_t)0, (int64_t)0, (((int64_t)lower1) * (int64_t)2), (uint64_t)0, (uint64_t)1, (uint64_t)1, (uint64_t)5, (uint64_t)5, (uint64_t)1, (uint64_t)1, (uint64_t)1, (uint64_t)0, (uint64_t)50, (csize_t)0);
+    }
+    set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    set_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID3);
+    wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    mad(((__cc__ float *)dw_rf + 0), ((__ca__ half *)grads_2_fractal_6 + 0), ((__cb__ half *)fmap_2_col_fractal + 0), 64, 32, 800, (int8_t)0);
+    set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+  }
+  set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+  wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+  copy_matrix_cc_to_ubuf(((__ubuf__ float *)dw_rf_local_UB + 0), ((__cc__ float *)dw_rf + 0), 0, 1, 200, 0, 0, CRMODE_NONE);
+  set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+  copy_ubuf_to_gm(((__gm__ float *)dw + 0), ((__ubuf__ float *)dw_rf_local_UB + 0), 0, 1, 6400, 0, 0);
+  wait_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID0);
+  wait_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID1);
+  wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+  wait_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID2);
+  wait_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID3);
+        pipe_barrier(PIPE_ALL);
+}
+

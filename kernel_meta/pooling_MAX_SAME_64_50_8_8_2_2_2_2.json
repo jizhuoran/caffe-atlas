@@ -1,0 +1,12 @@
+{
+    "binFileName":"pooling_MAX_SAME_64_50_8_8_2_2_2_2",
+    "binFileSuffix":".o",
+    "blockDim":2,
+    "kernelName":"pooling_MAX_SAME_64_50_8_8_2_2_2_2__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF",
+    "parameters":[
+        0,
+        0
+    ],
+    "sha256":"9429af4615239fafc7eadb8f9d14f252f1c59ab2e96ed663ae7cdbca97e8af26"
+}
