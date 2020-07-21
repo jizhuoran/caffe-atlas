@@ -7,6 +7,7 @@ make -j32
 scp -P 1996 ~/caffe-atlas/build/tools/caffe-d zrji@147.8.67.71:/home/zrji/caffe-atlas/build/tools/caffe
 scp -P 1996 ~/caffe-atlas/build/tools/caffe zrji@147.8.67.71:/home/zrji/caffe-atlas/build/tools/caffe
 # scp -P 1996 -r ~/ascend_generator/kernel_meta zrji@147.8.67.71:/home/zrji/caffe-atlas
+# scp -P 1996 ~/caffe-atlas/build/tools/caffe zrji@147.8.67.71:/home/zrji/caffe-atlas/build/tools/caffe
 
 # scp -P 10001 ~/caffe-atlas/build/tools/caffe-d zrji@147.8.177.155:/home/zrji/caffe-atlas/build/tools/caffe
 # scp -P 10001 ~/caffe-atlas/build/tools/caffe zrji@147.8.177.155:/home/zrji/caffe-atlas/build/tools/caffe
