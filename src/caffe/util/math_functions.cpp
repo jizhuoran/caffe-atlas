@@ -3,6 +3,7 @@
 
 #include <ios>
 #include <limits>
+#include <random>
 
 #include "caffe/common.hpp"
 #include "caffe/util/half.hpp"
@@ -467,9 +468,21 @@ template
 void caffe_rng_uniform<double>(const int n, const double a, const double b,
                                double* r);
 
-template
+template <>
 void caffe_rng_uniform<_Float16>(const int n, const _Float16 a, const _Float16 b,
-                               _Float16* r);
+                               _Float16* r) {
+  CHECK_GE(n, 0);
+  CHECK(r);
+  CHECK_LE(float(a), float(b));
+
+  std::random_device rd;  //Will be used to obtain a seed for the random number engine
+  std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+  std::uniform_real_distribution<float> variate_generator(float(a), caffe_nextafter<float>(float(b)));
+  for (int i = 0; i < n; ++i) {
+    r[i] = _Float16(variate_generator(gen));
+  }
+                               
+}
 
 template <typename Dtype>
 void caffe_rng_gaussian(const int n, const Dtype a,

@@ -560,14 +560,14 @@ layer {
     block_num: 2
   }
   aicorekernel {
-    kernelfile: "conv_bw_input_op_64_16_32_32_32_3_3_1_1_2_2.o"
-    kernelname: "conv_bw_input_op_64_16_32_32_32_3_3_1_1_2_2__kernel0"
-    block_num: 2
-  }
-  aicorekernel {
     kernelfile: "conv_bw_weight_op_64_16_32_32_32_3_3_1_1_2_2.o"
     kernelname: "conv_bw_weight_op_64_16_32_32_32_3_3_1_1_2_2__kernel0"
     block_num: 8
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_16_32_32_32_3_3_1_1_2_2.o"
+    kernelname: "conv_bw_input_op_64_16_32_32_32_3_3_1_1_2_2__kernel0"
+    block_num: 2
   }
 }
 layer {
