@@ -144,6 +144,7 @@ void ScaleLayer<Dtype>::Forward_cpu(
 template <typename Dtype>
 void ScaleLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+
   if (bias_layer_ &&
       this->param_propagate_down_[this->param_propagate_down_.size() - 1]) {
     bias_layer_->Backward(top, bias_propagate_down_, bias_bottom_vec_);
@@ -183,8 +184,8 @@ void ScaleLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
             scale->mutable_cpu_diff() : sum_result_.mutable_cpu_data();
         for(int i__ = 0; i__ < sum_result_.count(); ++i__) {
           sum_result[i__] = Dtype(.0);
-          for(int j__ = 0; j__ < sum_result_.count(); ++j__) {
-            sum_result[i__] += product[i__ * inner_dim_ + j__] * sum_mult[j__];
+          for(int j__ = 0; j__ < inner_dim_; ++j__) {
+            sum_result[i__] += product[i__ * inner_dim_ + j__];
           }
         }          
         // caffe_cpu_gemv(CblasNoTrans, sum_result_.count(), inner_dim_,
@@ -205,9 +206,10 @@ void ScaleLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
           //                Dtype(1), sum_result, sum_mult, Dtype(scale_param),
           //                scale_diff); //CHECKTHIS!!!
           for(int i__ = 0; i__ < scale_dim_; ++i__) {
-            scale_diff[i__] = Dtype(.0);
+            scale_diff[i__] *= Dtype(scale_param);
             for(int j__ = 0; j__ < outer_dim_; ++j__) {
-              scale_diff[i__] += sum_result[i__ * outer_dim_ + j__] * sum_mult[j__];
+              scale_diff[i__] += sum_result[j__ * scale_dim_ + i__];
+              // scale_diff[i__] += sum_result[i__ * outer_dim_ + j__];
             }
           }   
         }
