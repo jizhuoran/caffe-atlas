@@ -1563,14 +1563,14 @@ layer {
   aicorekernel {
     kernelfile: "matmul_op_16_64_64_TA_NTB_nobias.o"
     kernelname: "matmul_op_16_64_64_TA_NTB_nobias__kernel0"
-    block_num: 32
+    block_num: 2
   }
   aicorekernel {
     kernelfile: "matmul_op_64_16_64_NTA_NTB_nobias.o"
     kernelname: "matmul_op_64_16_64_NTA_NTB_nobias__kernel0"
     block_num: 2
   }
-}
+} 
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"
