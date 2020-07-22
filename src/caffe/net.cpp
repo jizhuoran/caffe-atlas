@@ -255,7 +255,7 @@ void Net<Dtype>::Init(const NetParameter& in_param) {
     layer_names_index_[layer_names_[layer_id]] = layer_id;
   }
   ShareWeights();
-  debug_info_ = param.debug_info();
+  debug_info_ = true; //param.debug_info(); UGLY
   LOG_IF(INFO, Caffe::root_solver()) << "Network initialization done.";
 }
 
@@ -528,7 +528,7 @@ Dtype Net<Dtype>::ForwardFromTo(int start, int end) {
     }
     Dtype layer_loss = layers_[i]->Forward(bottom_vecs_[i], top_vecs_[i]);
     loss += layer_loss;
-    if (debug_info_) { ForwardDebugInfo(i); }
+    if (true) { ForwardDebugInfo(i); } //UGLY
     for (int c = 0; c < after_forward_.size(); ++c) {
       after_forward_[c]->run(i);
     } 
@@ -586,7 +586,7 @@ void Net<Dtype>::BackwardFromTo(int start, int end) {
     if (layer_need_backward_[i]) {
       layers_[i]->Backward(
           top_vecs_[i], bottom_need_backward_[i], bottom_vecs_[i]);
-      if (debug_info_) { BackwardDebugInfo(i); }
+      if (true) { BackwardDebugInfo(i); } //UGLY
     }
     for (int c = 0; c < after_backward_.size(); ++c) {
       after_backward_[c]->run(i);

@@ -130,7 +130,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
   AICORE_CHECK(rtKernelLaunch(this->bw_weight_kernel, this->bw_weight_block_num, args.data(), args.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
   AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
-  const float* cpu_weight_fraz_diff_fp32 = weight_fraz_diff_fp32.aicore_diff();
+  const float* cpu_weight_fraz_diff_fp32 = weight_fraz_diff_fp32.cpu_diff();
   for(int i = 0; i < weight_fraz->count(); ++i) {
     weight_fraz->mutable_cpu_diff()[i] = Dtype(cpu_weight_fraz_diff_fp32[i]);
   }

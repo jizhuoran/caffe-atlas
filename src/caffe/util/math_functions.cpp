@@ -285,7 +285,24 @@ void caffe_cpu_axpby<double>(const int N, const double alpha, const double* X,
 template <>
 void caffe_cpu_axpby<_Float16>(const int N, const _Float16 alpha, const _Float16* X,
                              const _Float16 beta, _Float16* Y) {
-  cblas_haxpby(N, alpha, X, 1, beta, Y, 1);
+
+  std::cout << "FOR Debug Only!" << std::endl;
+
+  // cblas_hscale(n, alpha, x, y);
+  std::vector<float> x32(N);
+  std::vector<float> y32(N);
+
+  for(int i = 0; i < N; ++i) {
+    x32[i] = float(X[i]);
+    y32[i] = float(Y[i]);
+  }
+  cblas_saxpby(N, float(alpha), x32.data(), 1, float(beta), y32.data(), 1);
+  for(int i = 0; i < N; ++i) {
+    Y[i] = _Float16(y32[i]);
+  }
+
+
+  // cblas_haxpby(N, alpha, X, 1, beta, Y, 1);
 }
 
 template <>
@@ -635,7 +652,13 @@ double caffe_cpu_asum<double>(const int n, const double* x) {
 
 template <>
 _Float16 caffe_cpu_asum<_Float16>(const int n, const _Float16* x) {
-  UGLY_TO_BE_IMPLEMENT;
+  std::cout << "FOR Debug Only!" << std::endl;
+  std::vector<float> x32(n, .0);
+  for(int i = 0; i < n; ++i) {
+    x32[i] = float(x[i]);
+  }
+  LOG(INFO) << "In caffe_cpu_asum" << cblas_sasum(n, x32.data(), 1);
+  return _Float16(cblas_sasum(n, x32.data(), 1));
 }
 
 template <>
@@ -655,7 +678,21 @@ void caffe_cpu_scale<double>(const int n, const double alpha, const double *x,
 template <>
 void caffe_cpu_scale<_Float16>(const int n, const _Float16 alpha, const _Float16 *x,
                              _Float16* y) {
-  cblas_hscale(n, alpha, x, y);
+  std::cout << "FOR Debug Only!" << std::endl;
+
+  // cblas_hscale(n, alpha, x, y);
+  std::vector<float> x32(n);
+  std::vector<float> y32(n);
+
+  for(int i = 0; i < n; ++i) {
+    x32[i] = float(x[i]);
+    y32[i] = float(y[i]);
+  }
+
+  caffe_cpu_scale<float>(n, float(alpha), x32.data(), y32.data());
+  for(int i = 0; i < n; ++i) {
+    y[i] = _Float16(y32[i]);
+  }
 }
 
 }  // namespace caffe

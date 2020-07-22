@@ -243,16 +243,19 @@ Dtype Blob<Dtype>::asum_data() const {
   case SyncedMemory::HEAD_AT_CPU:
     return caffe_cpu_asum(count_, cpu_data());
   case SyncedMemory::HEAD_AT_GPU:
-  case SyncedMemory::SYNCED:
-#ifndef CPU_ONLY
-  {
-    Dtype asum;
-    caffe_gpu_asum(count_, gpu_data(), &asum);
-    return asum;
-  }
-#else
     NO_GPU;
-#endif
+  case SyncedMemory::HEAD_AT_AICORE:
+  case SyncedMemory::SYNCED:
+    return caffe_cpu_asum(count_, cpu_data());
+// #ifndef CPU_ONLY
+//   {
+//     Dtype asum;
+//     caffe_gpu_asum(count_, gpu_data(), &asum);
+//     return asum;
+//   }
+// #else
+//     NO_GPU;
+// #endif
   case SyncedMemory::UNINITIALIZED:
     return 0;
   default:
@@ -278,16 +281,19 @@ Dtype Blob<Dtype>::asum_diff() const {
   case SyncedMemory::HEAD_AT_CPU:
     return caffe_cpu_asum(count_, cpu_diff());
   case SyncedMemory::HEAD_AT_GPU:
-  case SyncedMemory::SYNCED:
-#ifndef CPU_ONLY
-  {
-    Dtype asum;
-    caffe_gpu_asum(count_, gpu_diff(), &asum);
-    return asum;
-  }
-#else
     NO_GPU;
-#endif
+  case SyncedMemory::HEAD_AT_AICORE:
+  case SyncedMemory::SYNCED:
+    return caffe_cpu_asum(count_, cpu_diff());
+// #ifndef CPU_ONLY
+//   {
+//     Dtype asum;
+//     caffe_gpu_asum(count_, gpu_diff(), &asum);
+//     return asum;
+//   }
+// #else
+//     NO_GPU;
+// #endif
   case SyncedMemory::UNINITIALIZED:
     return 0;
   default:
