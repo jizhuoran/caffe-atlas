@@ -131,7 +131,21 @@ void caffe_cpu_gemm<_Float16>(const CBLAS_TRANSPOSE TransA,
     const CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
     const _Float16 alpha, const _Float16* A, const _Float16* B, const _Float16 beta,
     _Float16* C) {
-  UGLY_TO_BE_IMPLEMENT;
+  std::cout << "FOR Debug Only!" << std::endl;
+
+  std::vector<float> A32(M * K);
+  std::vector<float> B32(K * N);
+  std::vector<float> C32(M * N);
+  for(int i = 0; i < A32.size(); ++i) {
+    A32[i] = float(A[i]);
+  }
+  for(int i = 0; i < B32.size(); ++i) {
+    B32[i] = float(B[i]);
+  }
+  caffe_cpu_gemm<float>(TransA, TransB, M, N, K, float(alpha), A32.data(), B32.data(), float(beta), C32.data());
+  for(int i = 0; i < C32.size(); ++i) {
+    C[i] = _Float16(C32[i]);
+  }
 }
 
 template <>
@@ -152,7 +166,21 @@ template <>
 void caffe_cpu_gemv<_Float16>(const CBLAS_TRANSPOSE TransA, const int M,
     const int N, const _Float16 alpha, const _Float16* A, const _Float16* x,
     const _Float16 beta, _Float16* y) {
-  UGLY_TO_BE_IMPLEMENT;
+  std::cout << "FOR Debug Only!" << std::endl;
+
+  std::vector<float> A32(M * N);
+  std::vector<float> x32((TransA == CblasNoTrans)? N:M);
+  std::vector<float> y32((TransA == CblasNoTrans)? M:N);
+  for(int i = 0; i < A32.size(); ++i) {
+    A32[i] = float(A[i]);
+  }
+  for(int i = 0; i < x32.size(); ++i) {
+    x32[i] = float(x[i]);
+  }
+  caffe_cpu_gemv<float>(TransA, M, N, float(alpha), A32.data(), x32.data(), float(beta), y32.data());
+  for(int i = 0; i < y32.size(); ++i) {
+    y[i] = _Float16(y32[i]);
+  }
 }
 
 template <>
