@@ -220,7 +220,7 @@ void BatchNormLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 
     for(int c = 0; c < channels_; ++c) {
       mean_data_[c] *= (Dtype(1.) / num);
-      variance_data_[c] = (Dtype(1.) / num) - mean_data_[c] * mean_data_[c];
+      variance_data_[c] = (Dtype(1.) / num) * variance_data_[c] - mean_data_[c] * mean_data_[c];
     }
 
 
