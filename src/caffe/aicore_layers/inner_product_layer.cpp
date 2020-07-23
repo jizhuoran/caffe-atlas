@@ -113,7 +113,17 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 
             AICORE_CHECK(rtKernelLaunch(this->bw_weight_kernel, this->bw_weight_block_num, args1.data(), args1.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
             AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
+            
+            auto temp1 = aligned_top.cpu_data();
+            for(int i = 0; i < aligned_top.count(); ++i) {
+                std::cout << temp1[i] << " ";
+            }
 
+            std::cout << " " << std::endl;
+            std::cout << " " << std::endl;
+            std::cout << " " << std::endl;
+            std::cout << " " << std::endl;
+            
             auto temp = aligned_weight->cpu_data();
             for(int i = 0; i < aligned_weight->count(); ++i) {
                 std::cout << temp[i] << " ";
