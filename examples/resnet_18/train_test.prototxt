@@ -1578,16 +1578,16 @@ layer {
   bottom: "label"
   top: "loss"
 }
-layer {
-  name: "softmax"
-  type: "Softmax"
-  bottom: "fc"
-  top: "softmax"
-}
-layer {
-  name: "Accuracy"
-  type: "Accuracy"
-  bottom: "softmax"
-  bottom: "label"
-  top: "Accuracy"
-}
+#layer {
+#  name: "softmax"
+#  type: "Softmax"
+#  bottom: "fc"
+#  top: "softmax"
+#}
+#layer {
+ # name: "Accuracy"
+ # type: "Accuracy"
+ # bottom: "softmax"
+ # bottom: "label"
+#  top: "Accuracy"
+#}
