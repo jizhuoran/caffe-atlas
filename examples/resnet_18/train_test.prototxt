@@ -1578,7 +1578,7 @@ layer {
   }
   aicorekernel {
     kernelfile: "matmul_op_64_64_16_NTA_TB_bias.o"
-    kernelname: "matmul_op_64_64_16_NTA_TB_nobias__kernel0"
+    kernelname: "matmul_op_64_64_16_NTA_TB_bias__kernel0"
     block_num: 2
   }
   aicorekernel {
