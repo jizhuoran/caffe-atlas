@@ -532,6 +532,9 @@ Dtype Net<Dtype>::ForwardFromTo(int start, int end) {
     for (int c = 0; c < after_forward_.size(); ++c) {
       after_forward_[c]->run(i);
     } 
+
+    debug_print(top_vecs_[i][0]->cpu_data(), top_vecs_[i][0]->count(), std::to_string(i) + " 'layer" + layer_names_[i]);
+
     std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
     std::cout << "Forward Layer " << i << ": " << layers_[i]->type() << " " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
   }

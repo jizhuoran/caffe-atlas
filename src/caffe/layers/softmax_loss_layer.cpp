@@ -89,7 +89,17 @@ template <typename Dtype>
 void SoftmaxWithLossLayer<Dtype>::Forward_cpu(
     const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) {
   // The forward pass computes the softmax prob values.
+
+  debug_print(bottom[0]->cpu_data(), bottom[0]->count(), "softmax bottom_see before");
+
+
   softmax_layer_->Forward(softmax_bottom_vec_, softmax_top_vec_);
+
+
+  debug_print(softmax_bottom_vec_[0]->cpu_data(), softmax_bottom_vec_[0]->count(), "softmax bottom_see");
+  debug_print(softmax_top_vec_[0]->cpu_data(), softmax_top_vec_[0]->count(), "softmax bottom_see");
+
+
   const Dtype* prob_data = prob_.cpu_data();
   const Dtype* label = bottom[1]->cpu_data();
   int dim = prob_.count() / outer_num_;
@@ -146,11 +156,7 @@ void SoftmaxWithLossLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
                         get_normalizer(normalization_, count);
     caffe_scal(prob_.count(), loss_weight, bottom_diff);
 
-    std::cout << "The softmax bottom diff is " << std::endl
-    for(int i=0; i < bottom[0]->count(); ++i) {
-      std::cout << bottom_diff[i] << " ";
-    }
-    std::cout << " " << std::endl;
+    debug_print(bottom_diff, bottom[0]->count(), "softmax bottom diff");
 
   }
 }

@@ -77,6 +77,9 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
   std::vector<int> top_five_shape{top[0]->shape(0), (top[0]->shape(1) + 15) / 16, top[0]->shape(2), top[0]->shape(3) * 16};
   Blob<Dtype> top_five(top_five_shape);
 
+  
+  debug_print(this->blobs_[0]->cpu_data(), this->blobs_[0]->count(), "conv diff");
+
   std::vector<void*> args = {(void*)bottom_five.aicore_data(), (void*)this->blobs_[0]->aicore_data()};
   if (this->bias_term_) {
     args.push_back((void*)this->blobs_[1]->aicore_data());

@@ -140,6 +140,11 @@ void ScaleLayer<Dtype>::Forward_cpu(
   if (bias_layer_) {
     bias_layer_->Forward(bias_bottom_vec_, top);
   }
+  auto ttt = top[0]->cpu_data();
+  for(int i = 0; i < top[0]->count(); ++i) {
+    // std::cout << ttt[i] << " ";
+  }
+  std::cout << " " << std::endl;
 }
 
 template <typename Dtype>

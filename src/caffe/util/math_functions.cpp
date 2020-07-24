@@ -142,6 +142,9 @@ void caffe_cpu_gemm<_Float16>(const CBLAS_TRANSPOSE TransA,
   for(int i = 0; i < B32.size(); ++i) {
     B32[i] = float(B[i]);
   }
+  for(int i = 0; i < C32.size(); ++i) {
+    C32[i] = float(C[i]);
+  }
   caffe_cpu_gemm<float>(TransA, TransB, M, N, K, float(alpha), A32.data(), B32.data(), float(beta), C32.data());
   for(int i = 0; i < C32.size(); ++i) {
     C[i] = _Float16(C32[i]);
@@ -176,6 +179,9 @@ void caffe_cpu_gemv<_Float16>(const CBLAS_TRANSPOSE TransA, const int M,
   }
   for(int i = 0; i < x32.size(); ++i) {
     x32[i] = float(x[i]);
+  }
+  for(int i = 0; i < y32.size(); ++i) {
+    y32[i] = float(y[i]);
   }
   caffe_cpu_gemv<float>(TransA, M, N, float(alpha), A32.data(), x32.data(), float(beta), y32.data());
   for(int i = 0; i < y32.size(); ++i) {
@@ -522,9 +528,11 @@ void caffe_rng_uniform<_Float16>(const int n, const _Float16 a, const _Float16 b
 
   std::random_device rd;  //Will be used to obtain a seed for the random number engine
   std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+  std::default_random_engine gen1(1996);
+
   std::uniform_real_distribution<float> variate_generator(float(a), caffe_nextafter<float>(float(b)));
   for (int i = 0; i < n; ++i) {
-    r[i] = _Float16(variate_generator(gen));
+    r[i] = _Float16(variate_generator(gen1));
   }
                                
 }
@@ -535,12 +543,21 @@ void caffe_rng_gaussian(const int n, const Dtype a,
   CHECK_GE(n, 0);
   CHECK(r);
   CHECK_GT(float(sigma), 0);
-  boost::normal_distribution<Dtype> random_distribution(a, sigma);
-  boost::variate_generator<caffe::rng_t*, boost::normal_distribution<Dtype> >
-      variate_generator(caffe_rng(), random_distribution);
+
+    std::default_random_engine gen1(1996);
+
+  std::normal_distribution<> variate_generator(a, std::nextafter(sigma, std::numeric_limits<Dtype>::max())); //    uniform_real_distribution<float> variate_generator(float(a), caffe_nextafter<float>(float(b)));
   for (int i = 0; i < n; ++i) {
-    r[i] = variate_generator();
+    r[i] = Dtype(variate_generator(gen1));
   }
+
+
+  // boost::normal_distribution<Dtype> random_distribution(a, sigma);
+  // boost::variate_generator<caffe::rng_t*, boost::normal_distribution<Dtype> >
+  //     variate_generator(caffe_rng(), random_distribution);
+  // for (int i = 0; i < n; ++i) {
+  //   r[i] = variate_generator();
+  // }
 }
 
 template
@@ -551,16 +568,23 @@ template
 void caffe_rng_gaussian<double>(const int n, const double mu,
                                 const double sigma, double* r);
 
-template <>
+template
 void caffe_rng_gaussian<_Float16>(const int n, const _Float16 mu,
-                                const _Float16 sigma, _Float16* r) {
-  std::vector<float> res(n, .0);
-  caffe_rng_gaussian<float>(n, float(mu), float(sigma), res.data());
-  for(int i = 0; i < n; ++i) {
-    r[i] = _Float16(res[i]);
-  }
-  LOG(INFO) << "Call caffe_rng_gaussian too many time hurt performance!";
-}
+                                const _Float16 sigma, _Float16* r);
+
+// template <>
+// void caffe_rng_gaussian<_Float16>(const int n, const _Float16 mu,
+//                                 const _Float16 sigma, _Float16* r) {
+//   std::vector<float> res(n, .0);
+//   caffe_rng_gaussian<float>(n, float(mu), float(sigma), res.data());
+//   for(int i = 0; i < n; ++i) {
+//     r[i] = _Float16(res[i]);
+//     if(i < 20) {
+//       LOG(INFO) << r[i] << " " << res[i] << std::endl;
+//     }
+//   }
+//   LOG(INFO) << "Call caffe_rng_gaussian too many time hurt performance!";
+// }
 
 template <typename Dtype>
 void caffe_rng_bernoulli(const int n, const Dtype p, int* r) {
@@ -657,7 +681,7 @@ _Float16 caffe_cpu_asum<_Float16>(const int n, const _Float16* x) {
   for(int i = 0; i < n; ++i) {
     x32[i] = float(x[i]);
   }
-  LOG(INFO) << "In caffe_cpu_asum" << cblas_sasum(n, x32.data(), 1);
+  LOG(INFO) << "In caffe_cpu_asum " << cblas_sasum(n, x32.data(), 1);
   return _Float16(cblas_sasum(n, x32.data(), 1));
 }
 

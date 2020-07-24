@@ -75,6 +75,9 @@ void BiasLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   const Dtype* bias_data =
       ((bottom.size() > 1) ? bottom[1] : this->blobs_[0].get())->cpu_data();
+
+  auto top_see = top[0]->cpu_data();
+
   Dtype* top_data = top[0]->mutable_cpu_data();
   if (bottom[0] != top[0]) {
     const Dtype* bottom_data = bottom[0]->cpu_data();

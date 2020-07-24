@@ -394,6 +394,10 @@ template <typename Dtype>
 void BatchNormLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
+
+  debug_print(top[0]->cpu_diff(), top[0]->count(), "batchnorm diff");
+  
+  
   const Dtype* top_diff;
   if (bottom[0] != top[0]) {
     top_diff = top[0]->cpu_diff();

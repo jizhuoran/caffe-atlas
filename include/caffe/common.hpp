@@ -105,6 +105,15 @@ namespace cv { class Mat; }
 
 namespace caffe {
 
+template <typename Dtype>
+void debug_print(const Dtype* a, int count, std::string name = "") {
+    std::cout << " " << name << " " << std::endl;
+  for(int i = 0; i < std::min(count, 100); ++i) {
+    std::cout << a[i] << " ";
+  }
+  std::cout << " " << std::endl;
+}
+
 // We will use the boost shared_ptr instead of the new C++11 one mainly
 // because cuda does not work (at least now) well with C++11 features.
 using boost::shared_ptr;

@@ -9,8 +9,8 @@ layer {
   }
   transform_param {
     scale: 0.0078125
-    mirror: true
-    crop_size: 32
+#    mirror: true
+#    crop_size: 32
     mean_value: 128
   }
   data_param {
