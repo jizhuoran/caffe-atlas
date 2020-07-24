@@ -197,6 +197,9 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
           << this->blobs_[1]->shape_string();
     }
     LOG(INFO) << "Skipping parameter initialization";
+
+    kernel_dim_ = this->blobs_[0]->count(1);
+
   } else {
     if (bias_term_) {
       this->blobs_.resize(2);
@@ -225,8 +228,10 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
           this->layer_param_.convolution_param().bias_filler()));
       bias_filler->Fill(this->blobs_[1].get());
     }
+
+    kernel_dim_ = ochw_weight.count(1);
+
   }
-  kernel_dim_ = this->blobs_[0]->count(1);
   weight_offset_ = conv_out_channels_ * kernel_dim_ / group_;
   // Propagate gradients to the parameters (as directed by backward pass).
   this->param_propagate_down_.resize(this->blobs_.size(), true);

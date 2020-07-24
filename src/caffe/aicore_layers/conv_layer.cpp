@@ -70,6 +70,50 @@ template <typename Dtype>
 void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
   
+  if(kernel_identifier() == "conv_fw_op_64_32_32_16_16_bias_3_3_1_1_1_1" || 
+      kernel_identifier() == "conv_fw_op_64_32_64_16_16_bias_3_3_1_1_2_2" ||
+      kernel_identifier() == "conv_fw_op_64_64_64_8_8_bias_3_3_1_1_1_1") {
+    std::vector<Dtype> weight_see((this->num_output_)*(this->channels_)*(this->kernel_shape_.cpu_data()[0])*(this->kernel_shape_.cpu_data()[1]), .0);
+    fracZ2ochw(this->blobs_[0]->cpu_data(), weight_see.data(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
+
+    // for(int i = 0; i < bottom[0]->count() / bottom[0]->shape(0); ++i) {
+    //   std::cout << bottom[0]->cpu_data()[i] << " ";
+    // }
+
+    const Dtype* weight = weight_see.data();
+    for (int i = 0; i < bottom.size(); ++i) {
+      const Dtype* bottom_data = bottom[i]->cpu_data();
+      Dtype* top_data = top[i]->mutable_cpu_data();
+    
+      for(int j = 0; j < top[i]->count(); ++j) {
+        top_data[j] = 2.0;
+      }
+
+      debug_print(weight, weight_see.size(), "conv weight"); //UGLY
+      debug_print(bottom[0]->cpu_data(), bottom[0]->count(), "conv bottom");
+      debug_print(this->blobs_[1]->cpu_data(), this->blobs_[1]->count(), "conv bias");
+      std::cout << "The size of bottom is " << bottom.size() << " top is " << top.size() << " group is " << this->group_ << std::endl;
+
+
+      for (int n = 0; n < this->num_; ++n) {
+        this->forward_cpu_gemm(bottom_data + n * this->bottom_dim_, weight,
+            top_data + n * this->top_dim_);
+        if (this->bias_term_) {
+          const Dtype* bias = this->blobs_[1]->cpu_data();
+          // this->forward_cpu_bias(top_data + n * this->top_dim_, bias);
+        }
+      }
+    }
+    return;
+  }
+
+
+  // if(kernel_identifier() == "conv_fw_op_64_32_32_16_16_bias_3_3_1_1_1_1") {
+  //   for(int i = 0; i < bottom[0]->count(); ++i) {
+  //     bottom[0]->mutable_cpu_data()[i] = .3;
+  //   }
+  // }
+
   Blob<Dtype> bottom_five(bottom[0]->shape(0), (bottom[0]->shape(1)+15)/16*16, bottom[0]->shape(2), bottom[0]->shape(3));
   four2five(bottom[0]->cpu_data(), bottom_five.mutable_cpu_data(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
 
@@ -77,19 +121,36 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
   std::vector<int> top_five_shape{top[0]->shape(0), (top[0]->shape(1) + 15) / 16, top[0]->shape(2), top[0]->shape(3) * 16};
   Blob<Dtype> top_five(top_five_shape);
 
-  
-  debug_print(this->blobs_[0]->cpu_data(), this->blobs_[0]->count(), "conv diff");
+  // std::vector<Dtype> weight_see(this->blobs_[0]->count(), .0);
+  // fracZ2ochw(this->blobs_[0]->cpu_data(), weight_see.data(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
+
+  // debug_print(weight_see.data(), this->blobs_[0]->count(), "conv weight");
+  // debug_print(bottom[0]->cpu_data(), bottom[0]->count(), "conv bottom");
+  // debug_print(this->blobs_[1]->cpu_data(), this->blobs_[1]->count(), "conv bias");
+  // std::cout << "The size of bottom is " << bottom.size() << " top is " << top.size() << " group is " << this->group_ << std::endl;
+
+
+
+  // if(kernel_identifier() == "conv_fw_op_64_32_32_16_16_bias_3_3_1_1_1_1") {
+  //   for(int i = 0; i < this->blobs_[0]->count(); ++i) {
+  //     this->blobs_[0]->mutable_cpu_data()[i] = .15;
+  //   }
+  //   for(int i = 0; i < this->blobs_[1]->count(); ++i) {
+  //     this->blobs_[1]->mutable_cpu_data()[i] = .0;
+  //   }
+  // }
+
 
   std::vector<void*> args = {(void*)bottom_five.aicore_data(), (void*)this->blobs_[0]->aicore_data()};
   if (this->bias_term_) {
     args.push_back((void*)this->blobs_[1]->aicore_data());
   }
-  args.push_back((void*)top_five.aicore_data());
+  args.push_back((void*)top_five.mutable_aicore_data());
 
   AICORE_CHECK(rtKernelLaunch(this->fw_kernel, this->fw_block_num, args.data(), args.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
   AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
-  five2four(top_five.aicore_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
+  five2four(top_five.cpu_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
 
 }
 

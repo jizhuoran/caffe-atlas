@@ -111,6 +111,9 @@ void debug_print(const Dtype* a, int count, std::string name = "") {
   for(int i = 0; i < std::min(count, 100); ++i) {
     std::cout << a[i] << " ";
   }
+  for(int i = std::max(count-100, 0); i < count; ++i) {
+    std::cout << a[i] << " ";
+  }
   std::cout << " " << std::endl;
 }
 

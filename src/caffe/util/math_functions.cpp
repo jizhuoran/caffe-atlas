@@ -131,7 +131,7 @@ void caffe_cpu_gemm<_Float16>(const CBLAS_TRANSPOSE TransA,
     const CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
     const _Float16 alpha, const _Float16* A, const _Float16* B, const _Float16 beta,
     _Float16* C) {
-  std::cout << "FOR Debug Only!" << std::endl;
+  // std::cout << "FOR Debug Only!" << std::endl;
 
   std::vector<float> A32(M * K);
   std::vector<float> B32(K * N);
@@ -149,6 +149,7 @@ void caffe_cpu_gemm<_Float16>(const CBLAS_TRANSPOSE TransA,
   for(int i = 0; i < C32.size(); ++i) {
     C[i] = _Float16(C32[i]);
   }
+  std::cout << " " << std::endl;
 }
 
 template <>
@@ -169,7 +170,7 @@ template <>
 void caffe_cpu_gemv<_Float16>(const CBLAS_TRANSPOSE TransA, const int M,
     const int N, const _Float16 alpha, const _Float16* A, const _Float16* x,
     const _Float16 beta, _Float16* y) {
-  std::cout << "FOR Debug Only!" << std::endl;
+  // std::cout << "FOR Debug Only!" << std::endl;
 
   std::vector<float> A32(M * N);
   std::vector<float> x32((TransA == CblasNoTrans)? N:M);
@@ -292,7 +293,7 @@ template <>
 void caffe_cpu_axpby<_Float16>(const int N, const _Float16 alpha, const _Float16* X,
                              const _Float16 beta, _Float16* Y) {
 
-  std::cout << "FOR Debug Only!" << std::endl;
+  // std::cout << "FOR Debug Only!" << std::endl;
 
   // cblas_hscale(n, alpha, x, y);
   std::vector<float> x32(N);
@@ -676,7 +677,7 @@ double caffe_cpu_asum<double>(const int n, const double* x) {
 
 template <>
 _Float16 caffe_cpu_asum<_Float16>(const int n, const _Float16* x) {
-  std::cout << "FOR Debug Only!" << std::endl;
+  // std::cout << "FOR Debug Only!" << std::endl;
   std::vector<float> x32(n, .0);
   for(int i = 0; i < n; ++i) {
     x32[i] = float(x[i]);
@@ -702,7 +703,7 @@ void caffe_cpu_scale<double>(const int n, const double alpha, const double *x,
 template <>
 void caffe_cpu_scale<_Float16>(const int n, const _Float16 alpha, const _Float16 *x,
                              _Float16* y) {
-  std::cout << "FOR Debug Only!" << std::endl;
+  // std::cout << "FOR Debug Only!" << std::endl;
 
   // cblas_hscale(n, alpha, x, y);
   std::vector<float> x32(n);
