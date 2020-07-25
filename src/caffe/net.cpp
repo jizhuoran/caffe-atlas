@@ -522,26 +522,29 @@ Dtype Net<Dtype>::ForwardFromTo(int start, int end) {
   CHECK_LT(end, layers_.size());
   Dtype loss = 0;
   for (int i = start; i <= end; ++i) {
+
+
+
     std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
     for (int c = 0; c < before_forward_.size(); ++c) {
       before_forward_[c]->run(i);
     }
     Dtype layer_loss = layers_[i]->Forward(bottom_vecs_[i], top_vecs_[i]);
     loss += layer_loss;
-    if (true) { ForwardDebugInfo(i); } //UGLY
+    if (debug_info_) { ForwardDebugInfo(i); } //UGLY
     for (int c = 0; c < after_forward_.size(); ++c) {
       after_forward_[c]->run(i);
     } 
 
-    debug_print(top_vecs_[i][0]->cpu_data(), top_vecs_[i][0]->count(), std::to_string(i) + " 'layer" + layer_names_[i]);
+    // debug_print(top_vecs_[i][0]->cpu_data(), top_vecs_[i][0]->count(), std::to_string(i) + " 'layer" + layer_names_[i]);
 
-    if((i%10) == 0) {
-      std::cout << " " << std::endl;
-    }
+    // if((i%10) == 0) {
+    //   std::cout << " " << std::endl;
+    // }
 
-    if(i == 70) {
-      std::cout << " " << std::endl;
-    }
+    // if(i == 60) {
+    //   std::cout << " " << std::endl;
+    // }
 
     std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
     std::cout << "Forward Layer " << i << ": " << layers_[i]->type() << " " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
@@ -597,23 +600,23 @@ void Net<Dtype>::BackwardFromTo(int start, int end) {
     if (layer_need_backward_[i]) {
       layers_[i]->Backward(
           top_vecs_[i], bottom_need_backward_[i], bottom_vecs_[i]);
-      if (true) { BackwardDebugInfo(i); } //UGLY
+      if (debug_info_) { BackwardDebugInfo(i); } //UGLY
     }
     for (int c = 0; c < after_backward_.size(); ++c) {
       after_backward_[c]->run(i);
     }
 
-    if(bottom_vecs_[i].size() > 0) {
-      debug_print(bottom_vecs_[i][0]->cpu_data(), bottom_vecs_[i][0]->count(), std::to_string(i) + " 'layer" + layer_names_[i]);
-      std::cout << " " << std::endl;
-    }
-    if((i%10) == 0) {
-      std::cout << " " << std::endl;
-    }
+    // if(bottom_vecs_[i].size() > 0) {
+    //   debug_print(bottom_vecs_[i][0]->cpu_diff(), bottom_vecs_[i][0]->count(), std::to_string(i) + " 'layer" + layer_names_[i]);
+    //   std::cout << " " << std::endl;
+    // }
+    // if((i%10) == 0) {
+    //   std::cout << " " << std::endl;
+    // }
 
-    if(i == 70) {
-      std::cout << " " << std::endl;
-    }
+    // if(i == 0) {
+    //   std::cout << " " << std::endl;
+    // }
     std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
     std::cout << "Backward Layer " << i << ": " << layers_[i]->type() << " " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
   }

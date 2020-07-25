@@ -18,7 +18,7 @@ void ochw2fracZ(Blob<Dtype>* ochw, Blob<Dtype>* fracZ, int channel_out, int chan
     for (int c_i = 0; c_i < channel_in; c_i++) {
       for (int h_i = 0; h_i < kernel_h; h_i++) {
         for (int w_i = 0; w_i < kernel_w; w_i++) {
-          fracZ_data[(h_i * kernel_w + w_i) * ((channel_in+15)/16) + (c_i/16)][(o_i)/16][o_i%16][c_i%16] = ochw_data[o_i][c_i][h_i][w_i];
+          fracZ_data[(c_i/16) * (kernel_w * kernel_h) + h_i * (kernel_w) + w_i][(o_i)/16][o_i%16][c_i%16] = ochw_data[o_i][c_i][h_i][w_i];
         }
       }
     }

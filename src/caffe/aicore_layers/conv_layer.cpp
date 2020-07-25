@@ -15,23 +15,23 @@
 namespace caffe {
 
 
-template <typename Dtype>
-std::shared_ptr<Blob<Dtype>> ochw2fracZ(Blob<Dtype>* ochw, int channel_out, int channel_in, int kernel_h, int kernel_w) {
-  std::vector<int> fracZ_shape{ kernel_h * kernel_w * ((channel_in + 15) / 16) , (channel_out + 15) / 16 ,16, 16};
-  std::shared_ptr<Blob<Dtype>> fracZ = std::make_shared<Blob<Dtype>>(fracZ_shape[0], fracZ_shape[1], fracZ_shape[2], fracZ_shape[3]);
-  auto fracZ_data = *reinterpret_cast<Dtype (*)[fracZ_shape[0]][fracZ_shape[1]][fracZ_shape[2]][fracZ_shape[3]]>(fracZ->mutable_cpu_data());
-  auto ochw_data = *reinterpret_cast<const Dtype (*)[channel_out][channel_in][kernel_h][kernel_w]>(ochw->cpu_data());
-  for (int o_i = 0; o_i < channel_out; o_i++) {
-    for (int c_i = 0; c_i < channel_in; c_i++) {
-      for (int h_i = 0; h_i < kernel_h; h_i++) {
-        for (int w_i = 0; w_i < kernel_w; w_i++) {
-          fracZ_data[(h_i * kernel_w + w_i) * ((channel_in+15)/16) + (c_i/16)][(o_i)/16][o_i%16][c_i%16] = ochw_data[o_i][c_i][h_i][w_i];
-        }
-      }
-    }
-  }
-  return fracZ;
-}
+// template <typename Dtype>
+// std::shared_ptr<Blob<Dtype>> ochw2fracZ(Blob<Dtype>* ochw, int channel_out, int channel_in, int kernel_h, int kernel_w) {
+//   std::vector<int> fracZ_shape{ kernel_h * kernel_w * ((channel_in + 15) / 16) , (channel_out + 15) / 16 ,16, 16};
+//   std::shared_ptr<Blob<Dtype>> fracZ = std::make_shared<Blob<Dtype>>(fracZ_shape[0], fracZ_shape[1], fracZ_shape[2], fracZ_shape[3]);
+//   auto fracZ_data = *reinterpret_cast<Dtype (*)[fracZ_shape[0]][fracZ_shape[1]][fracZ_shape[2]][fracZ_shape[3]]>(fracZ->mutable_cpu_data());
+//   auto ochw_data = *reinterpret_cast<const Dtype (*)[channel_out][channel_in][kernel_h][kernel_w]>(ochw->cpu_data());
+//   for (int o_i = 0; o_i < channel_out; o_i++) {
+//     for (int c_i = 0; c_i < channel_in; c_i++) {
+//       for (int h_i = 0; h_i < kernel_h; h_i++) {
+//         for (int w_i = 0; w_i < kernel_w; w_i++) {
+//           fracZ_data[(c_i/16) * (kernel_w * kernel_h) + h_i * (kernel_w) + w_i][(o_i)/16][o_i%16][c_i%16] = ochw_data[o_i][c_i][h_i][w_i];
+//         }
+//       }
+//     }
+//   }
+//   return fracZ;
+// }
 
 template <typename Dtype>
 void fracZ2ochw(const Dtype* fracZ, Dtype* ochw, int channel_out, int channel_in, int kernel_h, int kernel_w) {
@@ -41,12 +41,31 @@ void fracZ2ochw(const Dtype* fracZ, Dtype* ochw, int channel_out, int channel_in
     for (int c_i = 0; c_i < channel_in; c_i++) {
       for (int h_i = 0; h_i < kernel_h; h_i++) {
         for (int w_i = 0; w_i < kernel_w; w_i++) {
-          ochw_array[o_i][c_i][h_i][w_i] = fracZ_array[(h_i * kernel_w + w_i) * ((channel_in+15)/16) + (c_i/16)][(o_i)/16][o_i%16][c_i%16];
+          ochw_array[o_i][c_i][h_i][w_i] = fracZ_array[(c_i/16) * (kernel_w * kernel_h) + h_i * (kernel_w) + w_i][(o_i)/16][o_i%16][c_i%16];
         }
       }
     }
   }
 }
+
+
+
+// template <typename Dtype>
+// void my_ochw2fracZ(const Dtype* ochw, Dtype* fracZ, int channel_out, int channel_in, int kernel_h, int kernel_w) {
+
+//   auto fracZ_array = *reinterpret_cast<Dtype (*)[kernel_h * kernel_w * ((channel_in + 15) / 16)][(channel_out + 15) / 16][16][16]>(fracZ);
+//   auto ochw_array = *reinterpret_cast<const Dtype (*)[channel_out][channel_in][kernel_h][kernel_w]>(ochw);
+//   for (int o_i = 0; o_i < channel_out; o_i++) {
+//     for (int c_i = 0; c_i < channel_in; c_i++) {
+//       for (int h_i = 0; h_i < kernel_h; h_i++) {
+//         for (int w_i = 0; w_i < kernel_w; w_i++) {
+//           fracZ_array[(c_i/16) * (kernel_w * kernel_h) + h_i * (kernel_w) + w_i][(o_i)/16][o_i%16][c_i%16] = ochw_array[o_i][c_i][h_i][w_i];
+//         }
+//       }
+//     }
+//   }
+// }
+
 
 template <typename Dtype>
 std::string ConvolutionLayer<Dtype>::kernel_identifier() {
@@ -69,50 +88,6 @@ std::string ConvolutionLayer<Dtype>::kernel_identifier() {
 template <typename Dtype>
 void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
-  
-  if(kernel_identifier() == "conv_fw_op_64_32_32_16_16_bias_3_3_1_1_1_1" || 
-      kernel_identifier() == "conv_fw_op_64_32_64_16_16_bias_3_3_1_1_2_2" ||
-      kernel_identifier() == "conv_fw_op_64_64_64_8_8_bias_3_3_1_1_1_1") {
-    std::vector<Dtype> weight_see((this->num_output_)*(this->channels_)*(this->kernel_shape_.cpu_data()[0])*(this->kernel_shape_.cpu_data()[1]), .0);
-    fracZ2ochw(this->blobs_[0]->cpu_data(), weight_see.data(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
-
-    // for(int i = 0; i < bottom[0]->count() / bottom[0]->shape(0); ++i) {
-    //   std::cout << bottom[0]->cpu_data()[i] << " ";
-    // }
-
-    const Dtype* weight = weight_see.data();
-    for (int i = 0; i < bottom.size(); ++i) {
-      const Dtype* bottom_data = bottom[i]->cpu_data();
-      Dtype* top_data = top[i]->mutable_cpu_data();
-    
-      for(int j = 0; j < top[i]->count(); ++j) {
-        top_data[j] = 2.0;
-      }
-
-      debug_print(weight, weight_see.size(), "conv weight"); //UGLY
-      debug_print(bottom[0]->cpu_data(), bottom[0]->count(), "conv bottom");
-      debug_print(this->blobs_[1]->cpu_data(), this->blobs_[1]->count(), "conv bias");
-      std::cout << "The size of bottom is " << bottom.size() << " top is " << top.size() << " group is " << this->group_ << std::endl;
-
-
-      for (int n = 0; n < this->num_; ++n) {
-        this->forward_cpu_gemm(bottom_data + n * this->bottom_dim_, weight,
-            top_data + n * this->top_dim_);
-        if (this->bias_term_) {
-          const Dtype* bias = this->blobs_[1]->cpu_data();
-          // this->forward_cpu_bias(top_data + n * this->top_dim_, bias);
-        }
-      }
-    }
-    return;
-  }
-
-
-  // if(kernel_identifier() == "conv_fw_op_64_32_32_16_16_bias_3_3_1_1_1_1") {
-  //   for(int i = 0; i < bottom[0]->count(); ++i) {
-  //     bottom[0]->mutable_cpu_data()[i] = .3;
-  //   }
-  // }
 
   Blob<Dtype> bottom_five(bottom[0]->shape(0), (bottom[0]->shape(1)+15)/16*16, bottom[0]->shape(2), bottom[0]->shape(3));
   four2five(bottom[0]->cpu_data(), bottom_five.mutable_cpu_data(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
@@ -120,26 +95,6 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
 
   std::vector<int> top_five_shape{top[0]->shape(0), (top[0]->shape(1) + 15) / 16, top[0]->shape(2), top[0]->shape(3) * 16};
   Blob<Dtype> top_five(top_five_shape);
-
-  // std::vector<Dtype> weight_see(this->blobs_[0]->count(), .0);
-  // fracZ2ochw(this->blobs_[0]->cpu_data(), weight_see.data(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
-
-  // debug_print(weight_see.data(), this->blobs_[0]->count(), "conv weight");
-  // debug_print(bottom[0]->cpu_data(), bottom[0]->count(), "conv bottom");
-  // debug_print(this->blobs_[1]->cpu_data(), this->blobs_[1]->count(), "conv bias");
-  // std::cout << "The size of bottom is " << bottom.size() << " top is " << top.size() << " group is " << this->group_ << std::endl;
-
-
-
-  // if(kernel_identifier() == "conv_fw_op_64_32_32_16_16_bias_3_3_1_1_1_1") {
-  //   for(int i = 0; i < this->blobs_[0]->count(); ++i) {
-  //     this->blobs_[0]->mutable_cpu_data()[i] = .15;
-  //   }
-  //   for(int i = 0; i < this->blobs_[1]->count(); ++i) {
-  //     this->blobs_[1]->mutable_cpu_data()[i] = .0;
-  //   }
-  // }
-
 
   std::vector<void*> args = {(void*)bottom_five.aicore_data(), (void*)this->blobs_[0]->aicore_data()};
   if (this->bias_term_) {
@@ -186,6 +141,10 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
   auto weight_fraz = this->blobs_[0].get();
 
 
+  // debug_print(bottom[0]->cpu_data(), bottom[0]->count(), "conv back bottom");
+  // debug_print(top[0]->cpu_diff(), top[0]->count(), "conv diff top");
+
+
   Blob<float> weight_fraz_diff_fp32({weight_fraz->count()});
   std::vector<void*> args = { (void*)bottom_five.aicore_data(), 
                               (void*)top_five.aicore_diff(),
@@ -198,6 +157,11 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
   for(int i = 0; i < weight_fraz->count(); ++i) {
     weight_fraz->mutable_cpu_diff()[i] = Dtype(cpu_weight_fraz_diff_fp32[i]);
   }
+
+  // auto weight_diff_see = std::vector<Dtype>(this->num_output_ * this->channels_ * this->kernel_shape_.cpu_data()[0] * this->kernel_shape_.cpu_data()[1], .0);
+  // fracZ2ochw(weight_fraz->cpu_data(), weight_diff_see.data(), this->num_output_, this->channels_, this->kernel_shape_.cpu_data()[0], this->kernel_shape_.cpu_data()[1]);
+
+  // debug_print(weight_diff_see.data(), weight_diff_see.size(), "conv weight_fraz bottom");
 
   // DO WEIGHT
 

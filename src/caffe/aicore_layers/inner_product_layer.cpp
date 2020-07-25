@@ -76,8 +76,8 @@ void InnerProductLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom
         caffe_copy(top[0]->shape(1), aligned_top_data + i * aligned_top.shape(1), top_data+ i * top[0]->shape(1));
     }
 
-    debug_print(bottom[0]->cpu_data(), bottom[0]->count(), "inner bottom");
-    debug_print(top[0]->cpu_data(), top[0]->count(), "inner top");
+    // debug_print(bottom[0]->cpu_data(), bottom[0]->count(), "inner bottom");
+    // debug_print(top[0]->cpu_data(), top[0]->count(), "inner top");
 
 }
 
@@ -86,7 +86,7 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
     
-    debug_print(top[0]->cpu_diff(), top[0]->count(), "InnerProductLayer diff");
+    // debug_print(top[0]->cpu_diff(), top[0]->count(), "InnerProductLayer diff");
 
     Blob<Dtype> aligned_bottom(std::vector<int>{ALIGN_SIZE(bottom[0]->shape(0)), ALIGN_SIZE(K_)});
     align_mm(bottom[0]->cpu_data(), aligned_bottom.mutable_cpu_data(), bottom[0]->shape(0), K_);
@@ -120,8 +120,8 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
             AICORE_CHECK(rtKernelLaunch(this->bw_weight_kernel, this->bw_weight_block_num, args1.data(), args1.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
             AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
             
-            debug_print(aligned_top.cpu_data(), aligned_top.count(), "inner align top");
-            debug_print(aligned_weight->cpu_data(), aligned_weight->count(), "inner weight diff");
+            // debug_print(aligned_top.cpu_data(), aligned_top.count(), "inner align top");
+            // debug_print(aligned_weight->cpu_data(), aligned_weight->count(), "inner weight diff");
 
         }
 
