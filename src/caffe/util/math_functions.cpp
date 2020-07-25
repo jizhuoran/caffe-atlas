@@ -545,7 +545,7 @@ void caffe_rng_gaussian(const int n, const Dtype a,
 
     std::default_random_engine gen1(1996);
 
-  std::normal_distribution<> variate_generator(a, std::nextafter(sigma, std::numeric_limits<Dtype>::max())); //    uniform_real_distribution<float> variate_generator(float(a), caffe_nextafter<float>(float(b)));
+  std::normal_distribution<> variate_generator(a, std::nextafter(float(sigma), std::numeric_limits<float>::max())); //    uniform_real_distribution<float> variate_generator(float(a), caffe_nextafter<float>(float(b)));
   for (int i = 0; i < n; ++i) {
     r[i] = Dtype(variate_generator(gen1));
   }
