@@ -109,10 +109,10 @@ template <typename Dtype>
 void debug_print(const Dtype* a, int count, std::string name = "") {
     std::cout << " " << name << " " << std::endl;
   for(int i = 0; i < std::min(count, 100); ++i) {
-    std::cout << a[i] << " ";
+    std::cout << float(a[i]) << " ";
   }
   for(int i = std::max(count-100, 0); i < count; ++i) {
-    std::cout << a[i] << " ";
+    std::cout << float(a[i]) << " ";
   }
   std::cout << " " << std::endl;
 }
