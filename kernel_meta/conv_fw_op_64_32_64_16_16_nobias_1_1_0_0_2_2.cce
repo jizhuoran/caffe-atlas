@@ -1,0 +1,115 @@
+#ifdef __CCE_KT_TEST__
+#define __aicore__ 
+#else
+#define __aicore__ [aicore]
+#endif
+
+extern "C"  __global__ __aicore__ void conv_fw_op_64_32_64_16_16_nobias_1_1_0_0_2_2__kernel0(__gm__ half* __restrict__ Fmap, __gm__ half* __restrict__ Filter, __gm__ half* __restrict__ remove_pad_cc_17) {
+set_l1_3d_size(0);
+set_padding(0);
+__cb__   half* Filter_local_L0B = (__cb__  half *)get_imm(0);
+__cbuf__   half* fmap_l1_1 = (__cbuf__  half *)get_imm(0);
+__ca__   half* im2col_fractal_3 = (__ca__  half *)get_imm(0);
+__cc__   float* mad1_2 = (__cc__  float *)get_imm(0);
+__ubuf__   half* C_UB_4 = (__ubuf__  half *)get_imm(0);
+__ubuf__   half* C_UB_5 = (__ubuf__  half *)get_imm(4096);
+__cbuf__   half* fmap_l1_6 = (__cbuf__  half *)get_imm(7680);
+__ca__   half* im2col_fractal_8 = (__ca__  half *)get_imm(4096);
+__cc__   float* mad1_7 = (__cc__  float *)get_imm(16384);
+  set_fmatrix(0x8000f);
+  load_gm_to_cb(((__cb__ half *)Filter_local_L0B), ((__gm__ half *)Filter), 0, 8, 1, 0);
+  for (int32_t i0_inner_outer_outer_db = 0; i0_inner_outer_outer_db < 16; ++i0_inner_outer_outer_db) {
+    if (0 < i0_inner_outer_outer_db) {
+      wait_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID0);
+    }
+    copy_gm_to_cbuf(((__cbuf__ half *)fmap_l1_1), ((__gm__ half *)Fmap + ((((int32_t)block_idx) * 262144) + (i0_inner_outer_outer_db * 16384))), 0, 16, 15, 17, 0, PAD_NONE);
+    set_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+        if (0 < i0_inner_outer_outer_db) {
+      wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+    }
+    wait_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    for (int32_t lower = 0; lower < 2; ++lower) {
+      img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_3 + (lower * 256)), ((__cbuf__ half *)fmap_l1_1), (uint64_t)0ULL, (uint64_t)0ULL, (int64_t)0, (int64_t)0, ((uint64_t)((int64_t)lower)), (uint64_t)2ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)2ULL, (uint64_t)1ULL, (uint64_t)4ULL, CSIZE0);
+    }
+    set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    if (i0_inner_outer_outer_db < 15) {
+      set_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID0);
+    }
+    if (0 < i0_inner_outer_outer_db) {
+      wait_flag(PIPE_V, PIPE_M, EVENT_ID0);
+    }
+    wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    mad(((__cc__ float *)mad1_2), ((__ca__ half *)im2col_fractal_3), ((__cb__ half *)Filter_local_L0B), 64, 32, 64, (int8_t)1ULL);
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    if (i0_inner_outer_outer_db < 15) {
+      set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+    }
+    if (0 < i0_inner_outer_outer_db) {
+      wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+    }
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_4), ((__cc__ float *)mad1_2), 0, 1, 8, 0, 0, CRMODE_F32toF16_NONE);
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_17 + ((((int32_t)block_idx) * 131072) + (i0_inner_outer_outer_db * 8192))), ((__ubuf__ half *)C_UB_4), 0, 1, 128, 0, 0);
+    set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+    if (0 < i0_inner_outer_outer_db) {
+      wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+    }
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_5), ((__cc__ float *)mad1_2 + 2048), 0, 1, 8, 0, 0, CRMODE_F32toF16_NONE);
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    if (i0_inner_outer_outer_db < 15) {
+      set_flag(PIPE_V, PIPE_M, EVENT_ID0);
+    }
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_17 + (((((int32_t)block_idx) * 131072) + (i0_inner_outer_outer_db * 8192)) + 2048)), ((__ubuf__ half *)C_UB_5), 0, 1, 128, 0, 0);
+    set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+    if (0 < i0_inner_outer_outer_db) {
+      wait_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID1);
+    }
+    copy_gm_to_cbuf(((__cbuf__ half *)fmap_l1_6), ((__gm__ half *)Fmap + (((((int32_t)block_idx) * 262144) + (i0_inner_outer_outer_db * 16384)) + 8192)), 0, 16, 15, 17, 0, PAD_NONE);
+    set_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+        if (0 < i0_inner_outer_outer_db) {
+      wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+    }
+    wait_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    for (int32_t lower1 = 0; lower1 < 2; ++lower1) {
+      img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_8 + (lower1 * 256)), ((__cbuf__ half *)fmap_l1_6), (uint64_t)0ULL, (uint64_t)0ULL, (int64_t)0, (int64_t)0, ((uint64_t)((int64_t)lower1)), (uint64_t)2ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)2ULL, (uint64_t)1ULL, (uint64_t)4ULL, CSIZE0);
+    }
+    set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    if (i0_inner_outer_outer_db < 15) {
+      set_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID1);
+    }
+    if (0 < i0_inner_outer_outer_db) {
+      wait_flag(PIPE_V, PIPE_M, EVENT_ID1);
+    }
+    wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    mad(((__cc__ float *)mad1_7), ((__ca__ half *)im2col_fractal_8), ((__cb__ half *)Filter_local_L0B), 64, 32, 64, (int8_t)1ULL);
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    if (i0_inner_outer_outer_db < 15) {
+      set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+    }
+    wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_4), ((__cc__ float *)mad1_7), 0, 1, 8, 0, 0, CRMODE_F32toF16_NONE);
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_17 + (((((int32_t)block_idx) * 131072) + (i0_inner_outer_outer_db * 8192)) + 4096)), ((__ubuf__ half *)C_UB_4), 0, 1, 128, 0, 0);
+    if (i0_inner_outer_outer_db < 15) {
+      set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+    }
+    wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_5), ((__cc__ float *)mad1_7 + 2048), 0, 1, 8, 0, 0, CRMODE_F32toF16_NONE);
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    if (i0_inner_outer_outer_db < 15) {
+      set_flag(PIPE_V, PIPE_M, EVENT_ID1);
+    }
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_17 + (((((int32_t)block_idx) * 131072) + (i0_inner_outer_outer_db * 8192)) + 6144)), ((__ubuf__ half *)C_UB_5), 0, 1, 128, 0, 0);
+    if (i0_inner_outer_outer_db < 15) {
+      set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+    }
+  }
+  pipe_barrier(PIPE_ALL);
+}
+

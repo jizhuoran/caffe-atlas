@@ -1,0 +1,110 @@
+#ifdef __CCE_KT_TEST__
+#define __aicore__ 
+#else
+#define __aicore__ [aicore]
+#endif
+
+extern "C"  __global__ __aicore__ void conv_bw_input_op_64_16_32_32_32_1_1_0_0_2_2__kernel0(__gm__ half* __restrict__ filter, __gm__ half* __restrict__ dedy, __gm__ half* __restrict__ CUB_dilation_img) {
+set_padding(0);
+set_vector_mask((uint64_t)-1, (uint64_t)-1);
+set_ctrl(sbitset0(get_ctrl(), 56));
+__cbuf__   half* dedy_col = (__cbuf__  half *)get_imm(0);
+__cbuf__   half* filter_B_l1 = (__cbuf__  half *)get_imm(16384);
+__cb__   half* filter_B_l0b = (__cb__  half *)get_imm(0);
+__ca__   half* dedy_col_fractal = (__ca__  half *)get_imm(0);
+__cc__   float* C_1 = (__cc__  float *)get_imm(0);
+__ubuf__   half* CUB_2 = (__ubuf__  half *)get_imm(0);
+__ubuf__   half* CUB_dilation_3 = (__ubuf__  half *)get_imm(4096);
+__cb__   half* filter_B_l0b1 = (__cb__  half *)get_imm(1024);
+__ca__   half* dedy_col_fractal1 = (__ca__  half *)get_imm(8192);
+__cc__   float* C_4 = (__cc__  float *)get_imm(8192);
+__ubuf__   half* CUB_5 = (__ubuf__  half *)get_imm(20480);
+__ubuf__   half* CUB_dilation_6 = (__ubuf__  half *)get_imm(24576);
+  set_vector_mask(0xffffffffffffffff, 0xffffffffffffffff);
+  for (int32_t n_inner_outer = 0; n_inner_outer < 32; ++n_inner_outer) {
+    if (0 < n_inner_outer) {
+      wait_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID0);
+    }
+    copy_gm_to_cbuf(((__cbuf__ half *)dedy_col), ((__gm__ half *)dedy + ((((int32_t)block_idx) * 262144) + (n_inner_outer * 8192))), 0, 1, 512, 0, 0, PAD_NONE);
+    copy_gm_to_cbuf(((__cbuf__ half *)filter_B_l1), ((__gm__ half *)filter), 0, 1, 32, 0, 0, PAD_NONE);
+    set_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    if (0 < n_inner_outer) {
+      wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+    }
+    wait_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    load_cbuf_to_cb(((__cb__ half *)filter_B_l0b), ((__cbuf__ half *)filter_B_l1), 0, 2, 1, 0, 1);
+    for (int32_t copy_part = 0; copy_part < 8; ++copy_part) {
+      load_cbuf_to_ca(((__ca__ half *)dedy_col_fractal + (copy_part * 512)), ((__cbuf__ half *)dedy_col + (copy_part * 256)), 0, 2, 16, 0, 0);
+    }
+    set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    if (0 < n_inner_outer) {
+      wait_flag(PIPE_V, PIPE_M, EVENT_ID0);
+    }
+    wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    mad(((__cc__ float *)C_1), ((__ca__ half *)dedy_col_fractal), ((__cb__ half *)filter_B_l0b), 128, 32, 16, (int8_t)1ULL);
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    if (n_inner_outer < 31) {
+      set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+    }
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)CUB_2), ((__cc__ float *)C_1), 0, 1, 8, 0, 0, CRMODE_F32toF16_NONE);
+    if (n_inner_outer < 31) {
+      set_flag(PIPE_V, PIPE_M, EVENT_ID0);
+    }
+    if (0 < n_inner_outer) {
+      wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+    }
+    vector_dup(((__ubuf__ half *)CUB_dilation_3), (half)0.000000e+00f, (uint8_t)64ULL, (uint16_t)1ULL, (uint16_t)0ULL, (uint8_t)8ULL, (uint8_t)0ULL);
+    pipe_barrier(PIPE_V);
+    for (int32_t hw_outer_outer = 0; hw_outer_outer < 8; ++hw_outer_outer) {
+      vadd(((__ubuf__ half *)CUB_dilation_3 + (hw_outer_outer * 1024)), ((__ubuf__ half *)CUB_2 + (hw_outer_outer * 256)), ((__ubuf__ half *)CUB_dilation_3 + (hw_outer_outer * 1024)), (uint8_t)2ULL, (uint8_t)2ULL, (uint8_t)1ULL, (uint8_t)2ULL, (uint8_t)16ULL, (uint8_t)8ULL, (uint8_t)16ULL);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)CUB_dilation_img + ((((int32_t)block_idx) * 524288) + (n_inner_outer * 16384))), ((__ubuf__ half *)CUB_dilation_3), 0, 1, 512, 0, 0);
+    if (n_inner_outer < 31) {
+      set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+    }
+    if (0 < n_inner_outer) {
+      wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+    }
+    load_cbuf_to_cb(((__cb__ half *)filter_B_l0b1), ((__cbuf__ half *)filter_B_l1), 0, 2, 1, 0, 1);
+    for (int32_t copy_part1 = 0; copy_part1 < 8; ++copy_part1) {
+      load_cbuf_to_ca(((__ca__ half *)dedy_col_fractal1 + (copy_part1 * 512)), ((__cbuf__ half *)dedy_col + ((copy_part1 * 256) + 2048)), 0, 2, 16, 0, 0);
+    }
+    set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    if (n_inner_outer < 31) {
+      set_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID0);
+    }
+    if (0 < n_inner_outer) {
+      wait_flag(PIPE_V, PIPE_M, EVENT_ID1);
+    }
+    wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+    mad(((__cc__ float *)C_4), ((__ca__ half *)dedy_col_fractal1), ((__cb__ half *)filter_B_l0b1), 128, 32, 16, (int8_t)1ULL);
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    if (n_inner_outer < 31) {
+      set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+    }
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)CUB_5), ((__cc__ float *)C_4), 0, 1, 8, 0, 0, CRMODE_F32toF16_NONE);
+    if (n_inner_outer < 31) {
+      set_flag(PIPE_V, PIPE_M, EVENT_ID1);
+    }
+    if (0 < n_inner_outer) {
+      wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+    }
+    vector_dup(((__ubuf__ half *)CUB_dilation_6), (half)0.000000e+00f, (uint8_t)64ULL, (uint16_t)1ULL, (uint16_t)0ULL, (uint8_t)8ULL, (uint8_t)0ULL);
+    pipe_barrier(PIPE_V);
+    for (int32_t hw_outer_outer1 = 0; hw_outer_outer1 < 8; ++hw_outer_outer1) {
+      vadd(((__ubuf__ half *)CUB_dilation_6 + (hw_outer_outer1 * 1024)), ((__ubuf__ half *)CUB_5 + (hw_outer_outer1 * 256)), ((__ubuf__ half *)CUB_dilation_6 + (hw_outer_outer1 * 1024)), (uint8_t)2ULL, (uint8_t)2ULL, (uint8_t)1ULL, (uint8_t)2ULL, (uint8_t)16ULL, (uint8_t)8ULL, (uint8_t)16ULL);
+    }
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)CUB_dilation_img + (((((int32_t)block_idx) * 524288) + (n_inner_outer * 16384)) + 8192)), ((__ubuf__ half *)CUB_dilation_6), 0, 1, 512, 0, 0);
+    if (n_inner_outer < 31) {
+      set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+    }
+  }
+  pipe_barrier(PIPE_ALL);
+}
+

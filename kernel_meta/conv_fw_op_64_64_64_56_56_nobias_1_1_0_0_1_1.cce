@@ -1,0 +1,310 @@
+#ifdef __CCE_KT_TEST__
+#define __aicore__ 
+#else
+#define __aicore__ [aicore]
+#endif
+
+extern "C"  __global__ __aicore__ void conv_fw_op_64_64_64_56_56_nobias_1_1_0_0_1_1__kernel0(__gm__ half* __restrict__ Fmap, __gm__ half* __restrict__ Filter, __gm__ half* __restrict__ remove_pad_cc_2) {
+set_padding(0);
+__cbuf__   half* Filter_local_L1 = (__cbuf__  half *)get_imm(0);
+__cbuf__   half* convolution_al1_load2d_1 = (__cbuf__  half *)get_imm(8192);
+__cc__   float* mad1_2 = (__cc__  float *)get_imm(0);
+__cb__   half* Filter_local_L1_local_L0B_3 = (__cb__  half *)get_imm(0);
+__ca__   half* convolution_al0_load2d_4 = (__ca__  half *)get_imm(0);
+__cb__   half* Filter_local_L1_local_L0B_5 = (__cb__  half *)get_imm(2048);
+__ca__   half* convolution_al0_load2d_6 = (__ca__  half *)get_imm(15872);
+__ubuf__   half* C_UB_7 = (__ubuf__  half *)get_imm(0);
+__ubuf__   half* C_UB_8 = (__ubuf__  half *)get_imm(31744);
+__cc__   float* mad1_9 = (__cc__  float *)get_imm(126976);
+__cc__   float* mad1 = (__cc__  float *)get_imm(0);
+__cb__   half* Filter_local_L1_local_L0B_10 = (__cb__  half *)get_imm(4096);
+__ca__   half* convolution_al0_load2d_11 = (__ca__  half *)get_imm(31744);
+__cb__   half* Filter_local_L1_local_L0B_12 = (__cb__  half *)get_imm(6144);
+__ca__   half* convolution_al0_load2d_13 = (__ca__  half *)get_imm(36864);
+__ubuf__   half* C_UB_14 = (__ubuf__  half *)get_imm(63488);
+__ubuf__   half* C_UB_15 = (__ubuf__  half *)get_imm(73728);
+__cbuf__   half* convolution_al1_load2d_16 = (__cbuf__  half *)get_imm(409600);
+  copy_gm_to_cbuf(((__cbuf__ half *)Filter_local_L1), ((__gm__ half *)Filter), 0, 1, 256, 0, 0, PAD_NONE);
+  for (int32_t i0_inner_outer_outer_db = 0; i0_inner_outer_outer_db < 16; ++i0_inner_outer_outer_db) {
+    if (0 < i0_inner_outer_outer_db) {
+      wait_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID0);
+    }
+    copy_gm_to_cbuf(((__cbuf__ half *)convolution_al1_load2d_1), ((__gm__ half *)Fmap + ((((int32_t)block_idx) * 6422528) + (i0_inner_outer_outer_db * 401408))), 0, 1, 12544, 0, 0, PAD_NONE);
+    set_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    wait_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    for (int32_t i2_outer_inner_db = 0; i2_outer_inner_db < 3; ++i2_outer_inner_db) {
+      if ((i2_outer_inner_db + i0_inner_outer_outer_db) != 0) {
+        wait_flag(PIPE_V, PIPE_M, EVENT_ID0);
+      }
+      for (int32_t k1_outer_inner_db = 0; k1_outer_inner_db < 2; ++k1_outer_inner_db) {
+        if ((k1_outer_inner_db + i2_outer_inner_db) != 0) {
+          wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        }
+        load_cbuf_to_cb(((__cb__ half *)Filter_local_L1_local_L0B_3), ((__cbuf__ half *)Filter_local_L1 + (k1_outer_inner_db * 2048)), 0, 4, 1, 0, 0);
+        load_cbuf_to_ca(((__ca__ half *)convolution_al0_load2d_4), ((__cbuf__ half *)convolution_al1_load2d_1 + ((k1_outer_inner_db * 100352) + (i2_outer_inner_db * 15872))), 0, 31, 1, 0, 0);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        mad(((__cc__ float *)mad1_2), ((__ca__ half *)convolution_al0_load2d_4), ((__cb__ half *)Filter_local_L1_local_L0B_3), 496, 16, 64, (k1_outer_inner_db == 0));
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        if ((k1_outer_inner_db + i2_outer_inner_db) != 0) {
+          wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+        }
+        load_cbuf_to_cb(((__cb__ half *)Filter_local_L1_local_L0B_5), ((__cbuf__ half *)Filter_local_L1 + ((k1_outer_inner_db * 2048) + 1024)), 0, 4, 1, 0, 0);
+        load_cbuf_to_ca(((__ca__ half *)convolution_al0_load2d_6), ((__cbuf__ half *)convolution_al1_load2d_1 + (((k1_outer_inner_db * 100352) + (i2_outer_inner_db * 15872)) + 50176)), 0, 31, 1, 0, 0);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        mad(((__cc__ float *)mad1_2), ((__ca__ half *)convolution_al0_load2d_6), ((__cb__ half *)Filter_local_L1_local_L0B_5), 496, 16, 64, (int8_t)0ULL);
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+      }
+      set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      if ((i2_outer_inner_db + i0_inner_outer_outer_db) != 0) {
+        wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+      }
+      wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_7), ((__cc__ float *)mad1_2), 0, 1, 62, 0, 0, CRMODE_F32toF16_NONE);
+      set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_2 + (((((int32_t)block_idx) * 6422528) + (i0_inner_outer_outer_db * 401408)) + (i2_outer_inner_db * 15872))), ((__ubuf__ half *)C_UB_7), 0, 2, 496, 0, 2640);
+      set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+      if ((i2_outer_inner_db + i0_inner_outer_outer_db) != 0) {
+        wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+      }
+      copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_8), ((__cc__ float *)mad1_2 + 15872), 0, 1, 62, 0, 0, CRMODE_F32toF16_NONE);
+      set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      if (i2_outer_inner_db < 2) {
+        set_flag(PIPE_V, PIPE_M, EVENT_ID0);
+      }
+      wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_2 + ((((((int32_t)block_idx) * 6422528) + (i0_inner_outer_outer_db * 401408)) + (i2_outer_inner_db * 15872)) + 100352)), ((__ubuf__ half *)C_UB_8), 0, 2, 496, 0, 2640);
+      set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+      if (0 < i2_outer_inner_db) {
+        wait_flag(PIPE_V, PIPE_M, EVENT_ID1);
+      }
+      for (int32_t k1_outer_inner_db1 = 0; k1_outer_inner_db1 < 2; ++k1_outer_inner_db1) {
+        wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        load_cbuf_to_cb(((__cb__ half *)Filter_local_L1_local_L0B_3), ((__cbuf__ half *)Filter_local_L1 + (k1_outer_inner_db1 * 2048)), 0, 4, 1, 0, 0);
+        load_cbuf_to_ca(((__ca__ half *)convolution_al0_load2d_4), ((__cbuf__ half *)convolution_al1_load2d_1 + (((k1_outer_inner_db1 * 100352) + (i2_outer_inner_db * 15872)) + 7936)), 0, 31, 1, 0, 0);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        mad(((__cc__ float *)mad1_9), ((__ca__ half *)convolution_al0_load2d_4), ((__cb__ half *)Filter_local_L1_local_L0B_3), 496, 16, 64, (k1_outer_inner_db1 == 0));
+        if ((k1_outer_inner_db1 + i2_outer_inner_db) != 3) {
+          set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        }
+        if ((i2_outer_inner_db == 2) && (k1_outer_inner_db1 == 1)) {
+          set_flag(PIPE_M, PIPE_MTE1, EVENT_ID2);
+        }
+        wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+        load_cbuf_to_cb(((__cb__ half *)Filter_local_L1_local_L0B_5), ((__cbuf__ half *)Filter_local_L1 + ((k1_outer_inner_db1 * 2048) + 1024)), 0, 4, 1, 0, 0);
+        load_cbuf_to_ca(((__ca__ half *)convolution_al0_load2d_6), ((__cbuf__ half *)convolution_al1_load2d_1 + (((k1_outer_inner_db1 * 100352) + (i2_outer_inner_db * 15872)) + 58112)), 0, 31, 1, 0, 0);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        mad(((__cc__ float *)mad1_9), ((__ca__ half *)convolution_al0_load2d_6), ((__cb__ half *)Filter_local_L1_local_L0B_5), 496, 16, 64, (int8_t)0ULL);
+        if ((k1_outer_inner_db1 + i2_outer_inner_db) != 3) {
+          set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+        }
+        if ((i2_outer_inner_db == 2) && (k1_outer_inner_db1 == 1)) {
+          set_flag(PIPE_M, PIPE_MTE1, EVENT_ID3);
+        }
+      }
+      set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+      wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_7), ((__cc__ float *)mad1_9), 0, 1, 62, 0, 0, CRMODE_F32toF16_NONE);
+      set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_2 + ((((((int32_t)block_idx) * 6422528) + (i0_inner_outer_outer_db * 401408)) + (i2_outer_inner_db * 15872)) + 7936)), ((__ubuf__ half *)C_UB_7), 0, 2, 496, 0, 2640);
+      set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+      wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+      copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_8), ((__cc__ float *)mad1_9 + 15872), 0, 1, 62, 0, 0, CRMODE_F32toF16_NONE);
+      set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      if (i2_outer_inner_db < 2) {
+        set_flag(PIPE_V, PIPE_M, EVENT_ID1);
+      }
+      wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_2 + ((((((int32_t)block_idx) * 6422528) + (i0_inner_outer_outer_db * 401408)) + (i2_outer_inner_db * 15872)) + 108288)), ((__ubuf__ half *)C_UB_8), 0, 2, 496, 0, 2640);
+      set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+    }
+    set_flag(PIPE_V, PIPE_M, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_M, EVENT_ID0);
+    for (int32_t k1_outer_inner_db2 = 0; k1_outer_inner_db2 < 2; ++k1_outer_inner_db2) {
+      if (0 < k1_outer_inner_db2) {
+        wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+      }
+      load_cbuf_to_cb(((__cb__ half *)Filter_local_L1_local_L0B_10), ((__cbuf__ half *)Filter_local_L1 + (k1_outer_inner_db2 * 2048)), 0, 4, 1, 0, 0);
+      load_cbuf_to_ca(((__ca__ half *)convolution_al0_load2d_11), ((__cbuf__ half *)convolution_al1_load2d_1 + ((k1_outer_inner_db2 * 100352) + 47616)), 0, 10, 1, 0, 0);
+      set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      mad(((__cc__ float *)mad1), ((__ca__ half *)convolution_al0_load2d_11), ((__cb__ half *)Filter_local_L1_local_L0B_10), 160, 16, 64, (k1_outer_inner_db2 == 0));
+      if (k1_outer_inner_db2 < 1) {
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+      }
+      if (0 < k1_outer_inner_db2) {
+        wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+      }
+      load_cbuf_to_cb(((__cb__ half *)Filter_local_L1_local_L0B_12), ((__cbuf__ half *)Filter_local_L1 + ((k1_outer_inner_db2 * 2048) + 1024)), 0, 4, 1, 0, 0);
+      load_cbuf_to_ca(((__ca__ half *)convolution_al0_load2d_13), ((__cbuf__ half *)convolution_al1_load2d_1 + ((k1_outer_inner_db2 * 100352) + 97792)), 0, 10, 1, 0, 0);
+      set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      mad(((__cc__ float *)mad1), ((__ca__ half *)convolution_al0_load2d_13), ((__cb__ half *)Filter_local_L1_local_L0B_12), 160, 16, 64, (int8_t)0ULL);
+      if (k1_outer_inner_db2 < 1) {
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+      }
+    }
+    if (i0_inner_outer_outer_db < 15) {
+      set_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID0);
+    }
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_14), ((__cc__ float *)mad1), 0, 1, 20, 0, 0, CRMODE_F32toF16_NONE);
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    pipe_barrier(PIPE_MTE3);
+    copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_2 + (((((int32_t)block_idx) * 6422528) + (i0_inner_outer_outer_db * 401408)) + 47616)), ((__ubuf__ half *)C_UB_14), 0, 2, 160, 0, 2976);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_15), ((__cc__ float *)mad1 + 5120), 0, 1, 20, 0, 0, CRMODE_F32toF16_NONE);
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    set_flag(PIPE_V, PIPE_M, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_2 + (((((int32_t)block_idx) * 6422528) + (i0_inner_outer_outer_db * 401408)) + 147968)), ((__ubuf__ half *)C_UB_15), 0, 2, 160, 0, 2976);
+    if (0 < i0_inner_outer_outer_db) {
+      wait_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID1);
+    }
+    copy_gm_to_cbuf(((__cbuf__ half *)convolution_al1_load2d_16), ((__gm__ half *)Fmap + (((((int32_t)block_idx) * 6422528) + (i0_inner_outer_outer_db * 401408)) + 200704)), 0, 1, 12544, 0, 0, PAD_NONE);
+    set_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    wait_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+    for (int32_t i2_outer_inner_db1 = 0; i2_outer_inner_db1 < 3; ++i2_outer_inner_db1) {
+      wait_flag(PIPE_V, PIPE_M, EVENT_ID0);
+      for (int32_t k1_outer_inner_db3 = 0; k1_outer_inner_db3 < 2; ++k1_outer_inner_db3) {
+        if ((k1_outer_inner_db3 + i2_outer_inner_db1) != 0) {
+          wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        }
+        if ((k1_outer_inner_db3 == 0) && (i2_outer_inner_db1 == 0)) {
+          wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID2);
+        }
+        load_cbuf_to_cb(((__cb__ half *)Filter_local_L1_local_L0B_3), ((__cbuf__ half *)Filter_local_L1 + (k1_outer_inner_db3 * 2048)), 0, 4, 1, 0, 0);
+        load_cbuf_to_ca(((__ca__ half *)convolution_al0_load2d_4), ((__cbuf__ half *)convolution_al1_load2d_16 + ((k1_outer_inner_db3 * 100352) + (i2_outer_inner_db1 * 15872))), 0, 31, 1, 0, 0);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        mad(((__cc__ float *)mad1_2), ((__ca__ half *)convolution_al0_load2d_4), ((__cb__ half *)Filter_local_L1_local_L0B_3), 496, 16, 64, (k1_outer_inner_db3 == 0));
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        if ((k1_outer_inner_db3 + i2_outer_inner_db1) != 0) {
+          wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+        }
+        if ((k1_outer_inner_db3 == 0) && (i2_outer_inner_db1 == 0)) {
+          wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID3);
+        }
+        load_cbuf_to_cb(((__cb__ half *)Filter_local_L1_local_L0B_5), ((__cbuf__ half *)Filter_local_L1 + ((k1_outer_inner_db3 * 2048) + 1024)), 0, 4, 1, 0, 0);
+        load_cbuf_to_ca(((__ca__ half *)convolution_al0_load2d_6), ((__cbuf__ half *)convolution_al1_load2d_16 + (((k1_outer_inner_db3 * 100352) + (i2_outer_inner_db1 * 15872)) + 50176)), 0, 31, 1, 0, 0);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        mad(((__cc__ float *)mad1_2), ((__ca__ half *)convolution_al0_load2d_6), ((__cb__ half *)Filter_local_L1_local_L0B_5), 496, 16, 64, (int8_t)0ULL);
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+      }
+      set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+      wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_7), ((__cc__ float *)mad1_2), 0, 1, 62, 0, 0, CRMODE_F32toF16_NONE);
+      set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_2 + ((((((int32_t)block_idx) * 6422528) + (i0_inner_outer_outer_db * 401408)) + (i2_outer_inner_db1 * 15872)) + 200704)), ((__ubuf__ half *)C_UB_7), 0, 2, 496, 0, 2640);
+      set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+      wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+      copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_8), ((__cc__ float *)mad1_2 + 15872), 0, 1, 62, 0, 0, CRMODE_F32toF16_NONE);
+      set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      if (i2_outer_inner_db1 < 2) {
+        set_flag(PIPE_V, PIPE_M, EVENT_ID0);
+      }
+      wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_2 + ((((((int32_t)block_idx) * 6422528) + (i0_inner_outer_outer_db * 401408)) + (i2_outer_inner_db1 * 15872)) + 301056)), ((__ubuf__ half *)C_UB_8), 0, 2, 496, 0, 2640);
+      set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+      if (0 < i2_outer_inner_db1) {
+        wait_flag(PIPE_V, PIPE_M, EVENT_ID1);
+      }
+      for (int32_t k1_outer_inner_db4 = 0; k1_outer_inner_db4 < 2; ++k1_outer_inner_db4) {
+        wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        load_cbuf_to_cb(((__cb__ half *)Filter_local_L1_local_L0B_3), ((__cbuf__ half *)Filter_local_L1 + (k1_outer_inner_db4 * 2048)), 0, 4, 1, 0, 0);
+        load_cbuf_to_ca(((__ca__ half *)convolution_al0_load2d_4), ((__cbuf__ half *)convolution_al1_load2d_16 + (((k1_outer_inner_db4 * 100352) + (i2_outer_inner_db1 * 15872)) + 7936)), 0, 31, 1, 0, 0);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        mad(((__cc__ float *)mad1_9), ((__ca__ half *)convolution_al0_load2d_4), ((__cb__ half *)Filter_local_L1_local_L0B_3), 496, 16, 64, (k1_outer_inner_db4 == 0));
+        if ((k1_outer_inner_db4 + i2_outer_inner_db1) != 3) {
+          set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        }
+        wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+        load_cbuf_to_cb(((__cb__ half *)Filter_local_L1_local_L0B_5), ((__cbuf__ half *)Filter_local_L1 + ((k1_outer_inner_db4 * 2048) + 1024)), 0, 4, 1, 0, 0);
+        load_cbuf_to_ca(((__ca__ half *)convolution_al0_load2d_6), ((__cbuf__ half *)convolution_al1_load2d_16 + (((k1_outer_inner_db4 * 100352) + (i2_outer_inner_db1 * 15872)) + 58112)), 0, 31, 1, 0, 0);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        mad(((__cc__ float *)mad1_9), ((__ca__ half *)convolution_al0_load2d_6), ((__cb__ half *)Filter_local_L1_local_L0B_5), 496, 16, 64, (int8_t)0ULL);
+        if ((k1_outer_inner_db4 + i2_outer_inner_db1) != 3) {
+          set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+        }
+      }
+      set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+      wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_7), ((__cc__ float *)mad1_9), 0, 1, 62, 0, 0, CRMODE_F32toF16_NONE);
+      set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_2 + ((((((int32_t)block_idx) * 6422528) + (i0_inner_outer_outer_db * 401408)) + (i2_outer_inner_db1 * 15872)) + 208640)), ((__ubuf__ half *)C_UB_7), 0, 2, 496, 0, 2640);
+      if ((i2_outer_inner_db1 + i0_inner_outer_outer_db) != 17) {
+        set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+      }
+      wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+      copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_8), ((__cc__ float *)mad1_9 + 15872), 0, 1, 62, 0, 0, CRMODE_F32toF16_NONE);
+      set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      if (i2_outer_inner_db1 < 2) {
+        set_flag(PIPE_V, PIPE_M, EVENT_ID1);
+      }
+      wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_2 + ((((((int32_t)block_idx) * 6422528) + (i0_inner_outer_outer_db * 401408)) + (i2_outer_inner_db1 * 15872)) + 308992)), ((__ubuf__ half *)C_UB_8), 0, 2, 496, 0, 2640);
+      if ((i2_outer_inner_db1 + i0_inner_outer_outer_db) != 17) {
+        set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+      }
+    }
+    set_flag(PIPE_V, PIPE_M, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_M, EVENT_ID0);
+    for (int32_t k1_outer_inner_db5 = 0; k1_outer_inner_db5 < 2; ++k1_outer_inner_db5) {
+      if (0 < k1_outer_inner_db5) {
+        wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+      }
+      load_cbuf_to_cb(((__cb__ half *)Filter_local_L1_local_L0B_10), ((__cbuf__ half *)Filter_local_L1 + (k1_outer_inner_db5 * 2048)), 0, 4, 1, 0, 0);
+      load_cbuf_to_ca(((__ca__ half *)convolution_al0_load2d_11), ((__cbuf__ half *)convolution_al1_load2d_16 + ((k1_outer_inner_db5 * 100352) + 47616)), 0, 10, 1, 0, 0);
+      set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      mad(((__cc__ float *)mad1), ((__ca__ half *)convolution_al0_load2d_11), ((__cb__ half *)Filter_local_L1_local_L0B_10), 160, 16, 64, (k1_outer_inner_db5 == 0));
+      if (k1_outer_inner_db5 < 1) {
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+      }
+      if (0 < k1_outer_inner_db5) {
+        wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+      }
+      load_cbuf_to_cb(((__cb__ half *)Filter_local_L1_local_L0B_12), ((__cbuf__ half *)Filter_local_L1 + ((k1_outer_inner_db5 * 2048) + 1024)), 0, 4, 1, 0, 0);
+      load_cbuf_to_ca(((__ca__ half *)convolution_al0_load2d_13), ((__cbuf__ half *)convolution_al1_load2d_16 + ((k1_outer_inner_db5 * 100352) + 97792)), 0, 10, 1, 0, 0);
+      set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      mad(((__cc__ float *)mad1), ((__ca__ half *)convolution_al0_load2d_13), ((__cb__ half *)Filter_local_L1_local_L0B_12), 160, 16, 64, (int8_t)0ULL);
+      if (k1_outer_inner_db5 < 1) {
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+      }
+    }
+    if (i0_inner_outer_outer_db < 15) {
+      set_flag(PIPE_MTE1, PIPE_MTE2, EVENT_ID1);
+    }
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_14), ((__cc__ float *)mad1), 0, 1, 20, 0, 0, CRMODE_F32toF16_NONE);
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    pipe_barrier(PIPE_MTE3);
+    copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_2 + (((((int32_t)block_idx) * 6422528) + (i0_inner_outer_outer_db * 401408)) + 248320)), ((__ubuf__ half *)C_UB_14), 0, 2, 160, 0, 2976);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)C_UB_15), ((__cc__ float *)mad1 + 5120), 0, 1, 20, 0, 0, CRMODE_F32toF16_NONE);
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    if (i0_inner_outer_outer_db < 15) {
+      set_flag(PIPE_V, PIPE_M, EVENT_ID0);
+    }
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)remove_pad_cc_2 + (((((int32_t)block_idx) * 6422528) + (i0_inner_outer_outer_db * 401408)) + 348672)), ((__ubuf__ half *)C_UB_15), 0, 2, 160, 0, 2976);
+  }
+  pipe_barrier(PIPE_ALL);
+}
+

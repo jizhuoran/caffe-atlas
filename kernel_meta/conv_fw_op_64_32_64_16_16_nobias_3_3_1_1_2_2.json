@@ -1,0 +1,13 @@
+{
+    "binFileName":"conv_fw_op_64_32_64_16_16_nobias_3_3_1_1_2_2",
+    "binFileSuffix":".o",
+    "blockDim":2,
+    "kernelName":"conv_fw_op_64_32_64_16_16_nobias_3_3_1_1_2_2__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF",
+    "parameters":[
+        0,
+        0,
+        0
+    ],
+    "sha256":"e7ab718182725df9a2c17e718305c30cdd1ef4440962fbc1348757acef8c20f4"
+}
