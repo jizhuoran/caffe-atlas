@@ -15,7 +15,7 @@ __global__ void kernel_channel_max(const int num, const int channels,
   CUDA_KERNEL_LOOP(index, num * spatial_dim) {
     int n = index / spatial_dim;
     int s = index % spatial_dim;
-    Dtype maxval = -FLT_MAX;
+    Dtype maxval = -HALF_MAX;
     for (int c = 0; c < channels; ++c) {
       maxval = max(data[(n * channels + c) * spatial_dim + s], maxval);
     }

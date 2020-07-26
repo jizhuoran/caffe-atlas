@@ -32,7 +32,14 @@ inline _Float16 fabs(_Float16 x) { return _Float16(fabs(float(x))); } //vabsh_f1
 inline bool isnan(_Float16 x) { return isnan(float(x)); }
 inline bool isinf(_Float16 x) { return isinf(float(x)); }
 
+//I make it a little larger
+#ifndef HALF_MIN
+#define HALF_MIN 6.103515626e-5
+#endif
 
+#ifndef HALF_MAX
+#define HALF_MAX 65504
+#endif
 
 
 

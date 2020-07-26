@@ -159,7 +159,7 @@ void PoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       mask = max_idx_.mutable_cpu_data();
       caffe_set(top_count, -1, mask);
     }
-    caffe_set(top_count, Dtype(-FLT_MAX), top_data);
+    caffe_set(top_count, Dtype(-HALF_MAX), top_data);
     // The main loop
     for (int n = 0; n < bottom[0]->num(); ++n) {
       for (int c = 0; c < channels_; ++c) {
@@ -300,7 +300,7 @@ void PoolingLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
             for (int h = hstart; h < hend; ++h) {
               for (int w = wstart; w < wend; ++w) {
                 bottom_diff[h * width_ + w] +=
-                  top_diff[ph * pooled_width_ + pw] / pool_size;
+                  top_diff[ph * pooled_width_ + pw] * (kernel_h_ * kernel_w_) / pool_size;
               }
             }
           }
@@ -310,6 +310,7 @@ void PoolingLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
         top_diff += top[0]->offset(0, 1);
       }
     }
+    caffe_scal(bottom[0]->count(), Dtype(1./(kernel_h_ * kernel_w_)), bottom[0]->mutable_cpu_diff());
     break;
   case PoolingParameter_PoolMethod_STOCHASTIC:
     NOT_IMPLEMENTED;

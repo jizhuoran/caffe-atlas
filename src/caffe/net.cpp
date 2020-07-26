@@ -518,6 +518,9 @@ void Net<Dtype>::AppendParam(const NetParameter& param, const int layer_id,
 
 template <typename Dtype>
 Dtype Net<Dtype>::ForwardFromTo(int start, int end) {
+
+  Caffe::Get().global_debug_count++;
+
   CHECK_GE(start, 0);
   CHECK_LT(end, layers_.size());
   Dtype loss = 0;
@@ -541,8 +544,10 @@ Dtype Net<Dtype>::ForwardFromTo(int start, int end) {
     // if((i%10) == 0) {
     //   std::cout << " " << std::endl;
     // }
-
-    // if(i == 60) {
+    // if(Caffe::Get().global_debug_count == 4) {
+    //   std::cout << " " << std::endl;
+    // }
+    // if(i == 103) {
     //   std::cout << " " << std::endl;
     // }
 
@@ -614,7 +619,7 @@ void Net<Dtype>::BackwardFromTo(int start, int end) {
     //   std::cout << " " << std::endl;
     // }
 
-    // if(i == 0) {
+    // if(i == 100) {
     //   std::cout << " " << std::endl;
     // }
     std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
