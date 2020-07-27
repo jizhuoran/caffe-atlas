@@ -15,16 +15,13 @@ if(CROSS_BUILD) #FIXME
   message(STATUS "Going to cross build, Good Luck!!!")
   SET(CMAKE_C_COMPILER /usr/bin/aarch64-linux-gnu-gcc-7)
   SET(CMAKE_CXX_COMPILER /usr/bin/aarch64-linux-gnu-g++-7)
-  SET(CMAKE_FIND_ROOT_PATH /home/zrji/arm_root/mythings_16)
+  SET(CMAKE_FIND_ROOT_PATH ~/arm_root/mythings_16)
   set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
   set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
   set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-
 else()
-  if(NOSITE)
-    SET(CMAKE_C_COMPILER /usr/bin/clang-8)
-    SET(CMAKE_CXX_COMPILER /usr/bin/clang++-8)
-  endif()
+    SET(CMAKE_C_COMPILER clang)
+    SET(CMAKE_CXX_COMPILER clang++)
 endif()
 
 # ---[ Caffe project
@@ -65,7 +62,7 @@ caffe_option(BUILD_python_layer "Build the Caffe Python layer" OFF)
 if(CROSS_BUILD) #FIXME
   caffe_option(USE_OPENCV "Build with OpenCV support" OFF)
 else()
-  caffe_option(USE_OPENCV "Build with OpenCV support" OFF)
+  caffe_option(USE_OPENCV "Build with OpenCV support" ON)
 endif()
 caffe_option(USE_LEVELDB "Build with levelDB" ON)
 caffe_option(USE_LMDB "Build with lmdb" ON)
@@ -83,7 +80,7 @@ if(UNIX OR APPLE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++14 -fPIC -Wall")
 endif()
 
-if(NOSITE)
+if(NOT CROSS_BUILD)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv8.2a+fp16")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv8.2a+fp16")
 endif()
@@ -157,10 +154,3 @@ caffe_print_configuration_summary()
 
 # ---[ Export configs generation
 caffe_generate_export_configs()
-
-if(CROSS_BUILD) #FIXME
-message(INFO ${Caffe_INCLUDE_DIRS})
-message(INFO "------------------")
-message(INFO "------------------")
-message(INFO ${Caffe_LINKER_LIBS})
-endif()

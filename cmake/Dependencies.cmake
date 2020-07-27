@@ -13,25 +13,11 @@ list(APPEND Caffe_LINKER_LIBS PUBLIC ${Boost_LIBRARIES})
 find_package(Threads REQUIRED)
 list(APPEND Caffe_LINKER_LIBS PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 
-# ---[ fmt
-if(CROSS_BUILD)
-  list(APPEND Caffe_INCLUDE_DIRS PUBLIC ${CMAKE_FIND_ROOT_PATH}/usr/local/fmt)
-  list(APPEND Caffe_LINKER_LIBS PUBLIC ${CMAKE_FIND_ROOT_PATH}/usr/local/lib/libfmt.so)
-else()
-  find_package(fmt)
-  list(APPEND Caffe_LINKER_LIBS PUBLIC fmt::fmt)
-endif()
-
 
 # ---[ AICORE
-
 if(CROSS_BUILD)
-  list(APPEND Caffe_LINKER_LIBS PUBLIC /home/zrji/arm_root/mythings_18/usr/lib64/libcustom_op_run.so)
-  list(APPEND Caffe_LINKER_LIBS PUBLIC /home/zrji/arm_root/mythings_18/usr/lib64/libome.so)
-  list(APPEND Caffe_LINKER_LIBS PUBLIC /home/zrji/arm_root/mythings_18/usr/lib64/libruntime.so)
+  list(APPEND Caffe_LINKER_LIBS PUBLIC ${CMAKE_FIND_ROOT_PATH}/usr/lib64/libruntime.so)
 else()
-  list(APPEND Caffe_LINKER_LIBS PUBLIC /usr/lib64/libcustom_op_run.so)
-  list(APPEND Caffe_LINKER_LIBS PUBLIC /usr/lib64/libome.so)
   list(APPEND Caffe_LINKER_LIBS PUBLIC /usr/lib64/libruntime.so)
 endif()
 
@@ -75,14 +61,6 @@ if(CROSS_BUILD)
                                         ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/hdf5/serial/libhdf5.so
                                         ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/hdf5/serial/libhdf5_hl_cpp.so
                                         ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/hdf5/serial/libhdf5_hl.so)
-#  list(APPEND Caffe_LINKER_LIBS PUBLIC  ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/hdf5/serial/libhdf5_cpp.so
-#                                        ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/hdf5/serial/libhdf5.so
-#                                        ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/hdf5/serial/libhdf5_hl_cpp.so
-#                                        ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/hdf5/serial/libhdf5_hl.so
-#                                        ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/libpthread.so
-#                                        ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/libz.so
-#                                        ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/libdl.so
-#                                        ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/libm.so)
   add_definitions(-DUSE_HDF5)
 else()
   find_package(HDF5 COMPONENTS HL REQUIRED)
