@@ -24,23 +24,36 @@ void ochw2fracZ(Blob<Dtype>* ochw, Blob<Dtype>* fracZ, int channel_out, int chan
     }
   }
 }
+template <typename Dtype>
+void fracZ2ochw(const Dtype* fracZ, Dtype* ochw, int channel_out, int channel_in, int kernel_h, int kernel_w) {
+  auto fracZ_array = *reinterpret_cast<const Dtype (*)[kernel_h * kernel_w * ((channel_in + 15) / 16)][(channel_out + 15) / 16][16][16]>(fracZ);
+  auto ochw_array = *reinterpret_cast<Dtype (*)[channel_out][channel_in][kernel_h][kernel_w]>(ochw);
+  for (int o_i = 0; o_i < channel_out; o_i++) {
+    for (int c_i = 0; c_i < channel_in; c_i++) {
+      for (int h_i = 0; h_i < kernel_h; h_i++) {
+        for (int w_i = 0; w_i < kernel_w; w_i++) {
+          ochw_array[o_i][c_i][h_i][w_i] = fracZ_array[(c_i/16) * (kernel_w * kernel_h) + h_i * (kernel_w) + w_i][(o_i)/16][o_i%16][c_i%16];
+        }
+      }
+    }
+  }
+}
 
 template <typename Dtype>
 void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
 
   AicoreKerel fw_param = this->layer_param_.aicorekernel(0);
-  Caffe::Get().load_aicore_kernel(fw_param.kernelfile(), fw_param.kernelname(), fw_holder, &fw_kernel);
-  fw_block_num = fw_param.block_num();
+  char* fw_stub = Caffe::Get().new_load_aicore_kernel(fw_param.kernelfile(), fw_param.kernelname());
+  this->aicore_kernel_info_.push_back(AICoreKernelInfo(fw_stub, fw_param.block_num()));
 
   AicoreKerel bw_weight_param = this->layer_param_.aicorekernel(1);
-  Caffe::Get().load_aicore_kernel(bw_weight_param.kernelfile(), bw_weight_param.kernelname(), bw_weight_holder, &bw_weight_kernel);
-  bw_weight_block_num = bw_weight_param.block_num();
+  char* bw_weight_stub = Caffe::Get().new_load_aicore_kernel(bw_weight_param.kernelfile(), bw_weight_param.kernelname());
+  this->aicore_kernel_info_.push_back(AICoreKernelInfo(bw_weight_stub, bw_weight_param.block_num()));
 
   AicoreKerel bw_input_param = this->layer_param_.aicorekernel(2);
-  Caffe::Get().load_aicore_kernel(bw_input_param.kernelfile(), bw_input_param.kernelname(), bw_input_holder, &bw_input_kernel);
-  bw_input_block_num = bw_input_param.block_num();
-
+  char* bw_input_stub = Caffe::Get().new_load_aicore_kernel(bw_input_param.kernelfile(), bw_input_param.kernelname());
+  this->aicore_kernel_info_.push_back(AICoreKernelInfo(bw_input_stub, bw_input_param.block_num()));
 
   // Configure the kernel size, padding, stride, and inputs.
   ConvolutionParameter conv_param = this->layer_param_.convolution_param();

@@ -50,15 +50,6 @@ class InnerProductLayer : public Layer<Dtype> {
   Blob<Dtype> bias_multiplier_;
   bool transpose_;  ///< if true, assume transposed weights
 
-  std::vector<char> fw_holder;
-  char* fw_kernel = nullptr;
-  int fw_block_num = 0;
-  std::vector<char> bw_weight_holder;
-  char* bw_weight_kernel = nullptr;
-  int bw_weight_block_num = 0;
-  std::vector<char> bw_input_holder;
-  char* bw_input_kernel = nullptr;
-  int bw_input_block_num = 0;
 };
 
 }  // namespace caffe

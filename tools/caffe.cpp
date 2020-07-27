@@ -229,6 +229,8 @@ int train() {
     solver_param.add_weights(FLAGS_weights);
   }
 
+  Caffe::set_kernel_dir(solver_param.aicore_kernels_dir());
+
   shared_ptr<caffe::Solver<_Float16> >
       solver(caffe::SolverRegistry<_Float16>::CreateSolver(solver_param));
 

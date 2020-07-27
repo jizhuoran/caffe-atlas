@@ -6,21 +6,6 @@
 //
 
 // AICORE: various checks for different function calls.
-#define AICORE_EXEC_CHECK(condition) \
-  /* Code block avoids redefinition of aicoreError_t error */ \
-  do { \
-    custom::ErrorInfo error = condition; \
-    CHECK_EQ(condition.error_code, 0) << " " << error.error_msg; \
-  } while (0)
-
-#define NUM_TILE(x) ( (x+15)/16 )
-#define ALIGN_SIZE(x) ( (x+15)/16*16 )
-
-
-#ifdef CPU_ONLY  // CPU-only Caffe.
-
-#include <vector>
-
 #include "runtime/rt.h"
 // AICORE: various checks for different function calls.
 #define AICORE_CHECK(condition) \
@@ -31,7 +16,21 @@
   } while (0)
   
 // Stub out GPU calls as unavailable.
+class AicoreKerel;
+class AICoreKernelInfo {
+public:
+  AICoreKernelInfo(char* kernel, int block_num) : kernel_(kernel), block_num_(block_num) { }
+  const char* const kernel_;
+  const int block_num_;
+} ;
 
+#define NUM_TILE(x) ( (x+15)/16 )
+#define ALIGN_SIZE(x) ( (x+15)/16*16 )
+
+
+#ifdef CPU_ONLY  // CPU-only Caffe.
+
+#include <vector>
 
 #define NO_GPU LOG(FATAL) << "Cannot use GPU in CPU-only Caffe: check mode."
 #define UGLY_TO_BE_IMPLEMENT LOG(FATAL) << "Not Implemented Yet"

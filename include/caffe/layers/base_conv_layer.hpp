@@ -93,17 +93,6 @@ class BaseConvolutionLayer : public Layer<Dtype> {
   bool is_1x1_;
   bool force_nd_im2col_;
 
-  std::vector<char> fw_holder;
-  char* fw_kernel = nullptr;
-  int fw_block_num = 0;
-  std::vector<char> bw_weight_holder;
-  char* bw_weight_kernel = nullptr;
-  int bw_weight_block_num = 0;
-  std::vector<char> bw_input_holder;
-  char* bw_input_kernel = nullptr;
-  int bw_input_block_num = 0;
-
-
  private:
   // wrap im2col/col2im so we don't have to remember the (long) argument lists
   inline void conv_im2col_cpu(const Dtype* data, Dtype* col_buff) {

@@ -18,5 +18,6 @@ max_iter: 10
 # snapshot intermediate results
 #snapshot: 5000
 #snapshot_prefix: "examples/mnist/lenet"
+aicore_kernels_dir: "/home/zrji/kernels/imagenet_resnet18"
 # solver mode: CPU or GPU
 solver_mode: AICORE

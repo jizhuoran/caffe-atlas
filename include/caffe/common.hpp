@@ -182,13 +182,17 @@ class Caffe {
 #endif
   // Returns the mode: running on CPU or GPU.
   inline static Brew mode() { return Get().mode_; }
-  // inline static std::string aicore_dir() { return "aicore_dir/"; }
-  // inline static std::string kernel_dir() { return "old_kernel_meta"; }
-  inline static std::string new_kernel_dir() { return "kernel_meta/"; }
-  int global_debug_count = 0;
 
-  rtStream_t aicore_stream;
+private:
+  std::string kernel_dir = "";
+  std::map<std::string, std::vector<char>> kernels_holder;
+public:
+  inline static void set_kernel_dir(std::string kernel_dir) { Get().kernel_dir = kernel_dir; }
   void load_aicore_kernel(std::string kernel_file, std::string kernel_name, std::vector<char>& holder, char** stub);
+  char* new_load_aicore_kernel(std::string kernel_file, std::string kernel_name);
+  
+  rtStream_t aicore_stream;
+  int global_debug_count = 0;
   // std::map<std::string, rtDevBinary_t> aiocre_kernels;
 
 

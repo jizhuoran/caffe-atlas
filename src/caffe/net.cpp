@@ -538,7 +538,7 @@ Dtype Net<Dtype>::ForwardFromTo(int start, int end) {
     for (int c = 0; c < after_forward_.size(); ++c) {
       after_forward_[c]->run(i);
     } 
-
+#ifdef FORDEBUG
     debug_print(top_vecs_[i][0]->cpu_data(), top_vecs_[i][0]->count(), std::to_string(i) + " 'layer" + layer_names_[i]);
 
     if((i%10) == 0) {
@@ -553,6 +553,7 @@ Dtype Net<Dtype>::ForwardFromTo(int start, int end) {
 
     std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
     std::cout << "Forward Layer " << i << ": " << layers_[i]->type() << " " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
+#endif
   }
 
   return loss;
@@ -611,6 +612,7 @@ void Net<Dtype>::BackwardFromTo(int start, int end) {
       after_backward_[c]->run(i);
     }
 
+#ifdef FORDEBUG
     if(bottom_vecs_[i].size() > 0) {
       debug_print(bottom_vecs_[i][0]->cpu_diff(), bottom_vecs_[i][0]->count(), std::to_string(i) + " 'layer" + layer_names_[i]);
       std::cout << " " << std::endl;
@@ -624,6 +626,7 @@ void Net<Dtype>::BackwardFromTo(int start, int end) {
     }
     std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
     std::cout << "Backward Layer " << i << ": " << layers_[i]->type() << " " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
+#endif
   }
 }
 

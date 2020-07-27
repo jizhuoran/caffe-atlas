@@ -94,7 +94,7 @@ void Caffe::load_aicore_kernel(std::string kernel_file, std::string kernel_name,
 
   void *binHandle;
   rtDevBinary_t binary;
-  binary.data = readBinFile((new_kernel_dir() + kernel_file).c_str(), &binary.length);
+  binary.data = readBinFile((kernel_dir + "/" + kernel_file).c_str(), &binary.length);
   binary.magic = RT_DEV_BINARY_MAGIC_ELF;
   binary.version = 0;
 
@@ -107,6 +107,29 @@ void Caffe::load_aicore_kernel(std::string kernel_file, std::string kernel_name,
 
 }
 
+
+
+char* Caffe::new_load_aicore_kernel(std::string kernel_file, std::string kernel_name) {
+
+  auto iter = kernels_holder.find(kernel_file);
+  if(iter == kernels_holder.end()) {
+    void *binHandle;
+    rtDevBinary_t binary;
+    binary.data = readBinFile((kernel_dir + "/" + kernel_file).c_str(), &binary.length);
+    binary.magic = RT_DEV_BINARY_MAGIC_ELF;
+    binary.version = 0;
+
+    kernels_holder[kernel_file] = std::vector<char>(kernel_name.begin(), kernel_name.end());
+    kernels_holder[kernel_file].push_back(0);
+    char* stub = kernels_holder[kernel_file].data();
+    AICORE_CHECK(rtDevBinaryRegister(&binary, &binHandle));
+    AICORE_CHECK(rtFunctionRegister(binHandle, stub, stub, (void *)stub, 0));
+    return stub;
+  } else {
+    return iter->second.data();
+  }
+
+}
 
 
 void Caffe::set_random_seed(const unsigned int seed) {

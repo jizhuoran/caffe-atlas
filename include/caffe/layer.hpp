@@ -310,6 +310,8 @@ class Layer {
    *  the objective function. */
   vector<Dtype> loss_;
 
+  vector<AICoreKernelInfo> aicore_kernel_info_;
+
   /** @brief Using the CPU device, compute the layer output. */
   virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) = 0;

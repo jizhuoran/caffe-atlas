@@ -9,6 +9,7 @@ endif()
 if(CROSS_BUILD) #FIXME
   set(CMAKE_BUILD_TYPE Debug)
   add_definitions(-D_Float16=__fp16)
+  add_definitions(-DFO1RDEBUG)
   message(STATUS "Going to cross build, Good Luck!!!")
   message(STATUS "Going to cross build, Good Luck!!!")
   message(STATUS "Going to cross build, Good Luck!!!")
