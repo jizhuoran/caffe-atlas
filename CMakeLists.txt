@@ -21,8 +21,8 @@ if(CROSS_BUILD) #FIXME
   set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
   set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 else()
-    SET(CMAKE_C_COMPILER clang)
-    SET(CMAKE_CXX_COMPILER clang++)
+    SET(CMAKE_C_COMPILER clang-8)
+    SET(CMAKE_CXX_COMPILER clang++-8)
 endif()
 
 # ---[ Caffe project
