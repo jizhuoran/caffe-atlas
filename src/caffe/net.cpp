@@ -980,26 +980,27 @@ void Net<Dtype>::Update() {
 template <typename Dtype>
 void Net<Dtype>::ClearParamDiffs() {
   for (int i = 0; i < learnable_params_.size(); ++i) {
-    Blob<Dtype>* blob = learnable_params_[i];
+    auto blob = learnable_params_[i];
+    using weight_type = typename std::remove_pointer<decltype(blob)>::type::Wtype_;
     switch (Caffe::mode()) {
     case Caffe::CPU:
-      caffe_set(blob->count(), static_cast<Dtype>(0),
+      caffe_set(blob->count(), static_cast<weight_type>(0),
                 blob->mutable_cpu_diff());
       break;
     case Caffe::GPU:
 #ifndef CPU_ONLY
-      caffe_gpu_set(blob->count(), static_cast<Dtype>(0),
+      caffe_gpu_set(blob->count(), static_cast<weight_type>(0),
                     blob->mutable_gpu_diff());
 #else
       NO_GPU;
 #endif
       break;
     case Caffe::AICORE:
-      caffe_aicore_set(blob->count(), static_cast<Dtype>(0),
+      caffe_aicore_set(blob->count(), static_cast<weight_type>(0),
                 blob->mutable_aicore_diff());
       break;
     case Caffe::GENERATOR:
-      caffe_set(blob->count(), static_cast<Dtype>(0),
+      caffe_set(blob->count(), static_cast<weight_type>(0),
                 blob->mutable_cpu_diff());
       break;
     }

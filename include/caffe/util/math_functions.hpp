@@ -56,6 +56,12 @@ template <typename Dtype>
 void caffe_axpy(const int N, const Dtype alpha, const Dtype* X,
     Dtype* Y);
 
+inline void caffe_axpy(const int N, const _Float16 alpha, const float* X,
+    _Float16* Y) { NOT_IMPLEMENTED; }
+
+inline void caffe_cpu_axpby(const int N, const float alpha, const float* X,
+    const _Float16 beta, _Float16* Y)
+
 template <typename Dtype>
 void caffe_cpu_axpby(const int N, const Dtype alpha, const Dtype* X,
     const Dtype beta, Dtype* Y);
@@ -91,6 +97,10 @@ void caffe_sub(const int N, const Dtype* a, const Dtype* b, Dtype* y);
 template <typename Dtype>
 void caffe_mul(const int N, const Dtype* a, const Dtype* b, Dtype* y);
 
+inline void caffe_div(const int N, const float* a, const _Float16* b, float* y) {
+  NOT_IMPLEMENTED;
+}
+
 template <typename Dtype>
 void caffe_div(const int N, const Dtype* a, const Dtype* b, Dtype* y);
 
@@ -123,6 +133,11 @@ void caffe_log(const int n, const Dtype* a, Dtype* y);
 
 template <typename Dtype>
 void caffe_abs(const int n, const Dtype* a, Dtype* y);
+
+inline float caffe_cpu_dot(const int n, const _Float16* x, const float* y) {
+  NOT_IMPLEMENTED;
+  return .0;
+}
 
 template <typename Dtype>
 Dtype caffe_cpu_dot(const int n, const Dtype* x, const Dtype* y);

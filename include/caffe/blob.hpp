@@ -20,11 +20,14 @@ namespace caffe {
  *
  * TODO(dox): more thorough description.
  */
-template <typename Dtype>
+template <typename Dtype, typename Wtype = float>
 class Blob {
  public:
   Blob()
        : data_(), diff_(), count_(0), capacity_(0) {}
+
+  using Dtype_ = Dtype;
+  using Wtype_ = Wtype;
 
   /// @brief Deprecated; use <code>Blob(const vector<int>& shape)</code>.
   explicit Blob(const int num, const int channels, const int height,
@@ -209,7 +212,7 @@ class Blob {
    *        of other (and die otherwise); if true, Reshape this Blob to other's
    *        shape if necessary
    */
-  void CopyFrom(const Blob<Dtype>& source, bool copy_diff = false,
+  void CopyFrom(const Blob<Dtype, Wtype>& source, bool copy_diff = false,
       bool reshape = false);
 
   inline Dtype data_at(const int n, const int c, const int h,
@@ -246,15 +249,15 @@ class Blob {
   const Dtype* gpu_data() const;
   void set_gpu_data(Dtype* data);
   const Dtype* aicore_data();
-  const Dtype* cpu_diff() const;
-  const Dtype* gpu_diff() const;
-  const Dtype* aicore_diff();
+  const Wtype* cpu_diff() const;
+  const Wtype* gpu_diff() const;
+  const Wtype* aicore_diff();
   Dtype* mutable_cpu_data();
   Dtype* mutable_gpu_data();
   Dtype* mutable_aicore_data();
-  Dtype* mutable_cpu_diff();
-  Dtype* mutable_gpu_diff();
-  Dtype* mutable_aicore_diff();
+  Wtype* mutable_cpu_diff();
+  Wtype* mutable_gpu_diff();
+  Wtype* mutable_aicore_diff();
   void Update();
   void FromProto(const BlobProto& proto, bool reshape = true);
   void ToProto(BlobProto* proto, bool write_diff = false) const;
@@ -271,7 +274,7 @@ class Blob {
   /// @brief Scale the blob data by a constant factor.
   void scale_data(Dtype scale_factor);
   /// @brief Scale the blob diff by a constant factor.
-  void scale_diff(Dtype scale_factor);
+  void scale_diff(Wtype scale_factor);
 
   /**
    * @brief Set the data_ shared_ptr to point to the SyncedMemory holding the

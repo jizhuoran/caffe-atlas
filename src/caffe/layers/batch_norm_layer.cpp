@@ -7,9 +7,9 @@
 
 namespace caffe {
 
-template <typename Dtype>
-void BatchNormLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
-      const vector<Blob<Dtype>*>& top) {
+template <typename Dtype, typename Wtype>
+void BatchNormLayer<Dtype, Wtype>::LayerSetUp(const vector<Blob<Dtype, Wtype>*>& bottom,
+      const vector<Blob<Dtype, Wtype>*>& top) {
   BatchNormParameter param = this->layer_param_.batch_norm_param();
   moving_average_fraction_ = param.moving_average_fraction();
   use_global_stats_ = this->phase_ == TEST;
@@ -26,10 +26,10 @@ void BatchNormLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     this->blobs_.resize(3);
     vector<int> sz;
     sz.push_back(channels_);
-    this->blobs_[0].reset(new Blob<Dtype>(sz));
-    this->blobs_[1].reset(new Blob<Dtype>(sz));
+    this->blobs_[0].reset(new Blob<Dtype, Wtype>(sz));
+    this->blobs_[1].reset(new Blob<Dtype, Wtype>(sz));
     sz[0] = 1;
-    this->blobs_[2].reset(new Blob<Dtype>(sz));
+    this->blobs_[2].reset(new Blob<Dtype, Wtype>(sz));
     for (int i = 0; i < 3; ++i) {
       caffe_set(this->blobs_[i]->count(), Dtype(0),
                 this->blobs_[i]->mutable_cpu_data());
@@ -49,9 +49,9 @@ void BatchNormLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   }
 }
 
-template <typename Dtype>
-void BatchNormLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
-      const vector<Blob<Dtype>*>& top) {
+template <typename Dtype, typename Wtype>
+void BatchNormLayer<Dtype, Wtype>::Reshape(const vector<Blob<Dtype, Wtype>*>& bottom,
+      const vector<Blob<Dtype, Wtype>*>& top) {
   if (bottom[0]->num_axes() >= 1)
     CHECK_EQ(bottom[0]->shape(1), channels_);
   top[0]->ReshapeLike(*bottom[0]);
@@ -85,9 +85,9 @@ void BatchNormLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 }
 #define MYNEW
 #ifndef MYNEW
-// template <typename Dtype>
-// void BatchNormLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
-//     const vector<Blob<Dtype>*>& top) {
+// template <typename Dtype, typename Wtype>
+// void BatchNormLayer<Dtype, Wtype>::Forward_cpu(const vector<Blob<Dtype, Wtype>*>& bottom,
+//     const vector<Blob<Dtype, Wtype>*>& top) {
 //   const Dtype* bottom_data = bottom[0]->cpu_data();
 //   Dtype* top_data = top[0]->mutable_cpu_data();
 //   int num = bottom[0]->shape(0);
@@ -167,10 +167,10 @@ void BatchNormLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 //       x_norm_.mutable_cpu_data());
 // }
 
-// template <typename Dtype>
-// void BatchNormLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
+// template <typename Dtype, typename Wtype>
+// void BatchNormLayer<Dtype, Wtype>::Backward_cpu(const vector<Blob<Dtype, Wtype>*>& top,
 //     const vector<bool>& propagate_down,
-//     const vector<Blob<Dtype>*>& bottom) {
+//     const vector<Blob<Dtype, Wtype>*>& bottom) {
 //   const Dtype* top_diff;
 //   if (bottom[0] != top[0]) {
 //     top_diff = top[0]->cpu_diff();
@@ -245,9 +245,9 @@ void BatchNormLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 
 
 #else
-template <typename Dtype>
-void BatchNormLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
+template <typename Dtype, typename Wtype>
+void BatchNormLayer<Dtype, Wtype>::Forward_cpu(const vector<Blob<Dtype, Wtype>*>& bottom,
+    const vector<Blob<Dtype, Wtype>*>& top) {
   const Dtype* bottom_data = bottom[0]->cpu_data();
   Dtype* top_data = top[0]->mutable_cpu_data();
   int num = bottom[0]->shape(0);
@@ -390,22 +390,22 @@ void BatchNormLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       x_norm_.mutable_cpu_data());
 }
 
-template <typename Dtype>
-void BatchNormLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
+template <typename Dtype, typename Wtype>
+void BatchNormLayer<Dtype, Wtype>::Backward_cpu(const vector<Blob<Dtype, Wtype>*>& top,
     const vector<bool>& propagate_down,
-    const vector<Blob<Dtype>*>& bottom) {
+    const vector<Blob<Dtype, Wtype>*>& bottom) {
 
   // debug_print(top[0]->cpu_diff(), top[0]->count(), "batchnorm diff");
   
   
-  const Dtype* top_diff;
+  const Wtype* top_diff;
   if (bottom[0] != top[0]) {
     top_diff = top[0]->cpu_diff();
   } else {
     caffe_copy(x_norm_.count(), top[0]->cpu_diff(), x_norm_.mutable_cpu_diff());
     top_diff = x_norm_.cpu_diff();
   }
-  Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
+  Wtype* bottom_diff = bottom[0]->mutable_cpu_diff();
   if (use_global_stats_) {
     caffe_div(temp_.count(), top_diff, temp_.cpu_data(), bottom_diff);
     return;

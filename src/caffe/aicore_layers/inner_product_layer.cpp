@@ -101,8 +101,8 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 
 
     if (bias_term_ && this->param_propagate_down_[1]) {
-        const Dtype* top_diff = top[0]->cpu_diff();
-        Dtype* bias_diff = this->blobs_[1]->mutable_cpu_diff();
+        auto top_diff = top[0]->cpu_diff();
+        auto bias_diff = this->blobs_[1]->mutable_cpu_diff();
 
         for(int n = 0; n < N_; ++n) {
             for(int m = 0; m < M_; ++m) {
@@ -121,8 +121,8 @@ void InnerProductLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
         AICORE_CHECK(rtKernelLaunch(this->aicore_kernel_info_[2].kernel_, this->aicore_kernel_info_[2].block_num_, args1.data(), args1.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
         AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
-        Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
-        const Dtype* aligned_bottom_diff = aligned_bottom.aicore_diff();
+        auto bottom_diff = bottom[0]->mutable_cpu_diff();
+        auto aligned_bottom_diff = aligned_bottom.aicore_diff();
 
         for(int i = 0; i < bottom[0]->shape(0); ++i) {
             caffe_copy(bottom[0]->shape(1), aligned_bottom_diff + i * aligned_bottom.shape(1), bottom_diff + i * K_);

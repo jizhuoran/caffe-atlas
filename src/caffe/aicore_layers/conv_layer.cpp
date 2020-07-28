@@ -34,8 +34,8 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
   
   // Bias gradient, if necessary.
   if (this->bias_term_ && this->param_propagate_down_[1]) {
-    const Dtype* top_diff = top[0]->cpu_diff();
-    Dtype* bias_diff = this->blobs_[1]->mutable_cpu_diff();
+    auto top_diff = top[0]->cpu_diff();
+    auto bias_diff = this->blobs_[1]->mutable_cpu_diff();
     for (int i = 0; i < this->num_; ++i) {
       for(int m = 0; m < this->num_output_; ++m) {
         for(int n = 0; n < this->out_spatial_dim_; ++n) {
@@ -66,7 +66,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 
   const float* cpu_weight_fraz_diff_fp32 = weight_fraz_diff_fp32.cpu_diff();
   for(int i = 0; i < weight_fraz->count(); ++i) {
-    weight_fraz->mutable_cpu_diff()[i] = Dtype(cpu_weight_fraz_diff_fp32[i]);
+    weight_fraz->mutable_cpu_diff()[i] = cpu_weight_fraz_diff_fp32[i];
   }
 
   std::vector<void*> args1 = { (void*)weight_fraz->aicore_data(), 

@@ -41,27 +41,19 @@ private:\
 #define INSTANTIATE_CLASS(classname) \
   char gInstantiationGuard##classname; \
   template class classname<float>; \
-  template class classname<double>; \
   template class classname<_Float16>
 
 
 #define INSTANTIATE_LAYER_GPU_FORWARD(classname) \
   template void classname<float>::Forward_gpu( \
       const std::vector<Blob<float>*>& bottom, \
-      const std::vector<Blob<float>*>& top); \
-  template void classname<double>::Forward_gpu( \
-      const std::vector<Blob<double>*>& bottom, \
-      const std::vector<Blob<double>*>& top);
+      const std::vector<Blob<float>*>& top)
 
 #define INSTANTIATE_LAYER_GPU_BACKWARD(classname) \
   template void classname<float>::Backward_gpu( \
       const std::vector<Blob<float>*>& top, \
       const std::vector<bool>& propagate_down, \
-      const std::vector<Blob<float>*>& bottom); \
-  template void classname<double>::Backward_gpu( \
-      const std::vector<Blob<double>*>& top, \
-      const std::vector<bool>& propagate_down, \
-      const std::vector<Blob<double>*>& bottom)
+      const std::vector<Blob<float>*>& bottom)
 
 #define INSTANTIATE_LAYER_GPU_FUNCS(classname) \
   INSTANTIATE_LAYER_GPU_FORWARD(classname); \
@@ -71,9 +63,6 @@ private:\
   template void classname<float>::Forward_aicore( \
       const std::vector<Blob<float>*>& bottom, \
       const std::vector<Blob<float>*>& top); \
-  template void classname<double>::Forward_aicore( \
-      const std::vector<Blob<double>*>& bottom, \
-      const std::vector<Blob<double>*>& top); \
   template void classname<_Float16>::Forward_aicore( \
       const std::vector<Blob<_Float16>*>& bottom, \
       const std::vector<Blob<_Float16>*>& top);
@@ -83,10 +72,6 @@ private:\
       const std::vector<Blob<float>*>& top, \
       const std::vector<bool>& propagate_down, \
       const std::vector<Blob<float>*>& bottom); \
-  template void classname<double>::Backward_aicore( \
-      const std::vector<Blob<double>*>& top, \
-      const std::vector<bool>& propagate_down, \
-      const std::vector<Blob<double>*>& bottom); \
   template void classname<_Float16>::Backward_aicore( \
       const std::vector<Blob<_Float16>*>& top, \
       const std::vector<bool>& propagate_down, \
