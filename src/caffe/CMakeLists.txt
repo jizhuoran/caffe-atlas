@@ -20,6 +20,11 @@ if(HAVE_CUDA)
   list(APPEND srcs ${cuda_objs} ${cuda})
 endif()
 
+if(NOT USE_AICORE)
+  file(GLOB aicore_src aicore_layers/*.cpp)
+  list(REMOVE_ITEM srcs ${aicore_src})
+endif()
+
 add_library(caffe ${srcs})
 caffe_default_properties(caffe)
 target_link_libraries(caffe ${Caffe_LINKER_LIBS})

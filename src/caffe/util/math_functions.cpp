@@ -61,9 +61,11 @@ template <>
 void caffe_axpy<double>(const int N, const double alpha, const double* X,
     double* Y) { cblas_daxpy(N, alpha, X, 1, Y, 1); }
 
+#ifdef USE_AICORE
 template <>
 void caffe_axpy<_Float16>(const int N, const _Float16 alpha, const _Float16* X,
     _Float16* Y) { NO_GPU; }
+#endif
 
 template <typename Dtype>
 void caffe_set(const int N, const Dtype alpha, Dtype* Y) {
@@ -115,7 +117,9 @@ template void caffe_copy<unsigned int>(const int N, const unsigned int* X,
     unsigned int* Y);
 template void caffe_copy<float>(const int N, const float* X, float* Y);
 template void caffe_copy<double>(const int N, const double* X, double* Y);
+#ifdef USE_AICORE
 template void caffe_copy<_Float16>(const int N, const _Float16* X, _Float16* Y);
+#endif
 
 template <>
 void caffe_scal<float>(const int N, const float alpha, float *X) {
@@ -127,6 +131,7 @@ void caffe_scal<double>(const int N, const double alpha, double *X) {
   cblas_dscal(N, alpha, X, 1);
 }
 
+#ifdef USE_AICORE
 template <>
 void caffe_scal<_Float16>(const int N, const _Float16 alpha, _Float16 *X) {
   std::cout << "FOR Debug Only!" << std::endl;
@@ -138,8 +143,8 @@ void caffe_scal<_Float16>(const int N, const _Float16 alpha, _Float16 *X) {
   for(int i = 0; i < N; ++i) {
     X[i] = float(x32[i]);
   }
-
 }
+#endif
 
 template <>
 void caffe_cpu_axpby<float>(const int N, const float alpha, const float* X,
@@ -405,11 +410,13 @@ double caffe_cpu_strided_dot<double>(const int n, const double* x,
   return cblas_ddot(n, x, incx, y, incy);
 }
 
+#ifdef USE_AICORE
 template <>
 _Float16 caffe_cpu_strided_dot<_Float16>(const int n, const _Float16* x,
     const int incx, const _Float16* y, const int incy) {
       NO_GPU;
 }
+#endif
 
 template <typename Dtype>
 Dtype caffe_cpu_dot(const int n, const Dtype* x, const Dtype* y) {
@@ -422,8 +429,10 @@ float caffe_cpu_dot<float>(const int n, const float* x, const float* y);
 template
 double caffe_cpu_dot<double>(const int n, const double* x, const double* y);
 
+#ifdef USE_AICORE
 template
 _Float16 caffe_cpu_dot<_Float16>(const int n, const _Float16* x, const _Float16* y);
+#endif
 
 template <>
 float caffe_cpu_asum<float>(const int n, const float* x) {
@@ -435,6 +444,7 @@ double caffe_cpu_asum<double>(const int n, const double* x) {
   return cblas_dasum(n, x, 1);
 }
 
+#ifdef USE_AICORE
 template <>
 _Float16 caffe_cpu_asum<_Float16>(const int n, const _Float16* x) {
   std::cout << "FOR Debug Only!" << std::endl;
@@ -445,6 +455,7 @@ _Float16 caffe_cpu_asum<_Float16>(const int n, const _Float16* x) {
   LOG(INFO) << "In caffe_cpu_asum " << cblas_sasum(n, x32.data(), 1);
   return _Float16(cblas_sasum(n, x32.data(), 1));
 }
+#endif
 
 template <>
 void caffe_cpu_scale<float>(const int n, const float alpha, const float *x,

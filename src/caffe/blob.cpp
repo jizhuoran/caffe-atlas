@@ -578,9 +578,10 @@ void Blob<float>::ToProto(BlobProto* proto, bool write_diff) const {
 }
 
 INSTANTIATE_CLASS(Blob);
-template class Blob<_Float16>;
 template class Blob<int>;
 template class Blob<unsigned int>;
-
+#ifdef USE_AICORE
+template class Blob<_Float16>;
+#endif
 }  // namespace caffe
 

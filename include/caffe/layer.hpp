@@ -306,7 +306,9 @@ class Layer {
    *  the objective function. */
   vector<Dtype> loss_;
 
+#ifdef USE_AICORE
   vector<AICoreKernelInfo> aicore_kernel_info_;
+#endif
 
   /** @brief Using the CPU device, compute the layer output. */
   virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,

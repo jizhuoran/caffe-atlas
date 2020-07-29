@@ -193,11 +193,12 @@ int train() {
       }
   }
 
+#ifdef USE_AICORE
   if(solver_param.solver_mode() == caffe::SolverParameter_SolverMode_AICORE) {
     Caffe::set_aicore_mode(true);
     Caffe::set_kernel_dir(solver_param.aicore_kernels_dir());
-  
   }
+#endif
 
   vector<int> gpus;
   get_gpus(&gpus);

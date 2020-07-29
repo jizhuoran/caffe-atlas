@@ -83,6 +83,149 @@ void BatchNormLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   }
 }
 
+
+#define MY_IMPL
+#ifdef MY_IMPL
+
+template <typename Dtype>
+void BatchNormLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+    const vector<Blob<Dtype>*>& top) {
+  const Dtype* bottom_data = bottom[0]->cpu_data();
+  Dtype* top_data = top[0]->mutable_cpu_data();
+  int num = bottom[0]->shape(0);
+  int spatial_dim = bottom[0]->count()/(bottom[0]->shape(0)*channels_);
+
+
+  auto mean_data_ = mean_.mutable_cpu_data();
+  auto variance_data_ = variance_.mutable_cpu_data();
+
+  for(int c = 0; c < channels_; ++c) {
+    mean_data_[c] = .0;
+    variance_data_[c] = .0;
+  }
+
+
+  if (bottom[0] != top[0]) {
+    caffe_copy(bottom[0]->count(), bottom_data, top_data);
+  }
+
+  if (use_global_stats_) {
+    // use the stored mean/variance estimates.
+    const Dtype scale_factor = this->blobs_[2]->cpu_data()[0] == 0 ?
+        0 : 1 / this->blobs_[2]->cpu_data()[0];
+    caffe_cpu_scale(variance_.count(), scale_factor,
+        this->blobs_[0]->cpu_data(), mean_.mutable_cpu_data());
+    caffe_cpu_scale(variance_.count(), scale_factor,
+        this->blobs_[1]->cpu_data(), variance_.mutable_cpu_data());
+  } else {
+    // compute mean
+    for(int n = 0; n < num; ++n) {
+      for(int c = 0; c < channels_; ++c) {
+        for(int x = 0; x < spatial_dim; ++x) {
+          float data_item = float(top_data[n * channels_ * spatial_dim + c * spatial_dim + x]);
+          mean_data_[c] += data_item;
+          variance_data_[c] += data_item * data_item;
+        }
+      }
+    }
+
+    for(int c = 0; c < channels_; ++c) {
+      mean_data_[c] *= (float(1.) / (num * spatial_dim));
+      variance_data_[c] = (float(1.) / (num * spatial_dim)) * variance_data_[c] - mean_data_[c] * mean_data_[c];
+    }
+  }
+
+
+  if (!use_global_stats_) {
+
+    // compute and save moving average
+    this->blobs_[2]->mutable_cpu_data()[0] *= moving_average_fraction_;
+    this->blobs_[2]->mutable_cpu_data()[0] += 1;
+    caffe_cpu_axpby(mean_.count(), Dtype(1), mean_.cpu_data(),
+        moving_average_fraction_, this->blobs_[0]->mutable_cpu_data());
+    int m = bottom[0]->count()/channels_;
+    Dtype bias_correction_factor = m > 1 ? Dtype(float(m)/(m-1)) : 1;
+    caffe_cpu_axpby(variance_.count(), bias_correction_factor,
+        variance_.cpu_data(), moving_average_fraction_,
+        this->blobs_[1]->mutable_cpu_data());
+
+    // LOG(INFO) << "m" << m << "bias_correction_factor: " << bias_correction_factor <<  "moving_average_fraction_" << moving_average_fraction_;
+
+
+  }
+
+
+  for(int c = 0; c < channels_; ++c) {
+    variance_data_[c] = 1/ sqrt(variance_data_[c] + eps_);
+    variance_data_[c] =  Dtype(variance_data_[c]);
+  }
+
+
+  for(int n = 0; n < num; ++n) {
+    for(int c = 0; c < channels_; ++c) {
+      for(int x = 0; x < spatial_dim; ++x) {
+        auto data_item = top_data + n * channels_ * spatial_dim + c * spatial_dim + x;
+        *data_item = ((*data_item) - mean_data_[c]) * variance_data_[c];
+      }
+    }
+  }
+
+  caffe_copy(x_norm_.count(), top_data,
+      x_norm_.mutable_cpu_data());
+}
+
+template <typename Dtype>
+void BatchNormLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
+    const vector<bool>& propagate_down,
+    const vector<Blob<Dtype>*>& bottom) {
+
+  
+  const Dtype* top_diff;
+  if (bottom[0] != top[0]) {
+    top_diff = top[0]->cpu_diff();
+  } else {
+    caffe_copy(x_norm_.count(), top[0]->cpu_diff(), x_norm_.mutable_cpu_diff());
+    top_diff = x_norm_.cpu_diff();
+  }
+  Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
+  if (use_global_stats_) {
+    caffe_div(temp_.count(), top_diff, temp_.cpu_data(), bottom_diff);
+    return;
+  }
+  const Dtype* top_data = x_norm_.cpu_data();
+  int num = bottom[0]->shape()[0];
+  int spatial_dim = bottom[0]->count()/(bottom[0]->shape(0)*channels_);
+
+
+  auto mean_data_ = mean_.mutable_cpu_data();
+  for(int c = 0; c < channels_; ++c) {
+    mean_data_[c] = .0;
+  }
+  auto variance_data_ = variance_.mutable_cpu_data();
+  std::vector<Dtype> fp32_temp_data_(mean_.count(), .0);
+
+  for(int n = 0; n < num; ++n) {
+    for(int c = 0; c < channels_; ++c) {
+      for(int x = 0; x < spatial_dim; ++x) {
+        mean_data_[c] += top_data[n * channels_ * spatial_dim + c * spatial_dim + x] * top_diff[n * channels_ * spatial_dim + c * spatial_dim + x];
+        fp32_temp_data_[c] += top_diff[n * channels_ * spatial_dim + c * spatial_dim + x];
+      }
+    }
+  }
+
+  auto mean_multiplier = float(1. / (num * spatial_dim));
+  for(int n = 0; n < num; ++n) {
+    for(int c = 0; c < channels_; ++c) {
+      for(int x = 0; x < spatial_dim; ++x) {
+        size_t index = n * channels_ * spatial_dim + c * spatial_dim + x;
+        bottom_diff[index] = (top_diff[index] - mean_multiplier * (fp32_temp_data_[c] + (mean_data_[c] * top_data[index]))) * variance_data_[c];
+      }
+    }
+  }
+}
+
+#else
+
 template <typename Dtype>
 void BatchNormLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
@@ -240,7 +383,7 @@ void BatchNormLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   // pass.
   caffe_div(temp_.count(), bottom_diff, temp_.cpu_data(), bottom_diff);
 }
-
+#endif
 
 #ifdef CPU_ONLY
 STUB_GPU(BatchNormLayer);
