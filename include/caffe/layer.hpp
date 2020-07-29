@@ -306,6 +306,8 @@ class Layer {
    *  the objective function. */
   vector<Dtype> loss_;
 
+  vector<AICoreKernelInfo> aicore_kernel_info_;
+
   /** @brief Using the CPU device, compute the layer output. */
   virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) = 0;
@@ -318,7 +320,11 @@ class Layer {
     // LOG(WARNING) << "Using CPU code as backup.";
     return Forward_cpu(bottom, top);
   }
-
+  virtual void Forward_aicore(const vector<Blob<Dtype>*>& bottom,
+      const vector<Blob<Dtype>*>& top) {
+    // LOG(WARNING) << "Using CPU code as backup.";
+    return Forward_cpu(bottom, top);
+  }
   /**
    * @brief Using the CPU device, compute the gradients for any parameters and
    *        for the bottom blobs if propagate_down is true.
@@ -337,7 +343,12 @@ class Layer {
     // LOG(WARNING) << "Using CPU code as backup.";
     Backward_cpu(top, propagate_down, bottom);
   }
-
+  virtual void Backward_aicore(const vector<Blob<Dtype>*>& top,
+      const vector<bool>& propagate_down,
+      const vector<Blob<Dtype>*>& bottom) {
+    // LOG(WARNING) << "Using CPU code as backup.";
+    Backward_cpu(top, propagate_down, bottom);
+  }
   /**
    * Called by the parent Layer's SetUp to check that the number of bottom
    * and top Blobs provided as input match the expected numbers specified by
@@ -416,7 +427,15 @@ inline Dtype Layer<Dtype>::Forward(const vector<Blob<Dtype>*>& bottom,
   Reshape(bottom, top);
   switch (Caffe::mode()) {
   case Caffe::CPU:
+  #ifndef USE_AICORE
     Forward_cpu(bottom, top);
+  #else
+    if (Caffe::aicore_mode()) {
+      Forward_aicore(bottom, top);
+    } else {
+      Forward_cpu(bottom, top);
+    }
+  #endif
     for (int top_id = 0; top_id < top.size(); ++top_id) {
       if (!this->loss(top_id)) { continue; }
       const int count = top[top_id]->count();
@@ -451,7 +470,15 @@ inline void Layer<Dtype>::Backward(const vector<Blob<Dtype>*>& top,
     const vector<Blob<Dtype>*>& bottom) {
   switch (Caffe::mode()) {
   case Caffe::CPU:
+  #ifndef USE_AICORE
     Backward_cpu(top, propagate_down, bottom);
+  #else
+    if (Caffe::aicore_mode()) {
+      Backward_aicore(top, propagate_down, bottom);
+    } else {
+      Backward_cpu(top, propagate_down, bottom);
+    }
+  #endif
     break;
   case Caffe::GPU:
     Backward_gpu(top, propagate_down, bottom);

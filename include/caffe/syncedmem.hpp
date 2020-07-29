@@ -16,11 +16,18 @@ namespace caffe {
 // The improvement in performance seems negligible in the single GPU case,
 // but might be more significant for parallel training. Most importantly,
 // it improved stability for large models on many GPUs.
-inline void CaffeMallocHost(void** ptr, size_t size, bool* use_cuda) {
+inline void CaffeMallocHost(void** ptr, size_t size, bool* use_cuda, bool* use_aicore) {
 #ifndef CPU_ONLY
   if (Caffe::mode() == Caffe::GPU) {
     CUDA_CHECK(cudaMallocHost(ptr, size));
     *use_cuda = true;
+    return;
+  }
+#endif
+#ifdef USE_AICORE
+  if (Caffe::aicore_mode()) {
+    AICORE_CHECK(rtMallocHost(ptr, size? size:4));
+    *use_aicore = true;
     return;
   }
 #endif
@@ -33,10 +40,16 @@ inline void CaffeMallocHost(void** ptr, size_t size, bool* use_cuda) {
   CHECK(*ptr) << "host allocation of size " << size << " failed";
 }
 
-inline void CaffeFreeHost(void* ptr, bool use_cuda) {
+inline void CaffeFreeHost(void* ptr, bool use_cuda, bool use_aicore) {
 #ifndef CPU_ONLY
   if (use_cuda) {
     CUDA_CHECK(cudaFreeHost(ptr));
+    return;
+  }
+#endif
+#ifdef USE_AICORE
+  if (use_aicore) {
+    AICORE_CHECK(rtFreeHost(ptr));
     return;
   }
 #endif
@@ -63,9 +76,11 @@ class SyncedMemory {
   void set_cpu_data(void* data);
   const void* gpu_data();
   void set_gpu_data(void* data);
+  const void* aicore_data();
   void* mutable_cpu_data();
   void* mutable_gpu_data();
-  enum SyncedHead { UNINITIALIZED, HEAD_AT_CPU, HEAD_AT_GPU, SYNCED };
+  void* mutable_aicore_data();
+  enum SyncedHead { UNINITIALIZED, HEAD_AT_CPU, HEAD_AT_GPU, HEAD_AT_AICORE, SYNCED };
   SyncedHead head() const { return head_; }
   size_t size() const { return size_; }
 
@@ -78,13 +93,17 @@ class SyncedMemory {
 
   void to_cpu();
   void to_gpu();
+  void to_aicore();
   void* cpu_ptr_;
   void* gpu_ptr_;
+  void* aicore_ptr_;
   size_t size_;
   SyncedHead head_;
   bool own_cpu_data_;
   bool cpu_malloc_use_cuda_;
   bool own_gpu_data_;
+  bool cpu_malloc_use_aicore_;
+  bool own_aicore_data_;
   int device_;
 
   DISABLE_COPY_AND_ASSIGN(SyncedMemory);

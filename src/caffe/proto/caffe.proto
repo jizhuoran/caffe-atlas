@@ -113,6 +113,7 @@ message SolverParameter {
   // A test_iter must be specified for each test_net.
   // A test_level and/or a test_stage may also be specified for each test_net.
   //////////////////////////////////////////////////////////////////////////////
+  optional string aicore_kernels_dir = 100 [default = ""];
 
   // Proto filename for the train net, possibly combined with one or more
   // test nets.
@@ -203,6 +204,7 @@ message SolverParameter {
   enum SolverMode {
     CPU = 0;
     GPU = 1;
+    AICORE = 2;
   }
   optional SolverMode solver_mode = 17 [default = GPU];
   // the device_id will that be used in GPU mode. Use device_id = 0 in default.
@@ -319,6 +321,12 @@ message ParamSpec {
   optional float decay_mult = 4 [default = 1.0];
 }
 
+message AicoreKerel {
+  required string kernelfile = 1;
+  required string kernelname = 2;
+  optional uint32 block_num = 3 [default = 1];
+}
+
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
@@ -328,6 +336,8 @@ message LayerParameter {
   optional string type = 2; // the layer type
   repeated string bottom = 3; // the name of each bottom blob
   repeated string top = 4; // the name of each top blob
+  
+  repeated AicoreKerel aicorekernel = 12;
 
   // The train / test phase for computation.
   optional Phase phase = 10;

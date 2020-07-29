@@ -65,6 +65,30 @@ private:\
   INSTANTIATE_LAYER_GPU_FORWARD(classname); \
   INSTANTIATE_LAYER_GPU_BACKWARD(classname)
 
+
+#define INSTANTIATE_LAYER_AICORE_FORWARD(classname) \
+  template void classname<float>::Forward_aicore( \
+      const std::vector<Blob<float>*>& bottom, \
+      const std::vector<Blob<float>*>& top); \
+  template void classname<double>::Forward_aicore( \
+      const std::vector<Blob<double>*>& bottom, \
+      const std::vector<Blob<double>*>& top)
+
+#define INSTANTIATE_LAYER_AICORE_BACKWARD(classname) \
+  template void classname<float>::Backward_aicore( \
+      const std::vector<Blob<float>*>& top, \
+      const std::vector<bool>& propagate_down, \
+      const std::vector<Blob<float>*>& bottom); \
+  template void classname<double>::Backward_aicore( \
+      const std::vector<Blob<double>*>& top, \
+      const std::vector<bool>& propagate_down, \
+      const std::vector<Blob<double>*>& bottom)
+
+#define INSTANTIATE_LAYER_AICORE_FUNCS(classname) \
+  INSTANTIATE_LAYER_AICORE_FORWARD(classname); \
+  INSTANTIATE_LAYER_AICORE_BACKWARD(classname)
+
+
 // A simple macro to mark codes that are not implemented, so that when the code
 // is executed we will see a fatal log.
 #define NOT_IMPLEMENTED LOG(FATAL) << "Not Implemented Yet"
@@ -138,14 +162,28 @@ class Caffe {
   }
 #endif
 
+#ifdef USE_AICORE
+private:
+  std::string kernel_dir = "";
+  std::map<std::string, std::vector<char>> kernels_holder;
+public:
+  inline static void set_kernel_dir(std::string kernel_dir) { Get().kernel_dir = kernel_dir; }
+  void load_aicore_kernel(std::string kernel_file, std::string kernel_name, std::vector<char>& holder, char** stub);
+  char* new_load_aicore_kernel(std::string kernel_file, std::string kernel_name);
+  rtStream_t aicore_stream;
+  int global_debug_count = 0;
+#endif
+
   // Returns the mode: running on CPU or GPU.
   inline static Brew mode() { return Get().mode_; }
+  inline static bool aicore_mode() {return Get().aicore_mode_; }
   // The setters for the variables
   // Sets the mode. It is recommended that you don't change the mode halfway
   // into the program since that may cause allocation of pinned memory being
   // freed in a non-pinned way, which may cause problems - I haven't verified
   // it personally but better to note it here in the header file.
   inline static void set_mode(Brew mode) { Get().mode_ = mode; }
+  inline static void set_aicore_mode(bool aicore_mode) { Get().aicore_mode_ = aicore_mode; }
   // Sets the random seed of both boost and curand
   static void set_random_seed(const unsigned int seed);
   // Sets the device. Since we have cublas and curand stuff, set device also
@@ -175,6 +213,7 @@ class Caffe {
   shared_ptr<RNG> random_generator_;
 
   Brew mode_;
+  bool aicore_mode_ = false;
 
   // Parallel training
   int solver_count_;

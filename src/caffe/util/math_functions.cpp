@@ -2,12 +2,20 @@
 #include <boost/random.hpp>
 
 #include <limits>
+#include <random>
 
 #include "caffe/common.hpp"
 #include "caffe/util/math_functions.hpp"
 #include "caffe/util/rng.hpp"
 
 namespace caffe {
+
+#ifdef USE_AICORE
+void caffe_aicore_memset(const size_t N, const int alpha, void* X) {
+  AICORE_CHECK(rtMemset(X, N, alpha, N));
+}
+#endif
+
 
 template<>
 void caffe_cpu_gemm<float>(const CBLAS_TRANSPOSE TransA,
@@ -52,6 +60,10 @@ void caffe_axpy<float>(const int N, const float alpha, const float* X,
 template <>
 void caffe_axpy<double>(const int N, const double alpha, const double* X,
     double* Y) { cblas_daxpy(N, alpha, X, 1, Y, 1); }
+
+template <>
+void caffe_axpy<_Float16>(const int N, const _Float16 alpha, const _Float16* X,
+    _Float16* Y) { NO_GPU; }
 
 template <typename Dtype>
 void caffe_set(const int N, const Dtype alpha, Dtype* Y) {
@@ -103,6 +115,7 @@ template void caffe_copy<unsigned int>(const int N, const unsigned int* X,
     unsigned int* Y);
 template void caffe_copy<float>(const int N, const float* X, float* Y);
 template void caffe_copy<double>(const int N, const double* X, double* Y);
+template void caffe_copy<_Float16>(const int N, const _Float16* X, _Float16* Y);
 
 template <>
 void caffe_scal<float>(const int N, const float alpha, float *X) {
@@ -112,6 +125,20 @@ void caffe_scal<float>(const int N, const float alpha, float *X) {
 template <>
 void caffe_scal<double>(const int N, const double alpha, double *X) {
   cblas_dscal(N, alpha, X, 1);
+}
+
+template <>
+void caffe_scal<_Float16>(const int N, const _Float16 alpha, _Float16 *X) {
+  std::cout << "FOR Debug Only!" << std::endl;
+  std::vector<float> x32(N, .0);
+  for(int i = 0; i < N; ++i) {
+    x32[i] = float(X[i]);
+  }
+  cblas_sscal(N, float(alpha), x32.data(), 1);
+  for(int i = 0; i < N; ++i) {
+    X[i] = float(x32[i]);
+  }
+
 }
 
 template <>
@@ -257,12 +284,20 @@ void caffe_rng_uniform(const int n, const Dtype a, const Dtype b, Dtype* r) {
   CHECK_GE(n, 0);
   CHECK(r);
   CHECK_LE(a, b);
-  boost::uniform_real<Dtype> random_distribution(a, caffe_nextafter<Dtype>(b));
-  boost::variate_generator<caffe::rng_t*, boost::uniform_real<Dtype> >
-      variate_generator(caffe_rng(), random_distribution);
+
+  std::default_random_engine gen(1996);
+  std::uniform_real_distribution<> variate_generator(a, std::nextafter(float(b), std::numeric_limits<float>::max()));
   for (int i = 0; i < n; ++i) {
-    r[i] = variate_generator();
+    r[i] = Dtype(variate_generator(gen));
   }
+
+
+  // boost::uniform_real<Dtype> random_distribution(a, caffe_nextafter<Dtype>(b));
+  // boost::variate_generator<caffe::rng_t*, boost::uniform_real<Dtype> >
+  //     variate_generator(caffe_rng(), random_distribution);
+  // for (int i = 0; i < n; ++i) {
+  //   r[i] = variate_generator();
+  // }
 }
 
 template
@@ -279,12 +314,19 @@ void caffe_rng_gaussian(const int n, const Dtype a,
   CHECK_GE(n, 0);
   CHECK(r);
   CHECK_GT(sigma, 0);
-  boost::normal_distribution<Dtype> random_distribution(a, sigma);
-  boost::variate_generator<caffe::rng_t*, boost::normal_distribution<Dtype> >
-      variate_generator(caffe_rng(), random_distribution);
+
+  std::default_random_engine gen(1996);
+  std::normal_distribution<> variate_generator(a, std::nextafter(float(sigma), std::numeric_limits<float>::max()));
   for (int i = 0; i < n; ++i) {
-    r[i] = variate_generator();
+    r[i] = Dtype(variate_generator(gen));
   }
+  
+  // boost::normal_distribution<Dtype> random_distribution(a, sigma);
+  // boost::variate_generator<caffe::rng_t*, boost::normal_distribution<Dtype> >
+  //     variate_generator(caffe_rng(), random_distribution);
+  // for (int i = 0; i < n; ++i) {
+  //   r[i] = variate_generator();
+  // }
 }
 
 template
@@ -301,12 +343,20 @@ void caffe_rng_bernoulli(const int n, const Dtype p, int* r) {
   CHECK(r);
   CHECK_GE(p, 0);
   CHECK_LE(p, 1);
-  boost::bernoulli_distribution<Dtype> random_distribution(p);
-  boost::variate_generator<caffe::rng_t*, boost::bernoulli_distribution<Dtype> >
-      variate_generator(caffe_rng(), random_distribution);
+
+  std::default_random_engine gen(1996);
+  std::bernoulli_distribution variate_generator(p);
   for (int i = 0; i < n; ++i) {
-    r[i] = variate_generator();
+    r[i] = Dtype(variate_generator(gen));
   }
+
+
+  // boost::bernoulli_distribution<Dtype> random_distribution(p);
+  // boost::variate_generator<caffe::rng_t*, boost::bernoulli_distribution<Dtype> >
+  //     variate_generator(caffe_rng(), random_distribution);
+  // for (int i = 0; i < n; ++i) {
+  //   r[i] = variate_generator();
+  // }
 }
 
 template
@@ -321,12 +371,20 @@ void caffe_rng_bernoulli(const int n, const Dtype p, unsigned int* r) {
   CHECK(r);
   CHECK_GE(p, 0);
   CHECK_LE(p, 1);
-  boost::bernoulli_distribution<Dtype> random_distribution(p);
-  boost::variate_generator<caffe::rng_t*, boost::bernoulli_distribution<Dtype> >
-      variate_generator(caffe_rng(), random_distribution);
+
+  std::default_random_engine gen(1996);
+  std::bernoulli_distribution variate_generator(p);
   for (int i = 0; i < n; ++i) {
-    r[i] = static_cast<unsigned int>(variate_generator());
+    r[i] = static_cast<unsigned int>(variate_generator(gen));
   }
+
+
+  // boost::bernoulli_distribution<Dtype> random_distribution(p);
+  // boost::variate_generator<caffe::rng_t*, boost::bernoulli_distribution<Dtype> >
+  //     variate_generator(caffe_rng(), random_distribution);
+  // for (int i = 0; i < n; ++i) {
+  //   r[i] = static_cast<unsigned int>(variate_generator());
+  // }
 }
 
 template
@@ -347,6 +405,12 @@ double caffe_cpu_strided_dot<double>(const int n, const double* x,
   return cblas_ddot(n, x, incx, y, incy);
 }
 
+template <>
+_Float16 caffe_cpu_strided_dot<_Float16>(const int n, const _Float16* x,
+    const int incx, const _Float16* y, const int incy) {
+      NO_GPU;
+}
+
 template <typename Dtype>
 Dtype caffe_cpu_dot(const int n, const Dtype* x, const Dtype* y) {
   return caffe_cpu_strided_dot(n, x, 1, y, 1);
@@ -358,6 +422,9 @@ float caffe_cpu_dot<float>(const int n, const float* x, const float* y);
 template
 double caffe_cpu_dot<double>(const int n, const double* x, const double* y);
 
+template
+_Float16 caffe_cpu_dot<_Float16>(const int n, const _Float16* x, const _Float16* y);
+
 template <>
 float caffe_cpu_asum<float>(const int n, const float* x) {
   return cblas_sasum(n, x, 1);
@@ -366,6 +433,17 @@ float caffe_cpu_asum<float>(const int n, const float* x) {
 template <>
 double caffe_cpu_asum<double>(const int n, const double* x) {
   return cblas_dasum(n, x, 1);
+}
+
+template <>
+_Float16 caffe_cpu_asum<_Float16>(const int n, const _Float16* x) {
+  std::cout << "FOR Debug Only!" << std::endl;
+  std::vector<float> x32(n, .0);
+  for(int i = 0; i < n; ++i) {
+    x32[i] = float(x[i]);
+  }
+  LOG(INFO) << "In caffe_cpu_asum " << cblas_sasum(n, x32.data(), 1);
+  return _Float16(cblas_sasum(n, x32.data(), 1));
 }
 
 template <>

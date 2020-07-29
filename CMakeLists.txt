@@ -6,6 +6,28 @@ if(POLICY CMP0054)
   cmake_policy(SET CMP0054 NEW)
 endif()
 
+if(CROSS_BUILD) #FIXME
+#  set(CMAKE_BUILD_TYPE Debug)
+  add_definitions(-D_Float16=__fp16)
+  message(STATUS "Going to cross build, Good Luck!!!")
+  message(STATUS "Going to cross build, Good Luck!!!")
+  message(STATUS "Going to cross build, Good Luck!!!")
+  message(STATUS "Going to cross build, Good Luck!!!")
+  SET(CMAKE_C_COMPILER /usr/bin/aarch64-linux-gnu-gcc-7)
+  SET(CMAKE_CXX_COMPILER /usr/bin/aarch64-linux-gnu-g++-7)
+  SET(CMAKE_FIND_ROOT_PATH ~/arm_root/mythings_16)
+  set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+  set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+  set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+else()
+#  if(ONXBL)
+#  else()
+#    SET(CMAKE_C_COMPILER clang-8)
+#    SET(CMAKE_CXX_COMPILER clang++-8)
+#  endif()
+endif()
+
+
 # ---[ Caffe project
 project(Caffe C CXX)
 
@@ -28,15 +50,29 @@ include(cmake/ConfigGen.cmake)
 
 # ---[ Options
 caffe_option(CPU_ONLY  "Build Caffe without CUDA support" OFF) # TODO: rename to USE_CUDA
+if(CROSS_BUILD)
+  caffe_option(USE_AICORE "Build Caffe with AICORE" ON)
+  add_definitions(-DUSE_AICORE)
+else()
+  caffe_option(USE_AICORE "Build Caffe without AICORE" OFF)
+endif()
 caffe_option(USE_CUDNN "Build Caffe with cuDNN library support" ON IF NOT CPU_ONLY)
 caffe_option(USE_NCCL "Build Caffe with NCCL library support" OFF)
-caffe_option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+if(CROSS_BUILD)
+  caffe_option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+else()
+  caffe_option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+endif()
 caffe_option(BUILD_python "Build Python wrapper" ON)
 set(python_version "2" CACHE STRING "Specify which Python version to use")
 caffe_option(BUILD_matlab "Build Matlab wrapper" OFF IF UNIX OR APPLE)
 caffe_option(BUILD_docs   "Build documentation" ON IF UNIX OR APPLE)
 caffe_option(BUILD_python_layer "Build the Caffe Python layer" ON)
-caffe_option(USE_OPENCV "Build with OpenCV support" ON)
+if(CROSS_BUILD) #FIXME
+  caffe_option(USE_OPENCV "Build with OpenCV support" OFF)
+else()
+  caffe_option(USE_OPENCV "Build with OpenCV support" ON)
+endif()
 caffe_option(USE_LEVELDB "Build with levelDB" ON)
 caffe_option(USE_LMDB "Build with lmdb" ON)
 caffe_option(ALLOW_LMDB_NOLOCK "Allow MDB_NOLOCK when reading LMDB files (only if necessary)" OFF)
@@ -50,7 +86,7 @@ include(cmake/Dependencies.cmake)
 
 # ---[ Flags
 if(UNIX OR APPLE)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wall")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fPIC -Wall")
 endif()
 
 caffe_set_caffe_link()
@@ -122,4 +158,3 @@ caffe_print_configuration_summary()
 
 # ---[ Export configs generation
 caffe_generate_export_configs()
-

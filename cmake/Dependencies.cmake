@@ -4,6 +4,13 @@ set(Caffe_INCLUDE_DIRS "")
 set(Caffe_DEFINITIONS "")
 set(Caffe_COMPILE_OPTIONS "")
 
+
+# ---[ AICORE
+if(CROSS_BUILD)
+  list(APPEND Caffe_LINKER_LIBS PUBLIC ${CMAKE_FIND_ROOT_PATH}/usr/lib64/libruntime.so)
+endif()
+
+
 # ---[ Boost
 find_package(Boost 1.54 REQUIRED COMPONENTS system thread filesystem)
 list(APPEND Caffe_INCLUDE_DIRS PUBLIC ${Boost_INCLUDE_DIRS})
@@ -13,6 +20,14 @@ list(APPEND Caffe_LINKER_LIBS PUBLIC ${Boost_LIBRARIES})
 find_package(Threads REQUIRED)
 list(APPEND Caffe_LINKER_LIBS PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 
+# ---[ fmt
+#find_package(fmt)
+#list(APPEND Caffe_LINKER_LIBS PUBLIC fmt::fmt)
+
+# ---[ Python 3
+#find_package(PythonLibs 3 REQUIRED)
+#list(APPEND Caffe_INCLUDE_DIRS PUBLIC ${PYTHON_INCLUDE_DIRS})
+#list(APPEND Caffe_LINKER_LIBS PUBLIC ${PYTHON_LIBRARIES})
 # ---[ OpenMP
 if(USE_OPENMP)
   # Ideally, this should be provided by the BLAS library IMPORTED target. However,
@@ -42,17 +57,30 @@ list(APPEND Caffe_LINKER_LIBS PUBLIC ${GFLAGS_LIBRARIES})
 # ---[ Google-protobuf
 include(cmake/ProtoBuf.cmake)
 
-# ---[ HDF5
-find_package(HDF5 COMPONENTS HL REQUIRED)
-list(APPEND Caffe_INCLUDE_DIRS PUBLIC ${HDF5_INCLUDE_DIRS})
-list(APPEND Caffe_LINKER_LIBS PUBLIC ${HDF5_LIBRARIES} ${HDF5_HL_LIBRARIES})
+if(CROSS_BUILD)
+  list(APPEND Caffe_LINKER_LIBS PUBLIC ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/libz.so)
+endif()
 
-# This code is taken from https://github.com/sh1r0/caffe-android-lib
-if(USE_HDF5)
-  find_package(HDF5 COMPONENTS HL REQUIRED)
-  include_directories(SYSTEM ${HDF5_INCLUDE_DIRS} ${HDF5_HL_INCLUDE_DIR})
-  list(APPEND Caffe_LINKER_LIBS ${HDF5_LIBRARIES} ${HDF5_HL_LIBRARIES})
+# ---[ HDF5
+if(CROSS_BUILD)
+  list(APPEND Caffe_INCLUDE_DIRS PUBLIC ${CMAKE_FIND_ROOT_PATH}/usr/include/hdf5/serial)
+  list(APPEND Caffe_LINKER_LIBS PUBLIC  ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/hdf5/serial/libhdf5_cpp.so
+                                        ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/hdf5/serial/libhdf5.so
+                                        ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/hdf5/serial/libhdf5_hl_cpp.so
+                                        ${CMAKE_FIND_ROOT_PATH}/usr/lib/aarch64-linux-gnu/hdf5/serial/libhdf5_hl.so)
   add_definitions(-DUSE_HDF5)
+else()
+  find_package(HDF5 COMPONENTS HL REQUIRED)
+  list(APPEND Caffe_INCLUDE_DIRS PUBLIC ${HDF5_INCLUDE_DIRS})
+  list(APPEND Caffe_LINKER_LIBS PUBLIC ${HDF5_LIBRARIES} ${HDF5_HL_LIBRARIES})
+
+  # This code is taken from https://github.com/sh1r0/caffe-android-lib
+  if(USE_HDF5)
+    find_package(HDF5 COMPONENTS HL REQUIRED)
+    include_directories(SYSTEM ${HDF5_INCLUDE_DIRS} ${HDF5_HL_INCLUDE_DIR})
+    list(APPEND Caffe_LINKER_LIBS ${HDF5_LIBRARIES} ${HDF5_HL_LIBRARIES})
+    add_definitions(-DUSE_HDF5)
+  endif()
 endif()
 
 # ---[ LMDB

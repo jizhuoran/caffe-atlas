@@ -9,6 +9,23 @@ namespace caffe {
 template <typename Dtype>
 void InnerProductLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
+
+#ifdef USE_AICRE
+  if(Caffe::aicore_mode()) {
+    AicoreKerel fw_param = this->layer_param_.aicorekernel(0);
+    char* fw_stub = Caffe::Get().new_load_aicore_kernel(fw_param.kernelfile(), fw_param.kernelname());
+    this->aicore_kernel_info_.push_back(AICoreKernelInfo(fw_stub, fw_param.block_num()));
+
+    AicoreKerel bw_weight_param = this->layer_param_.aicorekernel(1);
+    char* bw_weight_stub = Caffe::Get().new_load_aicore_kernel(bw_weight_param.kernelfile(), bw_weight_param.kernelname());
+    this->aicore_kernel_info_.push_back(AICoreKernelInfo(bw_weight_stub, bw_weight_param.block_num()));
+
+    AicoreKerel bw_input_param = this->layer_param_.aicorekernel(2);
+    char* bw_input_stub = Caffe::Get().new_load_aicore_kernel(bw_input_param.kernelfile(), bw_input_param.kernelname());
+    this->aicore_kernel_info_.push_back(AICoreKernelInfo(bw_input_stub, bw_input_param.block_num()));
+  }
+#endif
+  
   const int num_output = this->layer_param_.inner_product_param().num_output();
   bias_term_ = this->layer_param_.inner_product_param().bias_term();
   transpose_ = this->layer_param_.inner_product_param().transpose();

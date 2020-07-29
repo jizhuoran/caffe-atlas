@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <chrono>
+
 
 #ifdef USE_HDF5
 #include "hdf5.h"
@@ -520,6 +522,9 @@ Dtype Net<Dtype>::ForwardFromTo(int start, int end) {
   CHECK_LT(end, layers_.size());
   Dtype loss = 0;
   for (int i = start; i <= end; ++i) {
+  #ifdef PROFILE
+    std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
+  #endif
     for (int c = 0; c < before_forward_.size(); ++c) {
       before_forward_[c]->run(i);
     }
@@ -529,6 +534,10 @@ Dtype Net<Dtype>::ForwardFromTo(int start, int end) {
     for (int c = 0; c < after_forward_.size(); ++c) {
       after_forward_[c]->run(i);
     }
+#ifdef PROFILE
+    std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
+    std::cout << "Forward Layer " << i << ": " << layers_[i]->type() << " " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
+#endif
   }
   return loss;
 }
@@ -570,6 +579,9 @@ void Net<Dtype>::BackwardFromTo(int start, int end) {
   CHECK_GE(end, 0);
   CHECK_LT(start, layers_.size());
   for (int i = start; i >= end; --i) {
+  #ifdef PROFILE
+    std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
+  #endif
     for (int c = 0; c < before_backward_.size(); ++c) {
       before_backward_[c]->run(i);
     }
@@ -581,6 +593,10 @@ void Net<Dtype>::BackwardFromTo(int start, int end) {
     for (int c = 0; c < after_backward_.size(); ++c) {
       after_backward_[c]->run(i);
     }
+#ifdef PROFILE
+    std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
+    std::cout << "Backward Layer " << i << ": " << layers_[i]->type() << " " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
+#endif
   }
 }
 

@@ -53,9 +53,70 @@ void GlobalInit(int* pargc, char*** pargv) {
 
 Caffe::Caffe()
     : random_generator_(), mode_(Caffe::CPU),
-      solver_count_(1), solver_rank_(0), multiprocess_(false) { }
+      solver_count_(1), solver_rank_(0), multiprocess_(false) {
+#ifdef USE_AICORE
+  AICORE_CHECK(rtSetDevice(0));
+  AICORE_CHECK(rtStreamCreate(&aicore_stream, 0));
+#endif
+}
 
 Caffe::~Caffe() { }
+
+#ifdef USE_AICORE
+char * readBinFile(const char *file_name, uint64_t *fileSize) {
+    std::filebuf *pbuf;
+    std::ifstream filestr;
+    size_t size;
+    filestr.open(file_name, std::ios::binary);
+    if (!filestr) {
+      LOG(ERROR) << "file:" << file_name << " open failed!";
+      return NULL;
+    }
+
+    pbuf = filestr.rdbuf();
+    size = pbuf->pubseekoff(0, std::ios::end, std::ios::in);
+    pbuf->pubseekpos(0, std::ios::in);
+    char * buffer = (char*)malloc(size);
+    if (NULL == buffer)
+    {
+      LOG(ERROR) << "NULL == buffer!";
+      return NULL;
+    }
+    //new char[size];
+    pbuf->sgetn(buffer, size);
+    *fileSize = size;
+
+    filestr.close();
+    return buffer;
+}
+
+
+
+char* Caffe::new_load_aicore_kernel(std::string kernel_file, std::string kernel_name) {
+
+  auto iter = kernels_holder.find(kernel_file);
+  if(iter == kernels_holder.end()) {
+    void *binHandle;
+    rtDevBinary_t binary;
+    binary.data = readBinFile((kernel_dir + "/" + kernel_file).c_str(), &binary.length);
+    binary.magic = RT_DEV_BINARY_MAGIC_ELF;
+    binary.version = 0;
+
+    kernels_holder[kernel_file] = std::vector<char>(kernel_name.begin(), kernel_name.end());
+    kernels_holder[kernel_file].push_back(0);
+    char* stub = kernels_holder[kernel_file].data();
+    AICORE_CHECK(rtDevBinaryRegister(&binary, &binHandle));
+    AICORE_CHECK(rtFunctionRegister(binHandle, stub, stub, (void *)stub, 0));
+    return stub;
+  } else {
+    return iter->second.data();
+  }
+
+}
+
+
+#endif
+
 
 void Caffe::set_random_seed(const unsigned int seed) {
   // RNG seed

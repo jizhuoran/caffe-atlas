@@ -11,6 +11,24 @@ namespace caffe {
 template <typename Dtype>
 void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
+
+#ifdef USE_AICORE
+  if(Caffe::aicore_mode()) {
+    AicoreKerel fw_param = this->layer_param_.aicorekernel(0);
+    char* fw_stub = Caffe::Get().new_load_aicore_kernel(fw_param.kernelfile(), fw_param.kernelname());
+    this->aicore_kernel_info_.push_back(AICoreKernelInfo(fw_stub, fw_param.block_num()));
+
+    AicoreKerel bw_weight_param = this->layer_param_.aicorekernel(1);
+    char* bw_weight_stub = Caffe::Get().new_load_aicore_kernel(bw_weight_param.kernelfile(), bw_weight_param.kernelname());
+    this->aicore_kernel_info_.push_back(AICoreKernelInfo(bw_weight_stub, bw_weight_param.block_num()));
+
+    AicoreKerel bw_input_param = this->layer_param_.aicorekernel(2);
+    char* bw_input_stub = Caffe::Get().new_load_aicore_kernel(bw_input_param.kernelfile(), bw_input_param.kernelname());
+    this->aicore_kernel_info_.push_back(AICoreKernelInfo(bw_input_stub, bw_input_param.block_num()));
+  }
+#endif
+
+
   // Configure the kernel size, padding, stride, and inputs.
   ConvolutionParameter conv_param = this->layer_param_.convolution_param();
   force_nd_im2col_ = conv_param.force_nd_im2col();
@@ -179,6 +197,16 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   weight_offset_ = conv_out_channels_ * kernel_dim_ / group_;
   // Propagate gradients to the parameters (as directed by backward pass).
   this->param_propagate_down_.resize(this->blobs_.size(), true);
+  
+#ifdef USE_AICORE
+  if(Caffe::aicore_mode()) {
+    fracZ_fp16_.Reshape(kernel_shape_data[0] * kernel_shape_data[1] *((channels_+15)/16), (num_output_+15)/16, 16, 16);
+    fracZ_fp32_.Reshape(kernel_shape_data[0] * kernel_shape_data[1] *((channels_+15)/16), (num_output_+15)/16, 16, 16);
+    if (this->bias_term_) {
+      bias_fp16_.Reshape(this->blobs_[1]->shape());
+    }
+  }
+#endif
 }
 
 template <typename Dtype>
@@ -252,6 +280,13 @@ void BaseConvolutionLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
     caffe_set(bias_multiplier_.count(), Dtype(1),
         bias_multiplier_.mutable_cpu_data());
   }
+#ifdef USE_AICORE
+  if(Caffe::aicore_mode()) {
+    bottom_five_fp16_.Reshape(num_, (channels_+15)/16, bottom[0]->shape(2), bottom[0]->shape(3) * 16);
+    top_five_fp16_.Reshape(num_, (num_output_+15)/16, top[0]->shape(2), top[0]->shape(3) * 16);
+  }
+#endif
+
 }
 
 template <typename Dtype>

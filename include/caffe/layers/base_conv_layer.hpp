@@ -93,6 +93,12 @@ class BaseConvolutionLayer : public Layer<Dtype> {
   bool is_1x1_;
   bool force_nd_im2col_;
 
+#ifdef USE_AICORE
+  Blob<_Float16> top_five_fp16_, bottom_five_fp16_;
+  Blob<_Float16> fracZ_fp16_, bias_fp16_;
+  Blob<float> fracZ_fp32_;
+#endif
+
  private:
   // wrap im2col/col2im so we don't have to remember the (long) argument lists
   inline void conv_im2col_cpu(const Dtype* data, Dtype* col_buff) {
@@ -167,6 +173,8 @@ class BaseConvolutionLayer : public Layer<Dtype> {
 
   Blob<Dtype> col_buffer_;
   Blob<Dtype> bias_multiplier_;
+
+
 };
 
 }  // namespace caffe

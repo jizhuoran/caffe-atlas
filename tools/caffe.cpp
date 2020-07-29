@@ -173,6 +173,8 @@ int train() {
   caffe::SolverParameter solver_param;
   caffe::ReadSolverParamsFromTextFileOrDie(FLAGS_solver, &solver_param);
 
+  Caffe::set_random_seed(1996);
+
   solver_param.mutable_train_state()->set_level(FLAGS_level);
   for (int i = 0; i < stages.size(); i++) {
     solver_param.mutable_train_state()->add_stage(stages[i]);
@@ -189,6 +191,12 @@ int train() {
       } else {  // Set default GPU if unspecified
           FLAGS_gpu = "" + boost::lexical_cast<string>(0);
       }
+  }
+
+  if(solver_param.solver_mode() == caffe::SolverParameter_SolverMode_AICORE) {
+    Caffe::set_aicore_mode(true);
+    Caffe::set_kernel_dir(solver_param.aicore_kernels_dir());
+  
   }
 
   vector<int> gpus;

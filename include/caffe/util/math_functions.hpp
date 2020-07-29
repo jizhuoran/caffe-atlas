@@ -12,6 +12,14 @@
 
 namespace caffe {
 
+#ifdef USE_AICORE
+
+void caffe_aicore_memset(const size_t N, const int alpha, void* X);
+
+
+#endif
+
+
 // Caffe gemm provides a simpler interface to the gemm functions, with the
 // limitation that the data has to be contiguous in memory.
 template <typename Dtype>

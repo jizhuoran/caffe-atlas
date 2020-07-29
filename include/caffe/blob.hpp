@@ -221,12 +221,16 @@ class Blob {
   const int* gpu_shape() const;
   const Dtype* gpu_data() const;
   void set_gpu_data(Dtype* data);
+  const Dtype* aicore_data();
   const Dtype* cpu_diff() const;
   const Dtype* gpu_diff() const;
+  const Dtype* aicore_diff();
   Dtype* mutable_cpu_data();
   Dtype* mutable_gpu_data();
+  Dtype* mutable_aicore_data();
   Dtype* mutable_cpu_diff();
   Dtype* mutable_gpu_diff();
+  Dtype* mutable_aicore_diff();
   void Update();
   void FromProto(const BlobProto& proto, bool reshape = true);
   void ToProto(BlobProto* proto, bool write_diff = false) const;
