@@ -21,6 +21,7 @@ void EltwiseLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   coeffs_ = vector<Dtype>(bottom.size(), 1);
   if (this->layer_param().eltwise_param().coeff_size()) {
     for (int i = 0; i < bottom.size(); ++i) {
+      LOG(ERROR) << "We do not support coeffs_ now " << this->layer_param().eltwise_param().coeff(i);
       coeffs_[i] = this->layer_param().eltwise_param().coeff(i);
     }
   }
@@ -59,11 +60,32 @@ void EltwiseLayer<Dtype>::Forward_cpu(
     }
     break;
   case EltwiseParameter_EltwiseOp_SUM:
-    caffe_set(count, Dtype(0), top_data);
-    // TODO(shelhamer) does BLAS optimize to sum for coeff = 1?
-    for (int i = 0; i < bottom.size(); ++i) {
-      caffe_axpy(count, coeffs_[i], bottom[i]->cpu_data(), top_data);
+    // caffe_set(count, Dtype(0), top_data);
+    if(bottom.size() == 1) {
+
+      caffe_copy(bottom.size(), bottom[0]->cpu_data(), top_data);
     }
+    if(bottom.size() > 1) {
+      bottom_data_a = bottom[0]->cpu_data();
+      bottom_data_b = bottom[1]->cpu_data();
+      #pragma omp parallel for
+      for(int i = 0; i < count; ++i) {
+        top_data[i] = bottom_data_a[i] + bottom_data_b[i];
+      } 
+    }
+    if(bottom.size() > 2) {
+      for(int bottom_i = 2; bottom_i < bottom.size(); ++bottom_i) {
+        bottom_data_a = bottom[2 + bottom_i]->cpu_data();
+        #pragma omp parallel for
+        for(int i = 0; i < count; ++i) {
+          top_data[i] += bottom_data_a[i];
+        }
+      }
+    }
+    // // TODO(shelhamer) does BLAS optimize to sum for coeff = 1?
+    // for (int i = 0; i < bottom.size(); ++i) {
+      // caffe_axpy(count, coeffs_[i], bottom[i]->cpu_data(), top_data);
+    // }
     break;
   case EltwiseParameter_EltwiseOp_MAX:
     // Initialize
@@ -105,6 +127,30 @@ void EltwiseLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   const int count = top[0]->count();
   const Dtype* top_data = top[0]->cpu_data();
   const Dtype* top_diff = top[0]->cpu_diff();
+
+
+  if(op_ == EltwiseParameter_EltwiseOp_SUM) {
+    if(bottom.size() == 1) {
+      caffe_copy(bottom.size(), top_diff, bottom[0]->mutable_cpu_diff());
+    }
+    if(bottom.size() > 1) {
+      auto bottom_diff_a = bottom[0]->mutable_cpu_diff();
+      auto bottom_diff_b = bottom[1]->mutable_cpu_diff();
+      #pragma omp parallel for
+      for(int i = 0; i < count; ++i) {
+        bottom_diff_a[i] = top_diff[i];
+        bottom_diff_b[i] = top_diff[i];
+      } 
+    }
+    if(bottom.size() > 2) {
+      for(int bottom_i = 2; bottom_i < bottom.size(); ++bottom_i) {
+        caffe_copy(bottom.size(), top_diff, bottom[2 + bottom_i]->mutable_cpu_diff());
+      }
+    }
+    return;
+  }
+
+
   for (int i = 0; i < bottom.size(); ++i) {
     if (propagate_down[i]) {
       const Dtype* bottom_data = bottom[i]->cpu_data();

@@ -58,7 +58,7 @@ void ScaleLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     bias_layer_->SetUp(bias_bottom_vec_, top);
     if (this->blobs_.size() + bottom.size() < 3) {
       // case: blobs.size == 1 && bottom.size == 1
-      // or blobs.size == 0 && bottom.size == 2
+      // or blobs.size == 0 && bottom.size == 2 
       bias_param_id_ = this->blobs_.size();
       this->blobs_.resize(bias_param_id_ + 1);
       this->blobs_[bias_param_id_] = bias_layer_->blobs()[0];
@@ -131,14 +131,13 @@ void ScaleLayer<Dtype>::Forward_cpu(
   const Dtype* scale_data =
       ((bottom.size() > 1) ? bottom[1] : this->blobs_[0].get())->cpu_data();
   Dtype* top_data = top[0]->mutable_cpu_data();
-  for (int n = 0; n < outer_dim_; ++n) {
-    for (int d = 0; d < scale_dim_; ++d) {
-      const Dtype factor = scale_data[d];
+
+  #pragma omp parallel for
+  for (int d = 0; d < scale_dim_; ++d) {
+    for (int n = 0; n < outer_dim_; ++n) {
       for (int i = 0; i < inner_dim_; ++i) {
-        top_data[i] = factor * bottom_data[i];
+        top_data[(n*scale_dim_+d)*inner_dim_+i] = scale_data[d] * bottom_data[(n*scale_dim_+d)*inner_dim_+i];
       }
-      bottom_data += inner_dim_;
-      top_data += inner_dim_;
     }
   }
   if (bias_layer_) {
@@ -187,14 +186,13 @@ void ScaleLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
         const Dtype* sum_mult = sum_multiplier_.cpu_data();
         sum_result = (outer_dim_ == 1) ?
             scale->mutable_cpu_diff() : sum_result_.mutable_cpu_data();
+        #pragma omp parallel for
         for(int i__ = 0; i__ < sum_result_.count(); ++i__) {
           sum_result[i__] = Dtype(.0);
           for(int j__ = 0; j__ < inner_dim_; ++j__) {
             sum_result[i__] += product[i__ * inner_dim_ + j__];
           }
         }          
-        // caffe_cpu_gemv(CblasNoTrans, sum_result_.count(), inner_dim_,
-        //                Dtype(1), product, sum_mult, Dtype(0), sum_result);
       }
       if (outer_dim_ != 1) {
         const Dtype* sum_mult = sum_multiplier_.cpu_data();
@@ -207,14 +205,11 @@ void ScaleLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
             *scale_diff = caffe_cpu_dot(outer_dim_, sum_mult, sum_result);
           }
         } else {
-          // caffe_cpu_gemv(CblasTrans, outer_dim_, scale_dim_,
-          //                Dtype(1), sum_result, sum_mult, Dtype(scale_param),
-          //                scale_diff); //CHECKTHIS!!!
+          #pragma omp parallel for
           for(int i__ = 0; i__ < scale_dim_; ++i__) {
             scale_diff[i__] *= Dtype(scale_param);
             for(int j__ = 0; j__ < outer_dim_; ++j__) {
               scale_diff[i__] += sum_result[j__ * scale_dim_ + i__];
-              // scale_diff[i__] += sum_result[i__ * outer_dim_ + j__];
             }
           }   
         }
@@ -225,12 +220,12 @@ void ScaleLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     const Dtype* top_diff = top[0]->cpu_diff();
     const Dtype* scale_data = scale->cpu_data();
     Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
-    for (int n = 0; n < outer_dim_; ++n) {
-      for (int d = 0; d < scale_dim_; ++d) {
-        const Dtype factor = scale_data[d];
-        caffe_cpu_scale(inner_dim_, factor, top_diff, bottom_diff);
-        bottom_diff += inner_dim_;
-        top_diff += inner_dim_;
+    #pragma omp parallel for
+    for (int d = 0; d < scale_dim_; ++d) {
+      for (int n = 0; n < outer_dim_; ++n) {
+        for(int i = 0; i < inner_dim_; ++i) {
+          bottom_diff[(n*scale_dim_+d)*inner_dim_ + i] = top_diff[(n*scale_dim_+d)*inner_dim_ + i] * scale_data[d];
+        }
       }
     }
   }

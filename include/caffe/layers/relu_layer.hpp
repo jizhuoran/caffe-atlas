@@ -28,7 +28,14 @@ class ReLULayer : public NeuronLayer<Dtype> {
       : NeuronLayer<Dtype>(param) {}
 
   virtual inline const char* type() const { return "ReLU"; }
-
+#ifdef USE_AICORE
+  virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+      const vector<Blob<Dtype>*>& top);
+  virtual void Forward_aicore(const vector<Blob<Dtype>*>& bottom,
+      const vector<Blob<Dtype>*>& top);
+  virtual void Backward_aicore(const vector<Blob<Dtype>*>& top,
+      const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+#endif
  protected:
   /**
    * @param bottom input Blob vector (length 1)
