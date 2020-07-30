@@ -56,6 +56,21 @@ layer {
       type: "msra"
     }
   }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_3_16_32_32_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_3_16_32_32_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_3_16_32_32_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_3_16_32_32_3_3_1_1_1_1__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_3_16_32_32_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_3_16_32_32_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
 }
 layer {
   name: "first_conv_bn"
@@ -77,7 +92,7 @@ layer {
 }
 layer {
   name: "first_conv_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "first_conv"
   top: "first_conv"
   scale_param {
@@ -89,6 +104,16 @@ layer {
   type: "ReLU"
   bottom: "first_conv"
   top: "first_conv"
+  aicorekernel {
+                kernelfile: "ReLU_fw_1048576.o"
+                kernelname: "ReLU_fw_1048576__kernel0"
+                block_num: 2
+            }
+  aicorekernel {
+                kernelfile: "ReLU_bw_1048576.o"
+                kernelname: "ReLU_bw_1048576__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group0_block0_conv0"
@@ -108,6 +133,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_16_16_32_32_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_16_16_32_32_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_16_16_32_32_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_16_16_32_32_3_3_1_1_1_1__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_16_16_32_32_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_16_16_32_32_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -130,7 +170,7 @@ layer {
 }
 layer {
   name: "group0_block0_conv0_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group0_block0_conv0"
   top: "group0_block0_conv0"
   scale_param {
@@ -142,6 +182,16 @@ layer {
   type: "ReLU"
   bottom: "group0_block0_conv0"
   top: "group0_block0_conv0"
+    aicorekernel {
+                    kernelfile: "ReLU_fw_1048576.o"
+                    kernelname: "ReLU_fw_1048576__kernel0"
+                    block_num: 2
+                }
+    aicorekernel {
+                    kernelfile: "ReLU_bw_1048576.o"
+                    kernelname: "ReLU_bw_1048576__kernel0"
+                    block_num: 2
+                }
 }
 layer {
   name: "group0_block0_conv1"
@@ -161,6 +211,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_16_16_32_32_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_16_16_32_32_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_16_16_32_32_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_16_16_32_32_3_3_1_1_1_1__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_16_16_32_32_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_16_16_32_32_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -183,7 +248,7 @@ layer {
 }
 layer {
   name: "group0_block0_conv1_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group0_block0_conv1"
   top: "group0_block0_conv1"
   scale_param {
@@ -205,6 +270,16 @@ layer {
   type: "ReLU"
   bottom: "group0_block0_sum"
   top: "group0_block0_sum"
+    aicorekernel {
+                    kernelfile: "ReLU_fw_1048576.o"
+                    kernelname: "ReLU_fw_1048576__kernel0"
+                    block_num: 2
+                }
+    aicorekernel {
+                    kernelfile: "ReLU_bw_1048576.o"
+                    kernelname: "ReLU_bw_1048576__kernel0"
+                    block_num: 2
+                }
 }
 layer {
   name: "group0_block1_conv0"
@@ -224,6 +299,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_16_16_32_32_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_16_16_32_32_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_16_16_32_32_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_16_16_32_32_3_3_1_1_1_1__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_16_16_32_32_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_16_16_32_32_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -246,7 +336,7 @@ layer {
 }
 layer {
   name: "group0_block1_conv0_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group0_block1_conv0"
   top: "group0_block1_conv0"
   scale_param {
@@ -258,6 +348,16 @@ layer {
   type: "ReLU"
   bottom: "group0_block1_conv0"
   top: "group0_block1_conv0"
+    aicorekernel {
+                    kernelfile: "ReLU_fw_1048576.o"
+                    kernelname: "ReLU_fw_1048576__kernel0"
+                    block_num: 2
+                }
+    aicorekernel {
+                    kernelfile: "ReLU_bw_1048576.o"
+                    kernelname: "ReLU_bw_1048576__kernel0"
+                    block_num: 2
+                }
 }
 layer {
   name: "group0_block1_conv1"
@@ -277,6 +377,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_16_16_32_32_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_16_16_32_32_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_16_16_32_32_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_16_16_32_32_3_3_1_1_1_1__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_16_16_32_32_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_16_16_32_32_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -299,7 +414,7 @@ layer {
 }
 layer {
   name: "group0_block1_conv1_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group0_block1_conv1"
   top: "group0_block1_conv1"
   scale_param {
@@ -321,6 +436,16 @@ layer {
   type: "ReLU"
   bottom: "group0_block1_sum"
   top: "group0_block1_sum"
+aicorekernel {
+                kernelfile: "ReLU_fw_1048576.o"
+                kernelname: "ReLU_fw_1048576__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_1048576.o"
+                kernelname: "ReLU_bw_1048576__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group0_block2_conv0"
@@ -340,6 +465,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_16_16_32_32_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_16_16_32_32_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_16_16_32_32_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_16_16_32_32_3_3_1_1_1_1__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_16_16_32_32_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_16_16_32_32_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -362,7 +502,7 @@ layer {
 }
 layer {
   name: "group0_block2_conv0_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group0_block2_conv0"
   top: "group0_block2_conv0"
   scale_param {
@@ -374,6 +514,16 @@ layer {
   type: "ReLU"
   bottom: "group0_block2_conv0"
   top: "group0_block2_conv0"
+aicorekernel {
+                kernelfile: "ReLU_fw_1048576.o"
+                kernelname: "ReLU_fw_1048576__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_1048576.o"
+                kernelname: "ReLU_bw_1048576__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group0_block2_conv1"
@@ -393,6 +543,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_16_16_32_32_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_16_16_32_32_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_16_16_32_32_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_16_16_32_32_3_3_1_1_1_1__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_16_16_32_32_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_16_16_32_32_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -415,7 +580,7 @@ layer {
 }
 layer {
   name: "group0_block2_conv1_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group0_block2_conv1"
   top: "group0_block2_conv1"
   scale_param {
@@ -437,6 +602,16 @@ layer {
   type: "ReLU"
   bottom: "group0_block2_sum"
   top: "group0_block2_sum"
+aicorekernel {
+                kernelfile: "ReLU_fw_1048576.o"
+                kernelname: "ReLU_fw_1048576__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_1048576.o"
+                kernelname: "ReLU_bw_1048576__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group1_block0_conv0"
@@ -456,6 +631,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_16_32_32_32_nobias_3_3_1_1_2_2.o"
+    kernelname: "conv_fw_op_64_16_32_32_32_nobias_3_3_1_1_2_2__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_16_32_32_32_3_3_1_1_2_2.o"
+    kernelname: "conv_bw_weight_op_64_16_32_32_32_3_3_1_1_2_2__kernel0"
+    block_num: 8
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_16_32_32_32_3_3_1_1_2_2.o"
+    kernelname: "conv_bw_input_op_64_16_32_32_32_3_3_1_1_2_2__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -478,7 +668,7 @@ layer {
 }
 layer {
   name: "group1_block0_conv0_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group1_block0_conv0"
   top: "group1_block0_conv0"
   scale_param {
@@ -490,6 +680,16 @@ layer {
   type: "ReLU"
   bottom: "group1_block0_conv0"
   top: "group1_block0_conv0"
+aicorekernel {
+                kernelfile: "ReLU_fw_524288.o"
+                kernelname: "ReLU_fw_524288__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_524288.o"
+                kernelname: "ReLU_bw_524288__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group1_block0_conv1"
@@ -509,6 +709,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_32_32_16_16_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_32_32_16_16_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_32_32_16_16_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_32_32_16_16_3_3_1_1_1_1__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_32_32_16_16_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_32_32_16_16_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -531,7 +746,7 @@ layer {
 }
 layer {
   name: "group1_block0_conv1_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group1_block0_conv1"
   top: "group1_block0_conv1"
   scale_param {
@@ -557,6 +772,21 @@ layer {
       type: "msra"
     }
   }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_16_32_32_32_nobias_1_1_0_0_2_2.o"
+    kernelname: "conv_fw_op_64_16_32_32_32_nobias_1_1_0_0_2_2__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_16_32_32_32_1_1_0_0_2_2.o"
+    kernelname: "conv_bw_weight_op_64_16_32_32_32_1_1_0_0_2_2__kernel0"
+    block_num: 8
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_16_32_32_32_1_1_0_0_2_2.o"
+    kernelname: "conv_bw_input_op_64_16_32_32_32_1_1_0_0_2_2__kernel0"
+    block_num: 2
+  }
 }
 layer {
   name: "group1_block0_proj_bn"
@@ -578,7 +808,7 @@ layer {
 }
 layer {
   name: "group1_block0_proj_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group1_block0_proj"
   top: "group1_block0_proj"
   scale_param {
@@ -600,6 +830,16 @@ layer {
   type: "ReLU"
   bottom: "group1_block0_sum"
   top: "group1_block0_sum"
+  aicorekernel {
+                kernelfile: "ReLU_fw_524288.o"
+                kernelname: "ReLU_fw_524288__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_524288.o"
+                kernelname: "ReLU_bw_524288__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group1_block1_conv0"
@@ -619,6 +859,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_32_32_16_16_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_32_32_16_16_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_32_32_16_16_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_32_32_16_16_3_3_1_1_1_1__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_32_32_16_16_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_32_32_16_16_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -641,7 +896,7 @@ layer {
 }
 layer {
   name: "group1_block1_conv0_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group1_block1_conv0"
   top: "group1_block1_conv0"
   scale_param {
@@ -653,6 +908,16 @@ layer {
   type: "ReLU"
   bottom: "group1_block1_conv0"
   top: "group1_block1_conv0"
+aicorekernel {
+                kernelfile: "ReLU_fw_524288.o"
+                kernelname: "ReLU_fw_524288__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_524288.o"
+                kernelname: "ReLU_bw_524288__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group1_block1_conv1"
@@ -672,6 +937,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_32_32_16_16_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_32_32_16_16_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_32_32_16_16_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_32_32_16_16_3_3_1_1_1_1__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_32_32_16_16_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_32_32_16_16_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -694,7 +974,7 @@ layer {
 }
 layer {
   name: "group1_block1_conv1_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group1_block1_conv1"
   top: "group1_block1_conv1"
   scale_param {
@@ -716,6 +996,16 @@ layer {
   type: "ReLU"
   bottom: "group1_block1_sum"
   top: "group1_block1_sum"
+aicorekernel {
+                kernelfile: "ReLU_fw_524288.o"
+                kernelname: "ReLU_fw_524288__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_524288.o"
+                kernelname: "ReLU_bw_524288__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group1_block2_conv0"
@@ -735,6 +1025,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_32_32_16_16_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_32_32_16_16_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_32_32_16_16_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_32_32_16_16_3_3_1_1_1_1__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_32_32_16_16_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_32_32_16_16_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -757,7 +1062,7 @@ layer {
 }
 layer {
   name: "group1_block2_conv0_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group1_block2_conv0"
   top: "group1_block2_conv0"
   scale_param {
@@ -769,6 +1074,16 @@ layer {
   type: "ReLU"
   bottom: "group1_block2_conv0"
   top: "group1_block2_conv0"
+aicorekernel {
+                kernelfile: "ReLU_fw_524288.o"
+                kernelname: "ReLU_fw_524288__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_524288.o"
+                kernelname: "ReLU_bw_524288__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group1_block2_conv1"
@@ -788,6 +1103,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_32_32_16_16_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_32_32_16_16_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_32_32_16_16_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_32_32_16_16_3_3_1_1_1_1__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_32_32_16_16_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_32_32_16_16_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -810,7 +1140,7 @@ layer {
 }
 layer {
   name: "group1_block2_conv1_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group1_block2_conv1"
   top: "group1_block2_conv1"
   scale_param {
@@ -832,6 +1162,16 @@ layer {
   type: "ReLU"
   bottom: "group1_block2_sum"
   top: "group1_block2_sum"
+aicorekernel {
+                kernelfile: "ReLU_fw_524288.o"
+                kernelname: "ReLU_fw_524288__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_524288.o"
+                kernelname: "ReLU_bw_524288__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group2_block0_conv0"
@@ -851,6 +1191,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_32_64_16_16_nobias_3_3_1_1_2_2.o"
+    kernelname: "conv_fw_op_64_32_64_16_16_nobias_3_3_1_1_2_2__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_32_64_16_16_3_3_1_1_2_2.o"
+    kernelname: "conv_bw_weight_op_64_32_64_16_16_3_3_1_1_2_2__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_32_64_16_16_3_3_1_1_2_2.o"
+    kernelname: "conv_bw_input_op_64_32_64_16_16_3_3_1_1_2_2__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -873,7 +1228,7 @@ layer {
 }
 layer {
   name: "group2_block0_conv0_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group2_block0_conv0"
   top: "group2_block0_conv0"
   scale_param {
@@ -885,6 +1240,16 @@ layer {
   type: "ReLU"
   bottom: "group2_block0_conv0"
   top: "group2_block0_conv0"
+aicorekernel {
+                kernelfile: "ReLU_fw_262144.o"
+                kernelname: "ReLU_fw_262144__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_262144.o"
+                kernelname: "ReLU_bw_262144__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group2_block0_conv1"
@@ -904,6 +1269,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_64_64_8_8_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_64_64_8_8_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_64_64_8_8_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_64_64_8_8_3_3_1_1_1_1__kernel0"
+    block_num: 32
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_64_64_8_8_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_64_64_8_8_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -926,7 +1306,7 @@ layer {
 }
 layer {
   name: "group2_block0_conv1_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group2_block0_conv1"
   top: "group2_block0_conv1"
   scale_param {
@@ -952,6 +1332,21 @@ layer {
       type: "msra"
     }
   }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_32_64_16_16_nobias_1_1_0_0_2_2.o"
+    kernelname: "conv_fw_op_64_32_64_16_16_nobias_1_1_0_0_2_2__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_32_64_16_16_1_1_0_0_2_2.o"
+    kernelname: "conv_bw_weight_op_64_32_64_16_16_1_1_0_0_2_2__kernel0"
+    block_num: 16
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_32_64_16_16_1_1_0_0_2_2.o"
+    kernelname: "conv_bw_input_op_64_32_64_16_16_1_1_0_0_2_2__kernel0"
+    block_num: 2
+  }
 }
 layer {
   name: "group2_block0_proj_bn"
@@ -973,7 +1368,7 @@ layer {
 }
 layer {
   name: "group2_block0_proj_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group2_block0_proj"
   top: "group2_block0_proj"
   scale_param {
@@ -995,6 +1390,16 @@ layer {
   type: "ReLU"
   bottom: "group2_block0_sum"
   top: "group2_block0_sum"
+aicorekernel {
+                kernelfile: "ReLU_fw_262144.o"
+                kernelname: "ReLU_fw_262144__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_262144.o"
+                kernelname: "ReLU_bw_262144__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group2_block1_conv0"
@@ -1014,6 +1419,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_64_64_8_8_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_64_64_8_8_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_64_64_8_8_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_64_64_8_8_3_3_1_1_1_1__kernel0"
+    block_num: 32
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_64_64_8_8_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_64_64_8_8_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -1036,7 +1456,7 @@ layer {
 }
 layer {
   name: "group2_block1_conv0_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group2_block1_conv0"
   top: "group2_block1_conv0"
   scale_param {
@@ -1048,6 +1468,16 @@ layer {
   type: "ReLU"
   bottom: "group2_block1_conv0"
   top: "group2_block1_conv0"
+aicorekernel {
+                kernelfile: "ReLU_fw_262144.o"
+                kernelname: "ReLU_fw_262144__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_262144.o"
+                kernelname: "ReLU_bw_262144__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group2_block1_conv1"
@@ -1067,6 +1497,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_64_64_8_8_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_64_64_8_8_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_64_64_8_8_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_64_64_8_8_3_3_1_1_1_1__kernel0"
+    block_num: 32
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_64_64_8_8_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_64_64_8_8_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -1089,7 +1534,7 @@ layer {
 }
 layer {
   name: "group2_block1_conv1_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group2_block1_conv1"
   top: "group2_block1_conv1"
   scale_param {
@@ -1111,6 +1556,16 @@ layer {
   type: "ReLU"
   bottom: "group2_block1_sum"
   top: "group2_block1_sum"
+aicorekernel {
+                kernelfile: "ReLU_fw_262144.o"
+                kernelname: "ReLU_fw_262144__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_262144.o"
+                kernelname: "ReLU_bw_262144__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group2_block2_conv0"
@@ -1130,6 +1585,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_64_64_8_8_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_64_64_8_8_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_64_64_8_8_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_64_64_8_8_3_3_1_1_1_1__kernel0"
+    block_num: 32
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_64_64_8_8_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_64_64_8_8_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -1152,7 +1622,7 @@ layer {
 }
 layer {
   name: "group2_block2_conv0_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group2_block2_conv0"
   top: "group2_block2_conv0"
   scale_param {
@@ -1164,6 +1634,16 @@ layer {
   type: "ReLU"
   bottom: "group2_block2_conv0"
   top: "group2_block2_conv0"
+aicorekernel {
+                kernelfile: "ReLU_fw_262144.o"
+                kernelname: "ReLU_fw_262144__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_262144.o"
+                kernelname: "ReLU_bw_262144__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "group2_block2_conv1"
@@ -1183,6 +1663,21 @@ layer {
     weight_filler {
       type: "msra"
     }
+  }
+  aicorekernel {
+    kernelfile: "conv_fw_op_64_64_64_8_8_nobias_3_3_1_1_1_1.o"
+    kernelname: "conv_fw_op_64_64_64_8_8_nobias_3_3_1_1_1_1__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_weight_op_64_64_64_8_8_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_weight_op_64_64_64_8_8_3_3_1_1_1_1__kernel0"
+    block_num: 32
+  }
+  aicorekernel {
+    kernelfile: "conv_bw_input_op_64_64_64_8_8_3_3_1_1_1_1.o"
+    kernelname: "conv_bw_input_op_64_64_64_8_8_3_3_1_1_1_1__kernel0"
+    block_num: 2
   }
 }
 layer {
@@ -1205,7 +1700,7 @@ layer {
 }
 layer {
   name: "group2_block2_conv1_scale"
-  type: "Scale"
+  type: "EFFIScale"
   bottom: "group2_block2_conv1"
   top: "group2_block2_conv1"
   scale_param {
@@ -1227,6 +1722,16 @@ layer {
   type: "ReLU"
   bottom: "group2_block2_sum"
   top: "group2_block2_sum"
+aicorekernel {
+                kernelfile: "ReLU_fw_262144.o"
+                kernelname: "ReLU_fw_262144__kernel0"
+                block_num: 2
+            }
+aicorekernel {
+                kernelfile: "ReLU_bw_262144.o"
+                kernelname: "ReLU_bw_262144__kernel0"
+                block_num: 2
+            }
 }
 layer {
   name: "global_avg_pool"
@@ -1261,6 +1766,21 @@ layer {
       value: 0
     }
   }
+  aicorekernel {
+    kernelfile: "matmul_op_64_64_16_NTA_TB_bias.o"
+    kernelname: "matmul_op_64_64_16_NTA_TB_bias__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "matmul_op_16_64_64_TA_NTB_nobias.o"
+    kernelname: "matmul_op_16_64_64_TA_NTB_nobias__kernel0"
+    block_num: 2
+  }
+  aicorekernel {
+    kernelfile: "matmul_op_64_16_64_NTA_NTB_nobias.o"
+    kernelname: "matmul_op_64_16_64_NTA_NTB_nobias__kernel0"
+    block_num: 2
+  }
 } 
 layer {
   name: "loss"
@@ -1276,9 +1796,9 @@ layer {
 #  top: "softmax"
 #}
 #layer {
-#  name: "Accuracy"
-#  type: "Accuracy"
-#  bottom: "softmax"
-#  bottom: "label"
+ # name: "Accuracy"
+ # type: "Accuracy"
+ # bottom: "softmax"
+ # bottom: "label"
 #  top: "Accuracy"
 #}

@@ -144,8 +144,8 @@ void BatchNormLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       }
       mean_data_[c] *= (float(1.) / (num * spatial_dim));
       variance_data_[c] = (float(1.) / (num * spatial_dim)) * variance_data_[c] - mean_data_[c] * mean_data_[c];
-      move_mean[c] = bias_correction_factor * mean_data_[c] + moving_average_fraction_ * move_mean[c];
-      move_var[c] = bias_correction_factor * mean_data_[c] + moving_average_fraction_ * move_var[c];
+      move_mean[c] = mean_data_[c] + moving_average_fraction_ * move_mean[c];
+      move_var[c] = bias_correction_factor * variance_data_[c] + moving_average_fraction_ * move_var[c];
 
       variance_data_[c] = 1/ sqrt(variance_data_[c] + eps_);
       for(int n = 0; n < num; ++n) {

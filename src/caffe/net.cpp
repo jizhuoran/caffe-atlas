@@ -554,11 +554,18 @@ Dtype Net<Dtype>::ForwardTo(int end) {
 
 template <typename Dtype>
 const vector<Blob<Dtype>*>& Net<Dtype>::Forward(Dtype* loss) {
+#ifdef PROFILE
+  std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
+#endif
   if (loss != NULL) {
     *loss = ForwardFromTo(0, layers_.size() - 1);
   } else {
     ForwardFromTo(0, layers_.size() - 1);
   }
+#ifdef PROFILE
+  std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
+  std::cout << "Total Forward Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
+#endif
   return net_output_blobs_;
 }
 
@@ -723,7 +730,18 @@ void Net<Dtype>::BackwardTo(int end) {
 
 template <typename Dtype>
 void Net<Dtype>::Backward() {
+#ifdef PROFILE
+  std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
+#endif
+
+
   BackwardFromTo(layers_.size() - 1, 0);
+
+  
+#ifdef PROFILE
+  std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
+  std::cout << "Total Backward Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
+#endif
   if (debug_info_) {
     Dtype asum_data = 0, asum_diff = 0, sumsq_data = 0, sumsq_diff = 0;
     for (int i = 0; i < learnable_params_.size(); ++i) {

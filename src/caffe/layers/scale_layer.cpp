@@ -69,6 +69,17 @@ void ScaleLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     }
     bias_propagate_down_.resize(1, false);
   }
+
+  // if (param.bias_term()) {
+  //   has_bias_ = true;
+  //   const BiasParameter& param = this->layer_param_.bias_param();
+  //   this->blobs_.push_back(new Blob<Dtype>(this->blobs_[0]->shape()));
+  //   shared_ptr<Filler<Dtype> > filler(GetFiller<Dtype>(param.filler()));
+  //   filler->Fill(this->blobs_[1].get());
+  // }
+ 
+
+
   this->param_propagate_down_.resize(this->blobs_.size(), true);
 }
 

@@ -1,5 +1,5 @@
-#ifndef CAFFE_SCALE_LAYER_HPP_
-#define CAFFE_SCALE_LAYER_HPP_
+#ifndef CAFFE_EFFI_SCALE_LAYER_HPP_
+#define CAFFE_EFFI_SCALE_LAYER_HPP_
 
 #include <vector>
 
@@ -23,16 +23,16 @@ namespace caffe {
  * parameter of the layer (as is the bias, if it is included).
  */
 template <typename Dtype>
-class ScaleLayer: public Layer<Dtype> {
+class EFFIScaleLayer: public Layer<Dtype> {
  public:
-  explicit ScaleLayer(const LayerParameter& param)
+  explicit EFFIScaleLayer(const LayerParameter& param)
       : Layer<Dtype>(param) {}
   virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
   virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
 
-  virtual inline const char* type() const { return "Scale"; }
+  virtual inline const char* type() const { return "EffiScale"; }
   // Scale
   virtual inline int MinBottomBlobs() const { return 1; }
   virtual inline int MaxBottomBlobs() const { return 2; }
@@ -77,10 +77,10 @@ class ScaleLayer: public Layer<Dtype> {
   Blob<Dtype> temp_;
   int axis_;
   int outer_dim_, scale_dim_, inner_dim_;
-//   bool has_bias_ = false;
+  bool has_bias_ = false;
 };
 
 
 }  // namespace caffe
 
-#endif  // CAFFE_SCALE_LAYER_HPP_
+#endif  // CAFFE_EFFI_SCALE_LAYER_HPP_
