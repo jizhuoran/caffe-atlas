@@ -1,3 +1,4 @@
+._*
 ## General
 
 # Compiled Object files
@@ -63,6 +64,7 @@ Makefile.config
 # 2. custom, and live on their own unless they're deliberated contributed
 data/*
 models/*
+examples_ram
 *.caffemodel
 *.caffemodel.h5
 *.solverstate
@@ -72,8 +74,9 @@ models/*
 *lmdb
 
 # build, distribute, and bins (+ python proto bindings)
-arm_build
+cross_build
 build
+on_build
 .build_debug/*
 .build_release/*
 distribute/*
@@ -82,6 +85,9 @@ distribute/*
 python/caffe/proto/
 cmake_build
 .cmake_build
+compile_commands.json
+.clangd
+aicore_dir
 
 # Generated documentation
 docs/_site
