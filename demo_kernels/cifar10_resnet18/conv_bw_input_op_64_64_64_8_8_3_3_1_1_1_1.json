@@ -1,0 +1,14 @@
+{
+    "batchBindOnly":1,
+    "binFileName":"conv_bw_input_op_64_64_64_8_8_3_3_1_1_1_1",
+    "binFileSuffix":".o",
+    "blockDim":2,
+    "kernelName":"conv_bw_input_op_64_64_64_8_8_3_3_1_1_1_1__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF",
+    "parameters":[
+        0,
+        0,
+        0
+    ],
+    "sha256":"a1b940e55b1cce336862c264128bb453ac9d38df03e3c7177adf7caa783bee59"
+}

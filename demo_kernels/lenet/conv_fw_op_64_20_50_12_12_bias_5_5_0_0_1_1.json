@@ -1,0 +1,16 @@
+{
+    "batchBindOnly":1,
+    "binFileName":"conv_fw_op_64_20_50_12_12_bias_5_5_0_0_1_1",
+    "binFileSuffix":".o",
+    "blockDim":2,
+    "cache_read_mode":1,
+    "kernelName":"conv_fw_op_64_20_50_12_12_bias_5_5_0_0_1_1__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF",
+    "parameters":[
+        0,
+        0,
+        0,
+        0
+    ],
+    "sha256":"4dd1cc0333eab4641f0162fa62ae6d2443941d744a3078aa1173f6c0d2cd26b7"
+}

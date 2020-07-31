@@ -1,0 +1,13 @@
+{
+    "binFileName":"conv_bw_weight_op_64_64_64_56_56_1_1_0_0_1_1",
+    "binFileSuffix":".o",
+    "blockDim":32,
+    "kernelName":"conv_bw_weight_op_64_64_64_56_56_1_1_0_0_1_1__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF",
+    "parameters":[
+        0,
+        0,
+        1
+    ],
+    "sha256":"d2ce5254f5b2edd1ff9745c1cdeb2591631c2e3ff33f1b3e04d1b3c2c755f7ba"
+}

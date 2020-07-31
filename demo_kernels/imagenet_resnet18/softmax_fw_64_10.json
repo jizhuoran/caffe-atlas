@@ -1,0 +1,31 @@
+{
+    "binFileName":"softmax_fw_64_10",
+    "binFileSuffix":".o",
+    "blockDim":1,
+    "kernelName":"softmax_fw_64_10__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF",
+    "parameters":[
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    "sha256":"d0d5f2157bddc4294e11140c249c9b55682bb8d62023b208fa8c4bea94e8fb08",
+    "workspace":{
+        "num":4,
+        "size":[
+            128,
+            128,
+            1280,
+            1280
+        ],
+        "type":[
+            0,
+            0,
+            0,
+            0
+        ]
+    }
+}

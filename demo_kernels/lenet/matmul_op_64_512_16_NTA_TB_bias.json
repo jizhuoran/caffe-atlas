@@ -1,0 +1,14 @@
+{
+    "binFileName":"matmul_op_64_512_16_NTA_TB_bias",
+    "binFileSuffix":".o",
+    "blockDim":2,
+    "kernelName":"matmul_op_64_512_16_NTA_TB_bias__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF",
+    "parameters":[
+        0,
+        0,
+        0,
+        0
+    ],
+    "sha256":"90a0718b3472b556383fca9d943917cb096f4be1009e6eb2c8284c779ec9f07c"
+}

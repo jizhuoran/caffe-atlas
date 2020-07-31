@@ -1,0 +1,15 @@
+{
+    "batchBindOnly":1,
+    "binFileName":"conv_fw_op_64_128_256_28_28_nobias_3_3_1_1_2_2",
+    "binFileSuffix":".o",
+    "blockDim":2,
+    "cache_read_mode":0,
+    "kernelName":"conv_fw_op_64_128_256_28_28_nobias_3_3_1_1_2_2__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF",
+    "parameters":[
+        0,
+        0,
+        0
+    ],
+    "sha256":"c0981680b7193c64cb2c035d75868a8eedd6ba55138769fe1f5d1c67513a9cf2"
+}

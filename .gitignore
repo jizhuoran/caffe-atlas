@@ -76,6 +76,7 @@ examples_ram
 # build, distribute, and bins (+ python proto bindings)
 cross_build
 build
+arm_build
 on_build
 .build_debug/*
 .build_release/*

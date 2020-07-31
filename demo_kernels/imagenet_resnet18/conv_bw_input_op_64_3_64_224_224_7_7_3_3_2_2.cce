@@ -1,0 +1,596 @@
+#ifdef __CCE_KT_TEST__
+#define __aicore__ 
+#else
+#define __aicore__ [aicore]
+#endif
+
+extern "C"  __global__ __aicore__ void conv_bw_input_op_64_3_64_224_224_7_7_3_3_2_2__kernel0(__gm__ half* __restrict__ filter, __gm__ half* __restrict__ dedy, __gm__ half* __restrict__ c_ddr) {
+set_l1_3d_size(0);
+set_padding(0);
+set_vector_mask((uint64_t)-1, (uint64_t)-1);
+set_ctrl(sbitset0(get_ctrl(), 56));
+__cbuf__   half* filter_local_L1 = (__cbuf__  half *)get_imm(0);
+__cbuf__   half* dy_l1 = (__cbuf__  half *)get_imm(100352);
+__ubuf__   half* dedy_local_UB = (__ubuf__  half *)get_imm(0);
+__ubuf__   half* dy_filling = (__ubuf__  half *)get_imm(7104);
+__ubuf__   half* dedy_local_UB1 = (__ubuf__  half *)get_imm(21248);
+__ubuf__   half* dy_filling1 = (__ubuf__  half *)get_imm(21376);
+__cc__   float* C_1 = (__cc__  float *)get_imm(0);
+__ca__   half* im2col_fractal_3 = (__ca__  half *)get_imm(0);
+__cb__   half* w_col_4 = (__cb__  half *)get_imm(0);
+__ca__   half* im2col_fractal_5 = (__ca__  half *)get_imm(25600);
+__cb__   half* w_col_6 = (__cb__  half *)get_imm(512);
+__ubuf__   half* c_ub_2 = (__ubuf__  half *)get_imm(0);
+__cc__   float* C_7 = (__cc__  float *)get_imm(51200);
+__ubuf__   half* c_ub_8 = (__ubuf__  half *)get_imm(25600);
+__cbuf__   half* dy_l11 = (__cbuf__  half *)get_imm(100352);
+__ubuf__   half* dedy_local_UB2 = (__ubuf__  half *)get_imm(51200);
+__ubuf__   half* dy_filling2 = (__ubuf__  half *)get_imm(58304);
+__ubuf__   half* dedy_local_UB3 = (__ubuf__  half *)get_imm(72448);
+__ubuf__   half* dy_filling3 = (__ubuf__  half *)get_imm(72576);
+__cbuf__   half* dy_l12 = (__cbuf__  half *)get_imm(100352);
+__ubuf__   half* dedy_local_UB4 = (__ubuf__  half *)get_imm(72768);
+__ubuf__   half* dy_filling4 = (__ubuf__  half *)get_imm(51200);
+__ubuf__   half* dedy_local_UB5 = (__ubuf__  half *)get_imm(79872);
+__ubuf__   half* dy_filling5 = (__ubuf__  half *)get_imm(65344);
+__ubuf__   half* c_ub_24 = (__ubuf__  half *)get_imm(51200);
+__cc__   float* C = (__cc__  float *)get_imm(0);
+__ca__   half* im2col_fractal_25 = (__ca__  half *)get_imm(0);
+__cb__   half* w_col_26 = (__cb__  half *)get_imm(1024);
+__ca__   half* im2col_fractal_27 = (__ca__  half *)get_imm(18432);
+__cb__   half* w_col_28 = (__cb__  half *)get_imm(1536);
+__ubuf__   half* c_ub = (__ubuf__  half *)get_imm(76800);
+  set_padding((uint64_t)0ULL);
+  copy_gm_to_cbuf(((__cbuf__ half *)filter_local_L1), ((__gm__ half *)filter), 0, 1, 3136, 0, 0, PAD_NONE);
+  set_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+  wait_flag(PIPE_MTE2, PIPE_MTE1, EVENT_ID0);
+  for (int32_t dx_batch_idx_outer_inner = 0; dx_batch_idx_outer_inner < 32; ++dx_batch_idx_outer_inner) {
+    if (0 < dx_batch_idx_outer_inner) {
+      wait_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID0);
+    }
+    for (int32_t kernel_cout1_idx_outer = 0; kernel_cout1_idx_outer < 2; ++kernel_cout1_idx_outer) {
+      for (int32_t ho_idx_outer = 0; ho_idx_outer < 3; ++ho_idx_outer) {
+        for (int32_t wo_idx_outer = 0; wo_idx_outer < 2; ++wo_idx_outer) {
+                                                }
+      }
+      for (int32_t ho_idx_outer1 = 0; ho_idx_outer1 < 28; ++ho_idx_outer1) {
+        if ((ho_idx_outer1 + kernel_cout1_idx_outer) != 0) {
+          wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+        }
+        pipe_barrier(PIPE_MTE2);
+        copy_gm_to_ubuf(((__ubuf__ half *)dedy_local_UB), ((__gm__ half *)dedy + ((((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + (kernel_cout1_idx_outer * 401408)) + ((ho_idx_outer1 >> 1) * 1792))), 0, 2, 111, 12433, 0);
+        set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+        set_vector_mask(0xffffffffffffffff, 0xffffffffffffffff);
+        if ((ho_idx_outer1 + kernel_cout1_idx_outer) != 0) {
+          wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+        }
+        vector_dup(((__ubuf__ half *)dy_filling), (half)0.000000e+00f, (uint8_t)55ULL, (uint16_t)1ULL, (uint16_t)0ULL, (uint8_t)8ULL, (uint8_t)0ULL);
+        set_vector_mask(0x0, 0xffffffff);
+        vector_dup(((__ubuf__ half *)dy_filling + 7040), (half)0.000000e+00f, (uint8_t)1ULL, (uint16_t)1ULL, (uint16_t)0ULL, (uint8_t)0ULL, (uint8_t)0ULL);
+        wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+        if ((ho_idx_outer1 % 2) == 0) {
+          set_vector_mask(0xffffffffffffffff, 0xffffffffffffffff);
+          for (int32_t iter_cut_axis_1 = 0; iter_cut_axis_1 < 2; ++iter_cut_axis_1) {
+            vmuls(((__ubuf__ half *)dy_filling + (iter_cut_axis_1 * 3536)), ((__ubuf__ half *)dedy_local_UB + (iter_cut_axis_1 * 1776)), (half)1.000000e+00f, (uint8_t)13ULL, (uint16_t)2ULL, (uint16_t)1ULL, (uint8_t)16ULL, (uint8_t)8ULL);
+          }
+          set_vector_mask(0xffffffffffff, 0xffffffffffffffff);
+          vmuls(((__ubuf__ half *)dy_filling + 3328), ((__ubuf__ half *)dedy_local_UB + 1664), (half)1.000000e+00f, (uint8_t)2ULL, (uint16_t)2ULL, (uint16_t)1ULL, (uint8_t)221ULL, (uint8_t)111ULL);
+        }
+        if ((ho_idx_outer1 + kernel_cout1_idx_outer) != 28) {
+          set_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+        }
+        set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+        wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+        pipe_barrier(PIPE_MTE3);
+        for (int32_t kernel_cout1_idx_inner = 0; kernel_cout1_idx_inner < 2; ++kernel_cout1_idx_inner) {
+          copy_ubuf_to_cbuf(((__cbuf__ half *)dy_l1 + (((kernel_cout1_idx_outer * 200704) + (kernel_cout1_idx_inner * 100352)) + (ho_idx_outer1 * 3584))), ((__ubuf__ half *)dy_filling + (kernel_cout1_idx_inner * 3536)), 0, 1, 221, 0, 0);
+        }
+        if ((ho_idx_outer1 + kernel_cout1_idx_outer) != 28) {
+          set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+        }
+        if ((ho_idx_outer1 + kernel_cout1_idx_outer) != 0) {
+          wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID1);
+        }
+        copy_gm_to_ubuf(((__ubuf__ half *)dedy_local_UB1), ((__gm__ half *)dedy + (((((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + (kernel_cout1_idx_outer * 401408)) + ((ho_idx_outer1 >> 1) * 1792)) + 1760)), 0, 2, 2, 12542, 0);
+        set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+        set_vector_mask(0xffffffff, 0xffffffffffffffff);
+        if ((ho_idx_outer1 + kernel_cout1_idx_outer) != 0) {
+          wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+        }
+        vector_dup(((__ubuf__ half *)dy_filling1), (half)0.000000e+00f, (uint8_t)1ULL, (uint16_t)1ULL, (uint16_t)0ULL, (uint8_t)0ULL, (uint8_t)0ULL);
+        wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+        if ((ho_idx_outer1 % 2) == 0) {
+          set_vector_mask(0x0, 0xffffffff);
+          vmuls(((__ubuf__ half *)dy_filling1 + 16), ((__ubuf__ half *)dedy_local_UB1 + 16), (half)1.000000e+00f, (uint8_t)1ULL, (uint16_t)3ULL, (uint16_t)2ULL, (uint8_t)0ULL, (uint8_t)0ULL);
+        }
+        if ((ho_idx_outer1 + kernel_cout1_idx_outer) != 28) {
+          set_flag(PIPE_V, PIPE_MTE2, EVENT_ID1);
+        }
+        set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+        wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+        pipe_barrier(PIPE_MTE3);
+        for (int32_t kernel_cout1_idx_inner1 = 0; kernel_cout1_idx_inner1 < 2; ++kernel_cout1_idx_inner1) {
+          copy_ubuf_to_cbuf(((__cbuf__ half *)dy_l1 + ((((kernel_cout1_idx_outer * 200704) + (kernel_cout1_idx_inner1 * 100352)) + (ho_idx_outer1 * 3584)) + 3536)), ((__ubuf__ half *)dy_filling1 + (kernel_cout1_idx_inner1 * 48)), 0, 1, 3, 0, 0);
+        }
+        if ((ho_idx_outer1 + kernel_cout1_idx_outer) != 28) {
+          set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+        }
+      }
+    }
+    set_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+        set_fmatrix(0x30303001c00e0);
+    wait_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+    for (int32_t dx_hw_idx_outer_inner_db = 0; dx_hw_idx_outer_inner_db < 3; ++dx_hw_idx_outer_inner_db) {
+      if (0 < dx_hw_idx_outer_inner_db) {
+        wait_flag(PIPE_V, PIPE_M, EVENT_ID0);
+      }
+      for (int32_t axis_k1_outer_db = 0; axis_k1_outer_db < 98; ++axis_k1_outer_db) {
+        if ((axis_k1_outer_db + dx_hw_idx_outer_inner_db) != 0) {
+          wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        }
+        img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_3), ((__cbuf__ half *)dy_l1), ((uint64_t)((((int64_t)(axis_k1_outer_db * 2)) - ((int64_t)(((uint64_t)(((int64_t)(axis_k1_outer_db * 2)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)(axis_k1_outer_db * 2)) % (int64_t)49) / (int64_t)7)), (((((int64_t)(dx_hw_idx_outer_inner_db * 2)) * (int64_t)800) % (int64_t)224) - (int64_t)3), (((((int64_t)(dx_hw_idx_outer_inner_db * 2)) * (int64_t)800) / (int64_t)224) - (int64_t)3), ((uint64_t)(((int64_t)(axis_k1_outer_db * 2)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+        load_cbuf_to_cb(((__cb__ half *)w_col_4), ((__cbuf__ half *)filter_local_L1 + (((((axis_k1_outer_db * 2) / 49) * 256) + 49152) - (((axis_k1_outer_db * 2) % 49) * 1024))), 0, 1, 0, 0, 1);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        pipe_barrier(PIPE_M);
+        mad(((__cc__ float *)C_1), ((__ca__ half *)im2col_fractal_3), ((__cb__ half *)w_col_4), 800, 16, 16, (axis_k1_outer_db == 0));
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        if ((axis_k1_outer_db + dx_hw_idx_outer_inner_db) != 0) {
+          wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+        }
+        img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_5), ((__cbuf__ half *)dy_l1), ((uint64_t)((((int64_t)((axis_k1_outer_db * 2) + 1)) - ((int64_t)(((uint64_t)(((int64_t)((axis_k1_outer_db * 2) + 1)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)((axis_k1_outer_db * 2) + 1)) % (int64_t)49) / (int64_t)7)), (((((int64_t)(dx_hw_idx_outer_inner_db * 2)) * (int64_t)800) % (int64_t)224) - (int64_t)3), (((((int64_t)(dx_hw_idx_outer_inner_db * 2)) * (int64_t)800) / (int64_t)224) - (int64_t)3), ((uint64_t)(((int64_t)((axis_k1_outer_db * 2) + 1)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+        load_cbuf_to_cb(((__cb__ half *)w_col_6), ((__cbuf__ half *)filter_local_L1 + ((((((axis_k1_outer_db * 2) + 1) / 49) * 256) + 49152) - ((((axis_k1_outer_db * 2) + 1) % 49) * 1024))), 0, 1, 0, 0, 1);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        pipe_barrier(PIPE_M);
+        mad(((__cc__ float *)C_1), ((__ca__ half *)im2col_fractal_5), ((__cb__ half *)w_col_6), 800, 16, 16, (int8_t)0ULL);
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+      }
+      set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      if (0 < dx_hw_idx_outer_inner_db) {
+        wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+      }
+      wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      copy_matrix_cc_to_ubuf(((__ubuf__ half *)c_ub_2), ((__cc__ float *)C_1), 0, 1, 50, 0, 0, CRMODE_F32toF16_NONE);
+      set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      set_flag(PIPE_V, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      copy_ubuf_to_gm(((__gm__ half *)c_ddr + (((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + (dx_hw_idx_outer_inner_db * 25600))), ((__ubuf__ half *)c_ub_2), 0, 1, 800, 0, 0);
+      set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+      if (0 < dx_hw_idx_outer_inner_db) {
+        wait_flag(PIPE_V, PIPE_M, EVENT_ID1);
+      }
+      for (int32_t axis_k1_outer_db1 = 0; axis_k1_outer_db1 < 98; ++axis_k1_outer_db1) {
+        wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_3), ((__cbuf__ half *)dy_l1), ((uint64_t)((((int64_t)(axis_k1_outer_db1 * 2)) - ((int64_t)(((uint64_t)(((int64_t)(axis_k1_outer_db1 * 2)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)(axis_k1_outer_db1 * 2)) % (int64_t)49) / (int64_t)7)), (((((int64_t)((dx_hw_idx_outer_inner_db * 2) + 1)) * (int64_t)800) % (int64_t)224) - (int64_t)3), (((((int64_t)((dx_hw_idx_outer_inner_db * 2) + 1)) * (int64_t)800) / (int64_t)224) - (int64_t)3), ((uint64_t)(((int64_t)(axis_k1_outer_db1 * 2)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+        load_cbuf_to_cb(((__cb__ half *)w_col_4), ((__cbuf__ half *)filter_local_L1 + (((((axis_k1_outer_db1 * 2) / 49) * 256) + 49152) - (((axis_k1_outer_db1 * 2) % 49) * 1024))), 0, 1, 0, 0, 1);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        pipe_barrier(PIPE_M);
+        mad(((__cc__ float *)C_7), ((__ca__ half *)im2col_fractal_3), ((__cb__ half *)w_col_4), 800, 16, 16, (axis_k1_outer_db1 == 0));
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+        img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_5), ((__cbuf__ half *)dy_l1), ((uint64_t)((((int64_t)((axis_k1_outer_db1 * 2) + 1)) - ((int64_t)(((uint64_t)(((int64_t)((axis_k1_outer_db1 * 2) + 1)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)((axis_k1_outer_db1 * 2) + 1)) % (int64_t)49) / (int64_t)7)), (((((int64_t)((dx_hw_idx_outer_inner_db * 2) + 1)) * (int64_t)800) % (int64_t)224) - (int64_t)3), (((((int64_t)((dx_hw_idx_outer_inner_db * 2) + 1)) * (int64_t)800) / (int64_t)224) - (int64_t)3), ((uint64_t)(((int64_t)((axis_k1_outer_db1 * 2) + 1)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+        load_cbuf_to_cb(((__cb__ half *)w_col_6), ((__cbuf__ half *)filter_local_L1 + ((((((axis_k1_outer_db1 * 2) + 1) / 49) * 256) + 49152) - ((((axis_k1_outer_db1 * 2) + 1) % 49) * 1024))), 0, 1, 0, 0, 1);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        pipe_barrier(PIPE_M);
+        mad(((__cc__ float *)C_7), ((__ca__ half *)im2col_fractal_5), ((__cb__ half *)w_col_6), 800, 16, 16, (int8_t)0ULL);
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+      }
+      set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      if (0 < dx_hw_idx_outer_inner_db) {
+        wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+      }
+      wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      copy_matrix_cc_to_ubuf(((__ubuf__ half *)c_ub_8), ((__cc__ float *)C_7), 0, 1, 50, 0, 0, CRMODE_F32toF16_NONE);
+      set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      if (dx_hw_idx_outer_inner_db < 2) {
+        set_flag(PIPE_V, PIPE_M, EVENT_ID1);
+      }
+      wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      copy_ubuf_to_gm(((__gm__ half *)c_ddr + ((((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + (dx_hw_idx_outer_inner_db * 25600)) + 12800)), ((__ubuf__ half *)c_ub_8), 0, 1, 800, 0, 0);
+      if (dx_hw_idx_outer_inner_db < 2) {
+        set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+      }
+    }
+    wait_flag(PIPE_V, PIPE_M, EVENT_ID0);
+    for (int32_t axis_k1_outer_db2 = 0; axis_k1_outer_db2 < 98; ++axis_k1_outer_db2) {
+      wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+      img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_3), ((__cbuf__ half *)dy_l1), ((uint64_t)((((int64_t)(axis_k1_outer_db2 * 2)) - ((int64_t)(((uint64_t)(((int64_t)(axis_k1_outer_db2 * 2)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)(axis_k1_outer_db2 * 2)) % (int64_t)49) / (int64_t)7)), (int64_t)93, (int64_t)18, ((uint64_t)(((int64_t)(axis_k1_outer_db2 * 2)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+      load_cbuf_to_cb(((__cb__ half *)w_col_4), ((__cbuf__ half *)filter_local_L1 + (((((axis_k1_outer_db2 * 2) / 49) * 256) + 49152) - (((axis_k1_outer_db2 * 2) % 49) * 1024))), 0, 1, 0, 0, 1);
+      set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      pipe_barrier(PIPE_M);
+      mad(((__cc__ float *)C_1), ((__ca__ half *)im2col_fractal_3), ((__cb__ half *)w_col_4), 800, 16, 16, (axis_k1_outer_db2 == 0));
+      if (axis_k1_outer_db2 < 97) {
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+      }
+      wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+      img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_5), ((__cbuf__ half *)dy_l1), ((uint64_t)((((int64_t)((axis_k1_outer_db2 * 2) + 1)) - ((int64_t)(((uint64_t)(((int64_t)((axis_k1_outer_db2 * 2) + 1)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)((axis_k1_outer_db2 * 2) + 1)) % (int64_t)49) / (int64_t)7)), (int64_t)93, (int64_t)18, ((uint64_t)(((int64_t)((axis_k1_outer_db2 * 2) + 1)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+      load_cbuf_to_cb(((__cb__ half *)w_col_6), ((__cbuf__ half *)filter_local_L1 + ((((((axis_k1_outer_db2 * 2) + 1) / 49) * 256) + 49152) - ((((axis_k1_outer_db2 * 2) + 1) % 49) * 1024))), 0, 1, 0, 0, 1);
+      set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      pipe_barrier(PIPE_M);
+      mad(((__cc__ float *)C_1), ((__ca__ half *)im2col_fractal_5), ((__cb__ half *)w_col_6), 800, 16, 16, (int8_t)0ULL);
+      if (axis_k1_outer_db2 < 97) {
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+      }
+    }
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)c_ub_2), ((__cc__ float *)C_1), 0, 1, 50, 0, 0, CRMODE_F32toF16_NONE);
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)c_ddr + (((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + 76800)), ((__ubuf__ half *)c_ub_2), 0, 1, 800, 0, 0);
+    set_fmatrix(0x303001f00e0);
+    if (0 < dx_batch_idx_outer_inner) {
+      wait_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID1);
+    }
+    for (int32_t dx_hw_idx_outer_outer_inner = 0; dx_hw_idx_outer_outer_inner < 7; ++dx_hw_idx_outer_outer_inner) {
+      for (int32_t kernel_cout1_idx_outer1 = 0; kernel_cout1_idx_outer1 < 2; ++kernel_cout1_idx_outer1) {
+        for (int32_t ho_idx_outer2 = 0; ho_idx_outer2 < 31; ++ho_idx_outer2) {
+          if (((ho_idx_outer2 == 0) && ((kernel_cout1_idx_outer1 + dx_hw_idx_outer_outer_inner) != 0)) || (0 < ho_idx_outer2)) {
+            wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+          }
+          pipe_barrier(PIPE_MTE2);
+          copy_gm_to_ubuf(((__ubuf__ half *)dedy_local_UB2), ((__gm__ half *)dedy + (((((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + (kernel_cout1_idx_outer1 * 401408)) + ((((dx_hw_idx_outer_outer_inner * 25) + ho_idx_outer2) >> 1) * 1792)) + 19712)), 0, 2, 111, 12433, 0);
+          set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+          set_vector_mask(0xffffffffffffffff, 0xffffffffffffffff);
+          if ((ho_idx_outer2 + kernel_cout1_idx_outer1) != 0) {
+            wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+          }
+          vector_dup(((__ubuf__ half *)dy_filling2), (half)0.000000e+00f, (uint8_t)55ULL, (uint16_t)1ULL, (uint16_t)0ULL, (uint8_t)8ULL, (uint8_t)0ULL);
+          set_vector_mask(0x0, 0xffffffff);
+          vector_dup(((__ubuf__ half *)dy_filling2 + 7040), (half)0.000000e+00f, (uint8_t)1ULL, (uint16_t)1ULL, (uint16_t)0ULL, (uint8_t)0ULL, (uint8_t)0ULL);
+          wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+          if ((((dx_hw_idx_outer_outer_inner * 25) + ho_idx_outer2) % 2) == 0) {
+            set_vector_mask(0xffffffffffffffff, 0xffffffffffffffff);
+            for (int32_t iter_cut_axis_11 = 0; iter_cut_axis_11 < 2; ++iter_cut_axis_11) {
+              vmuls(((__ubuf__ half *)dy_filling2 + (iter_cut_axis_11 * 3536)), ((__ubuf__ half *)dedy_local_UB2 + (iter_cut_axis_11 * 1776)), (half)1.000000e+00f, (uint8_t)13ULL, (uint16_t)2ULL, (uint16_t)1ULL, (uint8_t)16ULL, (uint8_t)8ULL);
+            }
+            set_vector_mask(0xffffffffffff, 0xffffffffffffffff);
+            vmuls(((__ubuf__ half *)dy_filling2 + 3328), ((__ubuf__ half *)dedy_local_UB2 + 1664), (half)1.000000e+00f, (uint8_t)2ULL, (uint16_t)2ULL, (uint16_t)1ULL, (uint8_t)221ULL, (uint8_t)111ULL);
+          }
+          if ((((kernel_cout1_idx_outer1 == 1) && ((ho_idx_outer2 == 30) && (dx_hw_idx_outer_outer_inner < 6))) || ((ho_idx_outer2 == 30) && (kernel_cout1_idx_outer1 < 1))) || (ho_idx_outer2 < 30)) {
+            set_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+          }
+          set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+          wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+          pipe_barrier(PIPE_MTE3);
+          for (int32_t kernel_cout1_idx_inner2 = 0; kernel_cout1_idx_inner2 < 2; ++kernel_cout1_idx_inner2) {
+            copy_ubuf_to_cbuf(((__cbuf__ half *)dy_l11 + (((kernel_cout1_idx_outer1 * 222208) + (kernel_cout1_idx_inner2 * 111104)) + (ho_idx_outer2 * 3584))), ((__ubuf__ half *)dy_filling2 + (kernel_cout1_idx_inner2 * 3536)), 0, 1, 221, 0, 0);
+          }
+          if ((ho_idx_outer2 + kernel_cout1_idx_outer1) != 31) {
+            set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+          }
+          if (((ho_idx_outer2 == 0) && ((kernel_cout1_idx_outer1 + dx_hw_idx_outer_outer_inner) != 0)) || (0 < ho_idx_outer2)) {
+            wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID1);
+          }
+          copy_gm_to_ubuf(((__ubuf__ half *)dedy_local_UB3), ((__gm__ half *)dedy + (((((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + (kernel_cout1_idx_outer1 * 401408)) + ((((dx_hw_idx_outer_outer_inner * 25) + ho_idx_outer2) >> 1) * 1792)) + 21472)), 0, 2, 2, 12542, 0);
+          set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+          set_vector_mask(0xffffffff, 0xffffffffffffffff);
+          if ((ho_idx_outer2 + kernel_cout1_idx_outer1) != 0) {
+            wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+          }
+          vector_dup(((__ubuf__ half *)dy_filling3), (half)0.000000e+00f, (uint8_t)1ULL, (uint16_t)1ULL, (uint16_t)0ULL, (uint8_t)0ULL, (uint8_t)0ULL);
+          wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+          if ((((dx_hw_idx_outer_outer_inner * 25) + ho_idx_outer2) % 2) == 0) {
+            set_vector_mask(0x0, 0xffffffff);
+            vmuls(((__ubuf__ half *)dy_filling3 + 16), ((__ubuf__ half *)dedy_local_UB3 + 16), (half)1.000000e+00f, (uint8_t)1ULL, (uint16_t)3ULL, (uint16_t)2ULL, (uint8_t)0ULL, (uint8_t)0ULL);
+          }
+          if ((((kernel_cout1_idx_outer1 == 1) && ((ho_idx_outer2 == 30) && (dx_hw_idx_outer_outer_inner < 6))) || ((ho_idx_outer2 == 30) && (kernel_cout1_idx_outer1 < 1))) || (ho_idx_outer2 < 30)) {
+            set_flag(PIPE_V, PIPE_MTE2, EVENT_ID1);
+          }
+          set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+          wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+          pipe_barrier(PIPE_MTE3);
+          for (int32_t kernel_cout1_idx_inner3 = 0; kernel_cout1_idx_inner3 < 2; ++kernel_cout1_idx_inner3) {
+            copy_ubuf_to_cbuf(((__cbuf__ half *)dy_l11 + ((((kernel_cout1_idx_outer1 * 222208) + (kernel_cout1_idx_inner3 * 111104)) + (ho_idx_outer2 * 3584)) + 3536)), ((__ubuf__ half *)dy_filling3 + (kernel_cout1_idx_inner3 * 48)), 0, 1, 3, 0, 0);
+          }
+          if ((ho_idx_outer2 + kernel_cout1_idx_outer1) != 31) {
+            set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+          }
+        }
+      }
+      set_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+            wait_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+      for (int32_t dx_hw_idx_outer_inner_db1 = 0; dx_hw_idx_outer_inner_db1 < 3; ++dx_hw_idx_outer_inner_db1) {
+        if (0 < dx_hw_idx_outer_inner_db1) {
+          wait_flag(PIPE_V, PIPE_M, EVENT_ID0);
+        }
+        for (int32_t axis_k1_outer_db3 = 0; axis_k1_outer_db3 < 98; ++axis_k1_outer_db3) {
+          if ((axis_k1_outer_db3 + dx_hw_idx_outer_inner_db1) != 0) {
+            wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+          }
+          img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_3), ((__cbuf__ half *)dy_l11), ((uint64_t)((((int64_t)(axis_k1_outer_db3 * 2)) - ((int64_t)(((uint64_t)(((int64_t)(axis_k1_outer_db3 * 2)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)(axis_k1_outer_db3 * 2)) % (int64_t)49) / (int64_t)7)), (((((int64_t)(dx_hw_idx_outer_inner_db1 * 2)) * (int64_t)800) % (int64_t)224) - (int64_t)3), ((((int64_t)(dx_hw_idx_outer_inner_db1 * 2)) * (int64_t)800) / (int64_t)224), ((uint64_t)(((int64_t)(axis_k1_outer_db3 * 2)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+          load_cbuf_to_cb(((__cb__ half *)w_col_4), ((__cbuf__ half *)filter_local_L1 + (((((axis_k1_outer_db3 * 2) / 49) * 256) + 49152) - (((axis_k1_outer_db3 * 2) % 49) * 1024))), 0, 1, 0, 0, 1);
+          set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+          wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+          pipe_barrier(PIPE_M);
+          mad(((__cc__ float *)C_1), ((__ca__ half *)im2col_fractal_3), ((__cb__ half *)w_col_4), 800, 16, 16, (axis_k1_outer_db3 == 0));
+          set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+          if ((axis_k1_outer_db3 + dx_hw_idx_outer_inner_db1) != 0) {
+            wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+          }
+          img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_5), ((__cbuf__ half *)dy_l11), ((uint64_t)((((int64_t)((axis_k1_outer_db3 * 2) + 1)) - ((int64_t)(((uint64_t)(((int64_t)((axis_k1_outer_db3 * 2) + 1)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)((axis_k1_outer_db3 * 2) + 1)) % (int64_t)49) / (int64_t)7)), (((((int64_t)(dx_hw_idx_outer_inner_db1 * 2)) * (int64_t)800) % (int64_t)224) - (int64_t)3), ((((int64_t)(dx_hw_idx_outer_inner_db1 * 2)) * (int64_t)800) / (int64_t)224), ((uint64_t)(((int64_t)((axis_k1_outer_db3 * 2) + 1)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+          load_cbuf_to_cb(((__cb__ half *)w_col_6), ((__cbuf__ half *)filter_local_L1 + ((((((axis_k1_outer_db3 * 2) + 1) / 49) * 256) + 49152) - ((((axis_k1_outer_db3 * 2) + 1) % 49) * 1024))), 0, 1, 0, 0, 1);
+          set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+          wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+          pipe_barrier(PIPE_M);
+          mad(((__cc__ float *)C_1), ((__ca__ half *)im2col_fractal_5), ((__cb__ half *)w_col_6), 800, 16, 16, (int8_t)0ULL);
+          set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+        }
+        set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+        if (0 < dx_hw_idx_outer_inner_db1) {
+          wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+        }
+        wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+        copy_matrix_cc_to_ubuf(((__ubuf__ half *)c_ub_2), ((__cc__ float *)C_1), 0, 1, 50, 0, 0, CRMODE_F32toF16_NONE);
+        set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+        set_flag(PIPE_V, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+        copy_ubuf_to_gm(((__gm__ half *)c_ddr + (((((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + (dx_hw_idx_outer_outer_inner * 89600)) + (dx_hw_idx_outer_inner_db1 * 25600)) + 89600)), ((__ubuf__ half *)c_ub_2), 0, 1, 800, 0, 0);
+        set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+        if (0 < dx_hw_idx_outer_inner_db1) {
+          wait_flag(PIPE_V, PIPE_M, EVENT_ID1);
+        }
+        for (int32_t axis_k1_outer_db4 = 0; axis_k1_outer_db4 < 98; ++axis_k1_outer_db4) {
+          wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+          img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_3), ((__cbuf__ half *)dy_l11), ((uint64_t)((((int64_t)(axis_k1_outer_db4 * 2)) - ((int64_t)(((uint64_t)(((int64_t)(axis_k1_outer_db4 * 2)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)(axis_k1_outer_db4 * 2)) % (int64_t)49) / (int64_t)7)), (((((int64_t)((dx_hw_idx_outer_inner_db1 * 2) + 1)) * (int64_t)800) % (int64_t)224) - (int64_t)3), ((((int64_t)((dx_hw_idx_outer_inner_db1 * 2) + 1)) * (int64_t)800) / (int64_t)224), ((uint64_t)(((int64_t)(axis_k1_outer_db4 * 2)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+          load_cbuf_to_cb(((__cb__ half *)w_col_4), ((__cbuf__ half *)filter_local_L1 + (((((axis_k1_outer_db4 * 2) / 49) * 256) + 49152) - (((axis_k1_outer_db4 * 2) % 49) * 1024))), 0, 1, 0, 0, 1);
+          set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+          wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+          pipe_barrier(PIPE_M);
+          mad(((__cc__ float *)C_7), ((__ca__ half *)im2col_fractal_3), ((__cb__ half *)w_col_4), 800, 16, 16, (axis_k1_outer_db4 == 0));
+          set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+          wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+          img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_5), ((__cbuf__ half *)dy_l11), ((uint64_t)((((int64_t)((axis_k1_outer_db4 * 2) + 1)) - ((int64_t)(((uint64_t)(((int64_t)((axis_k1_outer_db4 * 2) + 1)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)((axis_k1_outer_db4 * 2) + 1)) % (int64_t)49) / (int64_t)7)), (((((int64_t)((dx_hw_idx_outer_inner_db1 * 2) + 1)) * (int64_t)800) % (int64_t)224) - (int64_t)3), ((((int64_t)((dx_hw_idx_outer_inner_db1 * 2) + 1)) * (int64_t)800) / (int64_t)224), ((uint64_t)(((int64_t)((axis_k1_outer_db4 * 2) + 1)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+          load_cbuf_to_cb(((__cb__ half *)w_col_6), ((__cbuf__ half *)filter_local_L1 + ((((((axis_k1_outer_db4 * 2) + 1) / 49) * 256) + 49152) - ((((axis_k1_outer_db4 * 2) + 1) % 49) * 1024))), 0, 1, 0, 0, 1);
+          set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+          wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+          pipe_barrier(PIPE_M);
+          mad(((__cc__ float *)C_7), ((__ca__ half *)im2col_fractal_5), ((__cb__ half *)w_col_6), 800, 16, 16, (int8_t)0ULL);
+          set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+        }
+        set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+        if (0 < dx_hw_idx_outer_inner_db1) {
+          wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+        }
+        wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+        copy_matrix_cc_to_ubuf(((__ubuf__ half *)c_ub_8), ((__cc__ float *)C_7), 0, 1, 50, 0, 0, CRMODE_F32toF16_NONE);
+        set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+        if (dx_hw_idx_outer_inner_db1 < 2) {
+          set_flag(PIPE_V, PIPE_M, EVENT_ID1);
+        }
+        wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+        copy_ubuf_to_gm(((__gm__ half *)c_ddr + (((((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + (dx_hw_idx_outer_outer_inner * 89600)) + (dx_hw_idx_outer_inner_db1 * 25600)) + 102400)), ((__ubuf__ half *)c_ub_8), 0, 1, 800, 0, 0);
+        if (dx_hw_idx_outer_inner_db1 < 2) {
+          set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+        }
+      }
+      wait_flag(PIPE_V, PIPE_M, EVENT_ID0);
+      for (int32_t axis_k1_outer_db5 = 0; axis_k1_outer_db5 < 98; ++axis_k1_outer_db5) {
+        wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_3), ((__cbuf__ half *)dy_l11), ((uint64_t)((((int64_t)(axis_k1_outer_db5 * 2)) - ((int64_t)(((uint64_t)(((int64_t)(axis_k1_outer_db5 * 2)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)(axis_k1_outer_db5 * 2)) % (int64_t)49) / (int64_t)7)), (int64_t)93, (int64_t)21, ((uint64_t)(((int64_t)(axis_k1_outer_db5 * 2)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+        load_cbuf_to_cb(((__cb__ half *)w_col_4), ((__cbuf__ half *)filter_local_L1 + (((((axis_k1_outer_db5 * 2) / 49) * 256) + 49152) - (((axis_k1_outer_db5 * 2) % 49) * 1024))), 0, 1, 0, 0, 1);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        pipe_barrier(PIPE_M);
+        mad(((__cc__ float *)C_1), ((__ca__ half *)im2col_fractal_3), ((__cb__ half *)w_col_4), 800, 16, 16, (axis_k1_outer_db5 == 0));
+        if (axis_k1_outer_db5 < 97) {
+          set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        }
+        wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+        img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_5), ((__cbuf__ half *)dy_l11), ((uint64_t)((((int64_t)((axis_k1_outer_db5 * 2) + 1)) - ((int64_t)(((uint64_t)(((int64_t)((axis_k1_outer_db5 * 2) + 1)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)((axis_k1_outer_db5 * 2) + 1)) % (int64_t)49) / (int64_t)7)), (int64_t)93, (int64_t)21, ((uint64_t)(((int64_t)((axis_k1_outer_db5 * 2) + 1)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+        load_cbuf_to_cb(((__cb__ half *)w_col_6), ((__cbuf__ half *)filter_local_L1 + ((((((axis_k1_outer_db5 * 2) + 1) / 49) * 256) + 49152) - ((((axis_k1_outer_db5 * 2) + 1) % 49) * 1024))), 0, 1, 0, 0, 1);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        pipe_barrier(PIPE_M);
+        mad(((__cc__ float *)C_1), ((__ca__ half *)im2col_fractal_5), ((__cb__ half *)w_col_6), 800, 16, 16, (int8_t)0ULL);
+        if (axis_k1_outer_db5 < 97) {
+          set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+        }
+      }
+      set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+      wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      copy_matrix_cc_to_ubuf(((__ubuf__ half *)c_ub_2), ((__cc__ float *)C_1), 0, 1, 50, 0, 0, CRMODE_F32toF16_NONE);
+      set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      copy_ubuf_to_gm(((__gm__ half *)c_ddr + ((((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + (dx_hw_idx_outer_outer_inner * 89600)) + 166400)), ((__ubuf__ half *)c_ub_2), 0, 1, 800, 0, 0);
+    }
+    if (dx_batch_idx_outer_inner < 31) {
+      set_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID0);
+    }
+    if (0 < dx_batch_idx_outer_inner) {
+      wait_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID2);
+    }
+    for (int32_t kernel_cout1_idx_outer2 = 0; kernel_cout1_idx_outer2 < 2; ++kernel_cout1_idx_outer2) {
+      for (int32_t ho_idx_outer3 = 0; ho_idx_outer3 < 27; ++ho_idx_outer3) {
+        if ((ho_idx_outer3 + kernel_cout1_idx_outer2) != 0) {
+          wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+        }
+        pipe_barrier(PIPE_MTE2);
+        copy_gm_to_ubuf(((__ubuf__ half *)dedy_local_UB4), ((__gm__ half *)dedy + ((((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + (kernel_cout1_idx_outer2 * 401408)) + (((ho_idx_outer3 + 197) >> 1) * 1792))), 0, 2, 111, 12433, 0);
+        set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+        set_vector_mask(0xffffffffffffffff, 0xffffffffffffffff);
+        if ((ho_idx_outer3 + kernel_cout1_idx_outer2) != 0) {
+          wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+        }
+        vector_dup(((__ubuf__ half *)dy_filling4), (half)0.000000e+00f, (uint8_t)55ULL, (uint16_t)1ULL, (uint16_t)0ULL, (uint8_t)8ULL, (uint8_t)0ULL);
+        set_vector_mask(0x0, 0xffffffff);
+        vector_dup(((__ubuf__ half *)dy_filling4 + 7040), (half)0.000000e+00f, (uint8_t)1ULL, (uint16_t)1ULL, (uint16_t)0ULL, (uint8_t)0ULL, (uint8_t)0ULL);
+        wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+        if (((ho_idx_outer3 + 1) % 2) == 0) {
+          set_vector_mask(0xffffffffffffffff, 0xffffffffffffffff);
+          for (int32_t iter_cut_axis_12 = 0; iter_cut_axis_12 < 2; ++iter_cut_axis_12) {
+            vmuls(((__ubuf__ half *)dy_filling4 + (iter_cut_axis_12 * 3536)), ((__ubuf__ half *)dedy_local_UB4 + (iter_cut_axis_12 * 1776)), (half)1.000000e+00f, (uint8_t)13ULL, (uint16_t)2ULL, (uint16_t)1ULL, (uint8_t)16ULL, (uint8_t)8ULL);
+          }
+          set_vector_mask(0xffffffffffff, 0xffffffffffffffff);
+          vmuls(((__ubuf__ half *)dy_filling4 + 3328), ((__ubuf__ half *)dedy_local_UB4 + 1664), (half)1.000000e+00f, (uint8_t)2ULL, (uint16_t)2ULL, (uint16_t)1ULL, (uint8_t)221ULL, (uint8_t)111ULL);
+        }
+        if ((ho_idx_outer3 + kernel_cout1_idx_outer2) != 27) {
+          set_flag(PIPE_V, PIPE_MTE2, EVENT_ID0);
+        }
+        set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+        wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+        pipe_barrier(PIPE_MTE3);
+        for (int32_t kernel_cout1_idx_inner4 = 0; kernel_cout1_idx_inner4 < 2; ++kernel_cout1_idx_inner4) {
+          copy_ubuf_to_cbuf(((__cbuf__ half *)dy_l12 + (((kernel_cout1_idx_outer2 * 193536) + (kernel_cout1_idx_inner4 * 96768)) + (ho_idx_outer3 * 3584))), ((__ubuf__ half *)dy_filling4 + (kernel_cout1_idx_inner4 * 3536)), 0, 1, 221, 0, 0);
+        }
+        if ((ho_idx_outer3 + kernel_cout1_idx_outer2) != 27) {
+          set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+        }
+        if ((ho_idx_outer3 + kernel_cout1_idx_outer2) != 0) {
+          wait_flag(PIPE_V, PIPE_MTE2, EVENT_ID1);
+        }
+        copy_gm_to_ubuf(((__ubuf__ half *)dedy_local_UB5), ((__gm__ half *)dedy + (((((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + (kernel_cout1_idx_outer2 * 401408)) + (((ho_idx_outer3 + 197) >> 1) * 1792)) + 1760)), 0, 2, 2, 12542, 0);
+        set_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+        set_vector_mask(0xffffffff, 0xffffffffffffffff);
+        if ((ho_idx_outer3 + kernel_cout1_idx_outer2) != 0) {
+          wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+        }
+        vector_dup(((__ubuf__ half *)dy_filling5), (half)0.000000e+00f, (uint8_t)1ULL, (uint16_t)1ULL, (uint16_t)0ULL, (uint8_t)0ULL, (uint8_t)0ULL);
+        wait_flag(PIPE_MTE2, PIPE_V, EVENT_ID0);
+        if (((ho_idx_outer3 + 1) % 2) == 0) {
+          set_vector_mask(0x0, 0xffffffff);
+          vmuls(((__ubuf__ half *)dy_filling5 + 16), ((__ubuf__ half *)dedy_local_UB5 + 16), (half)1.000000e+00f, (uint8_t)1ULL, (uint16_t)3ULL, (uint16_t)2ULL, (uint8_t)0ULL, (uint8_t)0ULL);
+        }
+        if ((ho_idx_outer3 + kernel_cout1_idx_outer2) != 27) {
+          set_flag(PIPE_V, PIPE_MTE2, EVENT_ID1);
+        }
+        set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+        wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+        pipe_barrier(PIPE_MTE3);
+        for (int32_t kernel_cout1_idx_inner5 = 0; kernel_cout1_idx_inner5 < 2; ++kernel_cout1_idx_inner5) {
+          copy_ubuf_to_cbuf(((__cbuf__ half *)dy_l12 + ((((kernel_cout1_idx_outer2 * 193536) + (kernel_cout1_idx_inner5 * 96768)) + (ho_idx_outer3 * 3584)) + 3536)), ((__ubuf__ half *)dy_filling5 + (kernel_cout1_idx_inner5 * 48)), 0, 1, 3, 0, 0);
+        }
+        if ((ho_idx_outer3 + kernel_cout1_idx_outer2) != 27) {
+          set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+        }
+      }
+      for (int32_t ho_idx_outer4 = 0; ho_idx_outer4 < 4; ++ho_idx_outer4) {
+        for (int32_t wo_idx_outer1 = 0; wo_idx_outer1 < 2; ++wo_idx_outer1) {
+                                                }
+      }
+    }
+    set_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+        set_fmatrix(0x3000303001b00e0);
+    wait_flag(PIPE_MTE3, PIPE_MTE1, EVENT_ID0);
+    for (int32_t dx_hw_idx_outer_inner_db2 = 0; dx_hw_idx_outer_inner_db2 < 3; ++dx_hw_idx_outer_inner_db2) {
+      if (0 < dx_hw_idx_outer_inner_db2) {
+        wait_flag(PIPE_V, PIPE_M, EVENT_ID0);
+      }
+      for (int32_t axis_k1_outer_db6 = 0; axis_k1_outer_db6 < 98; ++axis_k1_outer_db6) {
+        if ((axis_k1_outer_db6 + dx_hw_idx_outer_inner_db2) != 0) {
+          wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        }
+        img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_3), ((__cbuf__ half *)dy_l12), ((uint64_t)((((int64_t)(axis_k1_outer_db6 * 2)) - ((int64_t)(((uint64_t)(((int64_t)(axis_k1_outer_db6 * 2)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)(axis_k1_outer_db6 * 2)) % (int64_t)49) / (int64_t)7)), (((((int64_t)(dx_hw_idx_outer_inner_db2 * 2)) * (int64_t)800) % (int64_t)224) - (int64_t)3), ((((int64_t)(dx_hw_idx_outer_inner_db2 * 2)) * (int64_t)800) / (int64_t)224), ((uint64_t)(((int64_t)(axis_k1_outer_db6 * 2)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+        load_cbuf_to_cb(((__cb__ half *)w_col_4), ((__cbuf__ half *)filter_local_L1 + (((((axis_k1_outer_db6 * 2) / 49) * 256) + 49152) - (((axis_k1_outer_db6 * 2) % 49) * 1024))), 0, 1, 0, 0, 1);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        pipe_barrier(PIPE_M);
+        mad(((__cc__ float *)C_1), ((__ca__ half *)im2col_fractal_3), ((__cb__ half *)w_col_4), 800, 16, 16, (axis_k1_outer_db6 == 0));
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        if ((axis_k1_outer_db6 + dx_hw_idx_outer_inner_db2) != 0) {
+          wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+        }
+        img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_5), ((__cbuf__ half *)dy_l12), ((uint64_t)((((int64_t)((axis_k1_outer_db6 * 2) + 1)) - ((int64_t)(((uint64_t)(((int64_t)((axis_k1_outer_db6 * 2) + 1)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)((axis_k1_outer_db6 * 2) + 1)) % (int64_t)49) / (int64_t)7)), (((((int64_t)(dx_hw_idx_outer_inner_db2 * 2)) * (int64_t)800) % (int64_t)224) - (int64_t)3), ((((int64_t)(dx_hw_idx_outer_inner_db2 * 2)) * (int64_t)800) / (int64_t)224), ((uint64_t)(((int64_t)((axis_k1_outer_db6 * 2) + 1)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+        load_cbuf_to_cb(((__cb__ half *)w_col_6), ((__cbuf__ half *)filter_local_L1 + ((((((axis_k1_outer_db6 * 2) + 1) / 49) * 256) + 49152) - ((((axis_k1_outer_db6 * 2) + 1) % 49) * 1024))), 0, 1, 0, 0, 1);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        pipe_barrier(PIPE_M);
+        mad(((__cc__ float *)C_1), ((__ca__ half *)im2col_fractal_5), ((__cb__ half *)w_col_6), 800, 16, 16, (int8_t)0ULL);
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+      }
+      set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      if (0 < dx_hw_idx_outer_inner_db2) {
+        wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+      }
+      wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      copy_matrix_cc_to_ubuf(((__ubuf__ half *)c_ub_8), ((__cc__ float *)C_1), 0, 1, 50, 0, 0, CRMODE_F32toF16_NONE);
+      set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      set_flag(PIPE_V, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      copy_ubuf_to_gm(((__gm__ half *)c_ddr + ((((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + (dx_hw_idx_outer_inner_db2 * 25600)) + 716800)), ((__ubuf__ half *)c_ub_8), 0, 1, 800, 0, 0);
+      if (dx_hw_idx_outer_inner_db2 < 2) {
+        set_flag(PIPE_MTE3, PIPE_V, EVENT_ID0);
+      }
+      if (0 < dx_hw_idx_outer_inner_db2) {
+        wait_flag(PIPE_V, PIPE_M, EVENT_ID1);
+      }
+      for (int32_t axis_k1_outer_db7 = 0; axis_k1_outer_db7 < 98; ++axis_k1_outer_db7) {
+        wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_3), ((__cbuf__ half *)dy_l12), ((uint64_t)((((int64_t)(axis_k1_outer_db7 * 2)) - ((int64_t)(((uint64_t)(((int64_t)(axis_k1_outer_db7 * 2)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)(axis_k1_outer_db7 * 2)) % (int64_t)49) / (int64_t)7)), (((((int64_t)((dx_hw_idx_outer_inner_db2 * 2) + 1)) * (int64_t)800) % (int64_t)224) - (int64_t)3), ((((int64_t)((dx_hw_idx_outer_inner_db2 * 2) + 1)) * (int64_t)800) / (int64_t)224), ((uint64_t)(((int64_t)(axis_k1_outer_db7 * 2)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+        load_cbuf_to_cb(((__cb__ half *)w_col_4), ((__cbuf__ half *)filter_local_L1 + (((((axis_k1_outer_db7 * 2) / 49) * 256) + 49152) - (((axis_k1_outer_db7 * 2) % 49) * 1024))), 0, 1, 0, 0, 1);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        pipe_barrier(PIPE_M);
+        mad(((__cc__ float *)C_7), ((__ca__ half *)im2col_fractal_3), ((__cb__ half *)w_col_4), 800, 16, 16, (axis_k1_outer_db7 == 0));
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+        wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+        img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_5), ((__cbuf__ half *)dy_l12), ((uint64_t)((((int64_t)((axis_k1_outer_db7 * 2) + 1)) - ((int64_t)(((uint64_t)(((int64_t)((axis_k1_outer_db7 * 2) + 1)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)((axis_k1_outer_db7 * 2) + 1)) % (int64_t)49) / (int64_t)7)), (((((int64_t)((dx_hw_idx_outer_inner_db2 * 2) + 1)) * (int64_t)800) % (int64_t)224) - (int64_t)3), ((((int64_t)((dx_hw_idx_outer_inner_db2 * 2) + 1)) * (int64_t)800) / (int64_t)224), ((uint64_t)(((int64_t)((axis_k1_outer_db7 * 2) + 1)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)50ULL, CSIZE0);
+        load_cbuf_to_cb(((__cb__ half *)w_col_6), ((__cbuf__ half *)filter_local_L1 + ((((((axis_k1_outer_db7 * 2) + 1) / 49) * 256) + 49152) - ((((axis_k1_outer_db7 * 2) + 1) % 49) * 1024))), 0, 1, 0, 0, 1);
+        set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+        pipe_barrier(PIPE_M);
+        mad(((__cc__ float *)C_7), ((__ca__ half *)im2col_fractal_5), ((__cb__ half *)w_col_6), 800, 16, 16, (int8_t)0ULL);
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+      }
+      set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      if (0 < dx_hw_idx_outer_inner_db2) {
+        wait_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+      }
+      wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+      copy_matrix_cc_to_ubuf(((__ubuf__ half *)c_ub_24), ((__cc__ float *)C_7), 0, 1, 50, 0, 0, CRMODE_F32toF16_NONE);
+      set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      if (dx_hw_idx_outer_inner_db2 < 2) {
+        set_flag(PIPE_V, PIPE_M, EVENT_ID1);
+      }
+      wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+      copy_ubuf_to_gm(((__gm__ half *)c_ddr + ((((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + (dx_hw_idx_outer_inner_db2 * 25600)) + 729600)), ((__ubuf__ half *)c_ub_24), 0, 1, 800, 0, 0);
+      if (dx_hw_idx_outer_inner_db2 < 2) {
+        set_flag(PIPE_MTE3, PIPE_V, EVENT_ID1);
+      }
+    }
+    if (dx_batch_idx_outer_inner < 31) {
+      set_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID1);
+    }
+    wait_flag(PIPE_V, PIPE_M, EVENT_ID0);
+    for (int32_t axis_k1_outer_db8 = 0; axis_k1_outer_db8 < 98; ++axis_k1_outer_db8) {
+      wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+      img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_25), ((__cbuf__ half *)dy_l12), ((uint64_t)((((int64_t)(axis_k1_outer_db8 * 2)) - ((int64_t)(((uint64_t)(((int64_t)(axis_k1_outer_db8 * 2)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)(axis_k1_outer_db8 * 2)) % (int64_t)49) / (int64_t)7)), (int64_t)93, (int64_t)21, ((uint64_t)(((int64_t)(axis_k1_outer_db8 * 2)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)36ULL, CSIZE0);
+      load_cbuf_to_cb(((__cb__ half *)w_col_26), ((__cbuf__ half *)filter_local_L1 + (((((axis_k1_outer_db8 * 2) / 49) * 256) + 49152) - (((axis_k1_outer_db8 * 2) % 49) * 1024))), 0, 1, 0, 0, 1);
+      set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      pipe_barrier(PIPE_M);
+      mad(((__cc__ float *)C), ((__ca__ half *)im2col_fractal_25), ((__cb__ half *)w_col_26), 576, 16, 16, (axis_k1_outer_db8 == 0));
+      if (axis_k1_outer_db8 < 97) {
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID0);
+      }
+      wait_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+      img2col_cbuf_to_ca(((__ca__ half *)im2col_fractal_27), ((__cbuf__ half *)dy_l12), ((uint64_t)((((int64_t)((axis_k1_outer_db8 * 2) + 1)) - ((int64_t)(((uint64_t)(((int64_t)((axis_k1_outer_db8 * 2) + 1)) / (int64_t)49)) * (uint64_t)49ULL))) % (int64_t)7)), ((uint64_t)((((int64_t)((axis_k1_outer_db8 * 2) + 1)) % (int64_t)49) / (int64_t)7)), (int64_t)93, (int64_t)21, ((uint64_t)(((int64_t)((axis_k1_outer_db8 * 2) + 1)) / (int64_t)49)), (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)7ULL, (uint64_t)7ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)1ULL, (uint64_t)36ULL, CSIZE0);
+      load_cbuf_to_cb(((__cb__ half *)w_col_28), ((__cbuf__ half *)filter_local_L1 + ((((((axis_k1_outer_db8 * 2) + 1) / 49) * 256) + 49152) - ((((axis_k1_outer_db8 * 2) + 1) % 49) * 1024))), 0, 1, 0, 0, 1);
+      set_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      wait_flag(PIPE_MTE1, PIPE_M, EVENT_ID0);
+      pipe_barrier(PIPE_M);
+      mad(((__cc__ float *)C), ((__ca__ half *)im2col_fractal_27), ((__cb__ half *)w_col_28), 576, 16, 16, (int8_t)0ULL);
+      if (axis_k1_outer_db8 < 97) {
+        set_flag(PIPE_M, PIPE_MTE1, EVENT_ID1);
+      }
+    }
+    set_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    wait_flag(PIPE_M, PIPE_V, EVENT_ID0);
+    copy_matrix_cc_to_ubuf(((__ubuf__ half *)c_ub), ((__cc__ float *)C), 0, 1, 36, 0, 0, CRMODE_F32toF16_NONE);
+    set_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    wait_flag(PIPE_V, PIPE_MTE3, EVENT_ID0);
+    copy_ubuf_to_gm(((__gm__ half *)c_ddr + (((((int32_t)block_idx) * 25690112) + (dx_batch_idx_outer_inner * 802816)) + 793600)), ((__ubuf__ half *)c_ub), 0, 1, 576, 0, 0);
+    if (dx_batch_idx_outer_inner < 31) {
+      set_flag(PIPE_MTE3, PIPE_MTE2, EVENT_ID2);
+    }
+  }
+  pipe_barrier(PIPE_ALL);
+}
+

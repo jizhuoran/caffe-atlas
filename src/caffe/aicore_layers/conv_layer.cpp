@@ -2,96 +2,53 @@
 
 namespace caffe {
 
-void ochw2fracZ(const float* ochw, _Float16* fracZ, int channel_out, int channel_in, int kernel_h, int kernel_w) {
+template <typename Dtype>
+void ochw2fracZ(const Dtype* ochw, _Float16* fracZ, int channel_out, int channel_in, int kernel_h, int kernel_w) {
   auto fracZ_array = *reinterpret_cast<_Float16 (*)[kernel_h * kernel_w * ((channel_in + 15) / 16)][(channel_out + 15) / 16][16][16]>(fracZ);
-  auto ochw_array = *reinterpret_cast<const float (*)[channel_out][channel_in][kernel_h][kernel_w]>(ochw);
-  for (int o_i = 0; o_i < channel_out; o_i++) {
-    for (int c_i = 0; c_i < channel_in; c_i++) {
-      for (int h_i = 0; h_i < kernel_h; h_i++) {
-        for (int w_i = 0; w_i < kernel_w; w_i++) {
-          fracZ_array[(c_i/16) * (kernel_w * kernel_h) + h_i * (kernel_w) + w_i][(o_i)/16][o_i%16][c_i%16] = ochw_array[o_i][c_i][h_i][w_i];
-        }
-      }
-    }
-  }
-}
-
-void ochw2fracZ(const double* ochw, _Float16* fracZ, int channel_out, int channel_in, int kernel_h, int kernel_w) {
-  auto fracZ_array = *reinterpret_cast<_Float16 (*)[kernel_h * kernel_w * ((channel_in + 15) / 16)][(channel_out + 15) / 16][16][16]>(fracZ);
-  auto ochw_array = *reinterpret_cast<const double (*)[channel_out][channel_in][kernel_h][kernel_w]>(ochw);
-  for (int o_i = 0; o_i < channel_out; o_i++) {
-    for (int c_i = 0; c_i < channel_in; c_i++) {
-      for (int h_i = 0; h_i < kernel_h; h_i++) {
-        for (int w_i = 0; w_i < kernel_w; w_i++) {
-          fracZ_array[(c_i/16) * (kernel_w * kernel_h) + h_i * (kernel_w) + w_i][(o_i)/16][o_i%16][c_i%16] = ochw_array[o_i][c_i][h_i][w_i];
-        }
-      }
-    }
-  }
-}
-
-void ochw2fracZ(const _Float16* ochw, _Float16* fracZ, int channel_out, int channel_in, int kernel_h, int kernel_w) {
-  auto fracZ_array = *reinterpret_cast<_Float16 (*)[kernel_h * kernel_w * ((channel_in + 15) / 16)][(channel_out + 15) / 16][16][16]>(fracZ);
-  auto ochw_array = *reinterpret_cast<const _Float16 (*)[channel_out][channel_in][kernel_h][kernel_w]>(ochw);
-  for (int o_i = 0; o_i < channel_out; o_i++) {
-    for (int c_i = 0; c_i < channel_in; c_i++) {
-      for (int h_i = 0; h_i < kernel_h; h_i++) {
-        for (int w_i = 0; w_i < kernel_w; w_i++) {
-          fracZ_array[(c_i/16) * (kernel_w * kernel_h) + h_i * (kernel_w) + w_i][(o_i)/16][o_i%16][c_i%16] = ochw_array[o_i][c_i][h_i][w_i];
-        }
-      }
-    }
-  }
-}
-
-void fracZ2ochw(const float* fracZ, float* ochw, int channel_out, int channel_in, int kernel_h, int kernel_w) {
-  auto fracZ_array = *reinterpret_cast<const float (*)[kernel_h * kernel_w * ((channel_in + 15) / 16)][(channel_out + 15) / 16][16][16]>(fracZ);
-  auto ochw_array = *reinterpret_cast<float (*)[channel_out][channel_in][kernel_h][kernel_w]>(ochw);
-  for (int o_i = 0; o_i < channel_out; o_i++) {
-    for (int c_i = 0; c_i < channel_in; c_i++) {
-      for (int h_i = 0; h_i < kernel_h; h_i++) {
-        for (int w_i = 0; w_i < kernel_w; w_i++) {
-          ochw_array[o_i][c_i][h_i][w_i] = fracZ_array[(c_i/16) * (kernel_w * kernel_h) + h_i * (kernel_w) + w_i][(o_i)/16][o_i%16][c_i%16];
-        }
-      }
-    }
-  }
-}
-
-void fracZ2ochw(const float* fracZ, double* ochw, int channel_out, int channel_in, int kernel_h, int kernel_w) {
-  auto fracZ_array = *reinterpret_cast<const float (*)[kernel_h * kernel_w * ((channel_in + 15) / 16)][(channel_out + 15) / 16][16][16]>(fracZ);
-  auto ochw_array = *reinterpret_cast<double (*)[channel_out][channel_in][kernel_h][kernel_w]>(ochw);
-  for (int o_i = 0; o_i < channel_out; o_i++) {
-    for (int c_i = 0; c_i < channel_in; c_i++) {
-      for (int h_i = 0; h_i < kernel_h; h_i++) {
-        for (int w_i = 0; w_i < kernel_w; w_i++) {
-          ochw_array[o_i][c_i][h_i][w_i] = fracZ_array[(c_i/16) * (kernel_w * kernel_h) + h_i * (kernel_w) + w_i][(o_i)/16][o_i%16][c_i%16];
-        }
-      }
-    }
-  }
-}
-
-void fracZ2ochw(const float* fracZ, _Float16* ochw, int channel_out, int channel_in, int kernel_h, int kernel_w) {
-  auto fracZ_array = *reinterpret_cast<const float (*)[kernel_h * kernel_w * ((channel_in + 15) / 16)][(channel_out + 15) / 16][16][16]>(fracZ);
-  auto ochw_array = *reinterpret_cast<_Float16 (*)[channel_out][channel_in][kernel_h][kernel_w]>(ochw);
-  for (int o_i = 0; o_i < channel_out; o_i++) {
-    for (int c_i = 0; c_i < channel_in; c_i++) {
-      for (int h_i = 0; h_i < kernel_h; h_i++) {
-        for (int w_i = 0; w_i < kernel_w; w_i++) {
-          ochw_array[o_i][c_i][h_i][w_i] = fracZ_array[(c_i/16) * (kernel_w * kernel_h) + h_i * (kernel_w) + w_i][(o_i)/16][o_i%16][c_i%16];
-        }
-      }
-    }
-  }
-}
-
-
-
-void five2four(const _Float16* five, float* four, int batch_size, int channel_in, int in_height, int in_width) {
-  auto five_array = *reinterpret_cast<const _Float16 (*)[batch_size][(channel_in+15)/16][in_height][in_width][16]>(five);
-  auto four_array = *reinterpret_cast<float (*)[batch_size][channel_in][in_height][in_width]>(four);
+  auto ochw_array = *reinterpret_cast<const Dtype (*)[channel_out][channel_in][kernel_h][kernel_w]>(ochw);
   
+  #pragma omp parallel for
+  for (int o_i = 0; o_i < channel_out; o_i++) {
+    for (int c_i = 0; c_i < channel_in; c_i++) {
+      for (int h_i = 0; h_i < kernel_h; h_i++) {
+        for (int w_i = 0; w_i < kernel_w; w_i++) {
+          fracZ_array[(c_i/16) * (kernel_w * kernel_h) + h_i * (kernel_w) + w_i][(o_i)/16][o_i%16][c_i%16] = ochw_array[o_i][c_i][h_i][w_i];
+        }
+      }
+    }
+  }
+}
+
+template void ochw2fracZ<_Float16>(const _Float16* ochw, _Float16* fracZ, int channel_out, int channel_in, int kernel_h, int kernel_w);
+template void ochw2fracZ<float>(const float* ochw, _Float16* fracZ, int channel_out, int channel_in, int kernel_h, int kernel_w);
+template void ochw2fracZ<double>(const double* ochw, _Float16* fracZ, int channel_out, int channel_in, int kernel_h, int kernel_w);
+
+template <typename Dtype>
+void fracZ2ochw(const float* fracZ, Dtype* ochw, int channel_out, int channel_in, int kernel_h, int kernel_w) {
+  auto fracZ_array = *reinterpret_cast<const float (*)[kernel_h * kernel_w * ((channel_in + 15) / 16)][(channel_out + 15) / 16][16][16]>(fracZ);
+  auto ochw_array = *reinterpret_cast<Dtype (*)[channel_out][channel_in][kernel_h][kernel_w]>(ochw);
+
+  #pragma omp parallel for
+  for (int o_i = 0; o_i < channel_out; o_i++) {
+    for (int c_i = 0; c_i < channel_in; c_i++) {
+      for (int h_i = 0; h_i < kernel_h; h_i++) {
+        for (int w_i = 0; w_i < kernel_w; w_i++) {
+          ochw_array[o_i][c_i][h_i][w_i] = fracZ_array[(c_i/16) * (kernel_w * kernel_h) + h_i * (kernel_w) + w_i][(o_i)/16][o_i%16][c_i%16];
+        }
+      }
+    }
+  }
+}
+template void fracZ2ochw<_Float16>(const float* fracZ, _Float16* ochw, int channel_out, int channel_in, int kernel_h, int kernel_w);
+template void fracZ2ochw<float>(const float* fracZ, float* ochw, int channel_out, int channel_in, int kernel_h, int kernel_w);
+template void fracZ2ochw<double>(const float* fracZ, double* ochw, int channel_out, int channel_in, int kernel_h, int kernel_w);
+
+template <typename Dtype>
+void five2four(const _Float16* five, Dtype* four, int batch_size, int channel_in, int in_height, int in_width) {
+  auto five_array = *reinterpret_cast<const _Float16 (*)[batch_size][(channel_in+15)/16][in_height][in_width][16]>(five);
+  auto four_array = *reinterpret_cast<Dtype (*)[batch_size][channel_in][in_height][in_width]>(four);
+
+  #pragma omp parallel for
   for (int n_i = 0; n_i < batch_size; n_i++) {
     for (int c_i = 0; c_i < channel_in; c_i++) {
       for (int h_i = 0; h_i < in_height; h_i++) {
@@ -102,25 +59,16 @@ void five2four(const _Float16* five, float* four, int batch_size, int channel_in
     }
   }
 }
+template void five2four<float>(const _Float16* five, float* four, int batch_size, int channel_in, int in_height, int in_width);
+template void five2four<double>(const _Float16* five, double* four, int batch_size, int channel_in, int in_height, int in_width);
 
-void five2four(const _Float16* five, double* four, int batch_size, int channel_in, int in_height, int in_width) {
-  auto five_array = *reinterpret_cast<const _Float16 (*)[batch_size][(channel_in+15)/16][in_height][in_width][16]>(five);
-  auto four_array = *reinterpret_cast<double (*)[batch_size][channel_in][in_height][in_width]>(four);
-  
-  for (int n_i = 0; n_i < batch_size; n_i++) {
-    for (int c_i = 0; c_i < channel_in; c_i++) {
-      for (int h_i = 0; h_i < in_height; h_i++) {
-        for (int w_i = 0; w_i < in_width; w_i++) {
-          four_array[n_i][c_i][h_i][w_i] = five_array[n_i][c_i/16][h_i][w_i][c_i%16];
-        }
-      }
-    }
-  }
-}
 
-void four2five(const float* four, _Float16* five, int batch_size, int channel_in, int in_height, int in_width) {
+template <typename Dtype>
+void four2five(const Dtype* four, _Float16* five, int batch_size, int channel_in, int in_height, int in_width) {
   auto five_array = *reinterpret_cast<_Float16 (*)[batch_size][(channel_in+15)/16][in_height][in_width][16]>(five);
-  auto four_array = *reinterpret_cast<const float (*)[batch_size][channel_in][in_height][in_width]>(four);
+  auto four_array = *reinterpret_cast<const Dtype (*)[batch_size][channel_in][in_height][in_width]>(four);
+
+  #pragma omp parallel for
   for (int n_i = 0; n_i < batch_size; n_i++) {
     for (int c_i = 0; c_i < channel_in; c_i++) {
       for (int h_i = 0; h_i < in_height; h_i++) {
@@ -131,20 +79,9 @@ void four2five(const float* four, _Float16* five, int batch_size, int channel_in
     }
   }
 }
+template void four2five<float>(const float* four, _Float16* five, int batch_size, int channel_in, int in_height, int in_width);
+template void four2five<double>(const double* four, _Float16* five, int batch_size, int channel_in, int in_height, int in_width);
 
-void four2five(const double* four, _Float16* five, int batch_size, int channel_in, int in_height, int in_width) {
-  auto five_array = *reinterpret_cast<_Float16 (*)[batch_size][(channel_in+15)/16][in_height][in_width][16]>(five);
-  auto four_array = *reinterpret_cast<const double (*)[batch_size][channel_in][in_height][in_width]>(four);
-  for (int n_i = 0; n_i < batch_size; n_i++) {
-    for (int c_i = 0; c_i < channel_in; c_i++) {
-      for (int h_i = 0; h_i < in_height; h_i++) {
-        for (int w_i = 0; w_i < in_width; w_i++) {
-          five_array[n_i][c_i/16][h_i][w_i][c_i%16] = four_array[n_i][c_i][h_i][w_i];
-        }
-      }
-    }
-  }
-}
 
 
 

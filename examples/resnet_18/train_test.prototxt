@@ -104,16 +104,6 @@ layer {
   type: "ReLU"
   bottom: "first_conv"
   top: "first_conv"
-  aicorekernel {
-                kernelfile: "ReLU_fw_1048576.o"
-                kernelname: "ReLU_fw_1048576__kernel0"
-                block_num: 2
-            }
-  aicorekernel {
-                kernelfile: "ReLU_bw_1048576.o"
-                kernelname: "ReLU_bw_1048576__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group0_block0_conv0"
@@ -182,16 +172,6 @@ layer {
   type: "ReLU"
   bottom: "group0_block0_conv0"
   top: "group0_block0_conv0"
-    aicorekernel {
-                    kernelfile: "ReLU_fw_1048576.o"
-                    kernelname: "ReLU_fw_1048576__kernel0"
-                    block_num: 2
-                }
-    aicorekernel {
-                    kernelfile: "ReLU_bw_1048576.o"
-                    kernelname: "ReLU_bw_1048576__kernel0"
-                    block_num: 2
-                }
 }
 layer {
   name: "group0_block0_conv1"
@@ -270,16 +250,6 @@ layer {
   type: "ReLU"
   bottom: "group0_block0_sum"
   top: "group0_block0_sum"
-    aicorekernel {
-                    kernelfile: "ReLU_fw_1048576.o"
-                    kernelname: "ReLU_fw_1048576__kernel0"
-                    block_num: 2
-                }
-    aicorekernel {
-                    kernelfile: "ReLU_bw_1048576.o"
-                    kernelname: "ReLU_bw_1048576__kernel0"
-                    block_num: 2
-                }
 }
 layer {
   name: "group0_block1_conv0"
@@ -348,16 +318,6 @@ layer {
   type: "ReLU"
   bottom: "group0_block1_conv0"
   top: "group0_block1_conv0"
-    aicorekernel {
-                    kernelfile: "ReLU_fw_1048576.o"
-                    kernelname: "ReLU_fw_1048576__kernel0"
-                    block_num: 2
-                }
-    aicorekernel {
-                    kernelfile: "ReLU_bw_1048576.o"
-                    kernelname: "ReLU_bw_1048576__kernel0"
-                    block_num: 2
-                }
 }
 layer {
   name: "group0_block1_conv1"
@@ -436,16 +396,6 @@ layer {
   type: "ReLU"
   bottom: "group0_block1_sum"
   top: "group0_block1_sum"
-aicorekernel {
-                kernelfile: "ReLU_fw_1048576.o"
-                kernelname: "ReLU_fw_1048576__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_1048576.o"
-                kernelname: "ReLU_bw_1048576__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group0_block2_conv0"
@@ -514,16 +464,6 @@ layer {
   type: "ReLU"
   bottom: "group0_block2_conv0"
   top: "group0_block2_conv0"
-aicorekernel {
-                kernelfile: "ReLU_fw_1048576.o"
-                kernelname: "ReLU_fw_1048576__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_1048576.o"
-                kernelname: "ReLU_bw_1048576__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group0_block2_conv1"
@@ -602,16 +542,6 @@ layer {
   type: "ReLU"
   bottom: "group0_block2_sum"
   top: "group0_block2_sum"
-aicorekernel {
-                kernelfile: "ReLU_fw_1048576.o"
-                kernelname: "ReLU_fw_1048576__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_1048576.o"
-                kernelname: "ReLU_bw_1048576__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group1_block0_conv0"
@@ -680,16 +610,6 @@ layer {
   type: "ReLU"
   bottom: "group1_block0_conv0"
   top: "group1_block0_conv0"
-aicorekernel {
-                kernelfile: "ReLU_fw_524288.o"
-                kernelname: "ReLU_fw_524288__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_524288.o"
-                kernelname: "ReLU_bw_524288__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group1_block0_conv1"
@@ -830,16 +750,6 @@ layer {
   type: "ReLU"
   bottom: "group1_block0_sum"
   top: "group1_block0_sum"
-  aicorekernel {
-                kernelfile: "ReLU_fw_524288.o"
-                kernelname: "ReLU_fw_524288__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_524288.o"
-                kernelname: "ReLU_bw_524288__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group1_block1_conv0"
@@ -908,16 +818,6 @@ layer {
   type: "ReLU"
   bottom: "group1_block1_conv0"
   top: "group1_block1_conv0"
-aicorekernel {
-                kernelfile: "ReLU_fw_524288.o"
-                kernelname: "ReLU_fw_524288__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_524288.o"
-                kernelname: "ReLU_bw_524288__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group1_block1_conv1"
@@ -996,16 +896,6 @@ layer {
   type: "ReLU"
   bottom: "group1_block1_sum"
   top: "group1_block1_sum"
-aicorekernel {
-                kernelfile: "ReLU_fw_524288.o"
-                kernelname: "ReLU_fw_524288__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_524288.o"
-                kernelname: "ReLU_bw_524288__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group1_block2_conv0"
@@ -1074,16 +964,6 @@ layer {
   type: "ReLU"
   bottom: "group1_block2_conv0"
   top: "group1_block2_conv0"
-aicorekernel {
-                kernelfile: "ReLU_fw_524288.o"
-                kernelname: "ReLU_fw_524288__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_524288.o"
-                kernelname: "ReLU_bw_524288__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group1_block2_conv1"
@@ -1162,16 +1042,6 @@ layer {
   type: "ReLU"
   bottom: "group1_block2_sum"
   top: "group1_block2_sum"
-aicorekernel {
-                kernelfile: "ReLU_fw_524288.o"
-                kernelname: "ReLU_fw_524288__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_524288.o"
-                kernelname: "ReLU_bw_524288__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group2_block0_conv0"
@@ -1240,16 +1110,6 @@ layer {
   type: "ReLU"
   bottom: "group2_block0_conv0"
   top: "group2_block0_conv0"
-aicorekernel {
-                kernelfile: "ReLU_fw_262144.o"
-                kernelname: "ReLU_fw_262144__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_262144.o"
-                kernelname: "ReLU_bw_262144__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group2_block0_conv1"
@@ -1390,16 +1250,6 @@ layer {
   type: "ReLU"
   bottom: "group2_block0_sum"
   top: "group2_block0_sum"
-aicorekernel {
-                kernelfile: "ReLU_fw_262144.o"
-                kernelname: "ReLU_fw_262144__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_262144.o"
-                kernelname: "ReLU_bw_262144__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group2_block1_conv0"
@@ -1468,16 +1318,6 @@ layer {
   type: "ReLU"
   bottom: "group2_block1_conv0"
   top: "group2_block1_conv0"
-aicorekernel {
-                kernelfile: "ReLU_fw_262144.o"
-                kernelname: "ReLU_fw_262144__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_262144.o"
-                kernelname: "ReLU_bw_262144__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group2_block1_conv1"
@@ -1556,16 +1396,6 @@ layer {
   type: "ReLU"
   bottom: "group2_block1_sum"
   top: "group2_block1_sum"
-aicorekernel {
-                kernelfile: "ReLU_fw_262144.o"
-                kernelname: "ReLU_fw_262144__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_262144.o"
-                kernelname: "ReLU_bw_262144__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group2_block2_conv0"
@@ -1634,16 +1464,6 @@ layer {
   type: "ReLU"
   bottom: "group2_block2_conv0"
   top: "group2_block2_conv0"
-aicorekernel {
-                kernelfile: "ReLU_fw_262144.o"
-                kernelname: "ReLU_fw_262144__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_262144.o"
-                kernelname: "ReLU_bw_262144__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "group2_block2_conv1"
@@ -1722,16 +1542,6 @@ layer {
   type: "ReLU"
   bottom: "group2_block2_sum"
   top: "group2_block2_sum"
-aicorekernel {
-                kernelfile: "ReLU_fw_262144.o"
-                kernelname: "ReLU_fw_262144__kernel0"
-                block_num: 2
-            }
-aicorekernel {
-                kernelfile: "ReLU_bw_262144.o"
-                kernelname: "ReLU_bw_262144__kernel0"
-                block_num: 2
-            }
 }
 layer {
   name: "global_avg_pool"
