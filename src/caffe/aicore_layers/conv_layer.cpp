@@ -110,7 +110,7 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
   AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
   five2four(this->top_five_fp16_.cpu_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
-
+ 
 }
 
 

@@ -36,9 +36,28 @@ layer {
   }
 }
 layer {
+  name: "ff1_t"
+  type: "FourFive"
+  bottom: "data"
+  top: "data1"
+  fourfive_param {
+    four2five: true
+  }
+}
+layer {
+  name: "ff2_t"
+  type: "FourFive"
+  bottom: "data1"
+  top: "data2"
+  fourfive_param {
+    four2five: false
+    channels: 3
+  }
+}
+layer {
   name: "first_conv"
   type: "Convolution"
-  bottom: "data"
+  bottom: "data2"
   top: "first_conv"
   param {
     lr_mult: 1.0
@@ -1164,9 +1183,28 @@ layer {
   top: "group2_block2_sum"
 }
 layer {
+  name: "ff3_t"
+  type: "FourFive"
+  bottom: "group2_block2_sum"
+  top: "group2_block2_sum1"
+  fourfive_param {
+    four2five: true
+  }
+}
+layer {
+  name: "ff4_t"
+  type: "FourFive"
+  bottom: "group2_block2_sum1"
+  top: "group2_block2_sum2"
+  fourfive_param {
+    four2five: false
+    channels: 64
+  }
+}
+layer {
   name: "global_avg_pool"
   type: "Pooling"
-  bottom: "group2_block2_sum"
+  bottom: "group2_block2_sum2"
   top: "global_avg_pool"
   pooling_param {
     pool: AVE

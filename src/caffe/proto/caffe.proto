@@ -401,6 +401,7 @@ message LayerParameter {
   optional EmbedParameter embed_param = 137;
   optional ExpParameter exp_param = 111;
   optional FlattenParameter flatten_param = 135;
+  optional FourFiveParameter fourfive_param = 151;
   optional HDF5DataParameter hdf5_data_param = 112;
   optional HDF5OutputParameter hdf5_output_param = 113;
   optional HingeLossParameter hinge_loss_param = 114;
@@ -787,6 +788,13 @@ message FlattenParameter {
   // axis).
   optional int32 end_axis = 2 [default = -1];
 }
+
+/// Message that stores parameters used by FourFiveLayer
+message FourFiveParameter {
+  required bool four2five = 1;
+  optional uint32 channels = 2;
+}
+
 
 // Message that stores parameters used by HDF5DataLayer
 message HDF5DataParameter {
