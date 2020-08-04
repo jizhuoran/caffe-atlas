@@ -13,11 +13,13 @@
 namespace caffe {
 
 #ifdef USE_AICORE
-
 void caffe_aicore_memset(const size_t N, const int alpha, void* X);
-
-
 #endif
+
+template <typename Dtype>
+void five2four(const Dtype* five, Dtype* four, int batch_size, int channel_in, int in_height, int in_width);
+template <typename Dtype>
+void four2five(const Dtype* four, Dtype* five, int batch_size, int channel_in, int in_height, int in_width);
 
 
 // Caffe gemm provides a simpler interface to the gemm functions, with the

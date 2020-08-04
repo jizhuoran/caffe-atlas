@@ -17,6 +17,50 @@ void caffe_aicore_memset(const size_t N, const int alpha, void* X) {
 #endif
 
 
+template <typename Dtype>
+void five2four(const Dtype* five, Dtype* four, int batch_size, int channel_in, int in_height, int in_width) {
+  auto five_array = *reinterpret_cast<const Dtype (*)[batch_size][(channel_in+15)/16][in_height][in_width][16]>(five);
+  auto four_array = *reinterpret_cast<Dtype (*)[batch_size][channel_in][in_height][in_width]>(four);
+
+  #pragma omp parallel for
+  for (int n_i = 0; n_i < batch_size; n_i++) {
+    for (int c_i = 0; c_i < channel_in; c_i++) {
+      for (int h_i = 0; h_i < in_height; h_i++) {
+        for (int w_i = 0; w_i < in_width; w_i++) {
+          four_array[n_i][c_i][h_i][w_i] = five_array[n_i][c_i/16][h_i][w_i][c_i%16];
+        }
+      }
+    }
+  }
+}
+template void five2four<float>(const float* five, float* four, int batch_size, int channel_in, int in_height, int in_width);
+template void five2four<double>(const double* five, double* four, int batch_size, int channel_in, int in_height, int in_width);
+
+
+template <typename Dtype>
+void four2five(const Dtype* four, Dtype* five, int batch_size, int channel_in, int in_height, int in_width) {
+  auto five_array = *reinterpret_cast<Dtype (*)[batch_size][(channel_in+15)/16][in_height][in_width][16]>(five);
+  auto four_array = *reinterpret_cast<const Dtype (*)[batch_size][channel_in][in_height][in_width]>(four);
+
+  #pragma omp parallel for
+  for (int n_i = 0; n_i < batch_size; n_i++) {
+    for (int c_i = 0; c_i < channel_in; c_i++) {
+      for (int h_i = 0; h_i < in_height; h_i++) {
+        for (int w_i = 0; w_i < in_width; w_i++) {
+          five_array[n_i][c_i/16][h_i][w_i][c_i%16] = four_array[n_i][c_i][h_i][w_i];
+        }
+      }
+    }
+  }
+}
+template void four2five<float>(const float* four, float* five, int batch_size, int channel_in, int in_height, int in_width);
+template void four2five<double>(const double* four, double* five, int batch_size, int channel_in, int in_height, int in_width);
+
+
+
+
+
+
 template<>
 void caffe_cpu_gemm<float>(const CBLAS_TRANSPOSE TransA,
     const CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
