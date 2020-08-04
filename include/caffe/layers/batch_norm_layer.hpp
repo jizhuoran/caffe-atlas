@@ -65,6 +65,8 @@ class BatchNormLayer : public Layer<Dtype> {
   Dtype moving_average_fraction_;
   int channels_;
   Dtype eps_;
+  bool has_scale_ = false;
+  bool has_bias_ = false;
 
   // extra temporarary variables is used to carry out sums/broadcasting
   // using BLAS
