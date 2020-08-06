@@ -83,6 +83,26 @@ template void four2five<float>(const float* four, _Float16* five, int batch_size
 template void four2five<double>(const double* four, _Float16* five, int batch_size, int channel_in, int in_height, int in_width);
 
 
+template <typename Dtype>
+void half2float(int N, const _Float16* half_data, Dtype* float_data) {
+  #pragma omp parallel for
+  for(int i = 0; i < N; ++i) {
+    float_data[i] = static_cast<float>(half_data[i]);
+  }
+}
+template void half2float<float>(int N, const _Float16* half_data, float* float_data);
+template void half2float<double>(int N, const _Float16* half_data, double* float_data);
+
+
+template <typename Dtype>
+void float2half(int N, const Dtype* float_data, _Float16* half_data) {
+  #pragma omp parallel for
+  for(int i = 0; i < N; ++i) {
+    half_data[i] = static_cast<_Float16>(float_data[i]);
+  }
+}
+template void float2half<float>(int N, const float* float_data, _Float16* half_data);
+template void float2half<double>(int N, const double* float_data, _Float16* half_data);
 
 
 template <typename Dtype>
@@ -90,6 +110,7 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
 
   four2five(bottom[0]->cpu_data(), this->bottom_five_fp16_.mutable_cpu_data(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
+  // float2half(bottom[0]->count(), bottom[0]->cpu_data(), this->bottom_five_fp16_.mutable_cpu_data());
 
   ochw2fracZ(this->blobs_[0]->cpu_data(), this->fracZ_fp16_.mutable_cpu_data(), this->num_output_, this->channels_, this->blobs_[0]->shape(2), this->blobs_[0]->shape(3));
 
@@ -109,6 +130,7 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
   AICORE_CHECK(rtKernelLaunch(this->aicore_kernel_info_[0].kernel_, this->aicore_kernel_info_[0].block_num_, args.data(), args.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
   AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
 
+  // half2float(top[0]->count(),this->top_five_fp16_.cpu_data(), top[0]->mutable_cpu_data());
   five2four(this->top_five_fp16_.cpu_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
  
 }
