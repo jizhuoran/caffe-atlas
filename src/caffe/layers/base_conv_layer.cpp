@@ -8,6 +8,30 @@
 
 namespace caffe {
 
+
+#ifdef USE_AICORE
+template <typename Dtype>
+void ochw2fracZ(const Dtype* ochw, Dtype* fracZ, int channel_out, int channel_in, int kernel_h, int kernel_w) {
+  auto fracZ_array = *reinterpret_cast<Dtype (*)[kernel_h * kernel_w * ((channel_in + 15) / 16)][(channel_out + 15) / 16][16][16]>(fracZ);
+  auto ochw_array = *reinterpret_cast<const Dtype (*)[channel_out][channel_in][kernel_h][kernel_w]>(ochw);
+  
+  #pragma omp parallel for
+  for (int o_i = 0; o_i < channel_out; o_i++) {
+    for (int c_i = 0; c_i < channel_in; c_i++) {
+      for (int h_i = 0; h_i < kernel_h; h_i++) {
+        for (int w_i = 0; w_i < kernel_w; w_i++) {
+          fracZ_array[(c_i/16) * (kernel_w * kernel_h) + h_i * (kernel_w) + w_i][(o_i)/16][o_i%16][c_i%16] = ochw_array[o_i][c_i][h_i][w_i];
+        }
+      }
+    }
+  }
+}
+
+template void ochw2fracZ<float>(const float* ochw, float* fracZ, int channel_out, int channel_in, int kernel_h, int kernel_w);
+template void ochw2fracZ<double>(const double* ochw, double* fracZ, int channel_out, int channel_in, int kernel_h, int kernel_w);
+#endif
+
+
 template <typename Dtype>
 void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
@@ -193,10 +217,19 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     }
     // Initialize and fill the weights:
     // output channels x input channels per-group x kernel height x kernel width
+#ifdef USE_AICORE
+  Blob<Dtype> original_weight(weight_shape);
+  shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
+        this->layer_param_.convolution_param().weight_filler()));
+  weight_filler->Fill(&original_weight);  
+  this->blobs_[0].reset(new Blob<Dtype>(kernel_shape_data[0] * kernel_shape_data[1] *((channels_+15)/16), (num_output_+15)/16, 16, 16));
+  ochw2fracZ(original_weight.cpu_data(), this->blobs_[0]->mutable_cpu_data(), weight_shape[0], weight_shape[1], weight_shape[2], weight_shape[3]);
+#else    
     this->blobs_[0].reset(new Blob<Dtype>(weight_shape));
     shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
         this->layer_param_.convolution_param().weight_filler()));
     weight_filler->Fill(this->blobs_[0].get());
+#endif    
     // If necessary, initialize and fill the biases.
     if (bias_term_) {
       this->blobs_[1].reset(new Blob<Dtype>(bias_shape));
