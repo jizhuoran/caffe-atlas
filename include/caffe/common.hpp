@@ -22,6 +22,9 @@
 #define STRINGIFY(m) #m
 #define AS_STRING(m) STRINGIFY(m)
 
+#define CHANNEL_16 16 //UGLY As we do five
+
+
 // gflags 2.1 issue: namespace google was changed to gflags without warning.
 // Luckily we will be able to use GFLAGS_GFLAGS_H_ to detect if it is version
 // 2.1. If yes, we will add a temporary solution to redirect the namespace.

@@ -199,6 +199,7 @@ void PoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     }
     break;
   case PoolingParameter_PoolMethod_AVE:
+    #pragma omp parallel for
     for (int i = 0; i < top_count; ++i) {
       top_data[i] = 0;
     }

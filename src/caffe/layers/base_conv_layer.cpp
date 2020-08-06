@@ -34,7 +34,11 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   force_nd_im2col_ = conv_param.force_nd_im2col();
   channel_axis_ = bottom[0]->CanonicalAxisIndex(conv_param.axis());
   const int first_spatial_axis = channel_axis_ + 1;
+#ifdef USE_AICORE
+  const int num_axes = bottom[0]->num_axes() - 1;
+#else
   const int num_axes = bottom[0]->num_axes();
+#endif
   num_spatial_axes_ = num_axes - first_spatial_axis;
   CHECK_GE(num_spatial_axes_, 0);
   vector<int> spatial_dim_blob_shape(1, std::max(num_spatial_axes_, 1));
@@ -132,7 +136,15 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     if (!is_1x1_) { break; }
   }
   // Configure output channels and groups.
-  channels_ = bottom[0]->shape(channel_axis_);
+#ifdef USE_AICORE
+  if(this->layer_param_.convolution_param().has_in_output()) {
+    channels_ = this->layer_param_.convolution_param().in_output();
+  } else {
+    channels_ = bottom[0]->shape(channel_axis_) * CHANNEL_16;
+  }
+#else
+    channels_ = bottom[0]->shape(channel_axis_);
+#endif
   num_output_ = this->layer_param_.convolution_param().num_output();
   CHECK_GT(num_output_, 0);
   group_ = this->layer_param_.convolution_param().group();
@@ -213,11 +225,16 @@ template <typename Dtype>
 void BaseConvolutionLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   const int first_spatial_axis = channel_axis_ + 1;
-  CHECK_EQ(bottom[0]->num_axes(), first_spatial_axis + num_spatial_axes_)
-      << "bottom num_axes may not change.";
+#ifdef USE_AICORE
+  CHECK_EQ(bottom[0]->num_axes() - 1, first_spatial_axis + num_spatial_axes_) << "bottom num_axes may not change.";
+#else
+  CHECK_EQ(bottom[0]->num_axes(), first_spatial_axis + num_spatial_axes_) << "bottom num_axes may not change.";
+#endif
   num_ = bottom[0]->count(0, channel_axis_);
+#ifndef USE_AICORE
   CHECK_EQ(bottom[0]->shape(channel_axis_), channels_)
       << "Input size incompatible with convolution kernel.";
+#endif
   // TODO: generalize to handle inputs of different shapes.
   for (int bottom_id = 1; bottom_id < bottom.size(); ++bottom_id) {
     CHECK(bottom[0]->shape() == bottom[bottom_id]->shape())
@@ -230,10 +247,17 @@ void BaseConvolutionLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   compute_output_shape();
   vector<int> top_shape(bottom[0]->shape().begin(),
       bottom[0]->shape().begin() + channel_axis_);
+#ifdef USE_AICORE
+  top_shape.push_back((num_output_+15)/16);
+#else
   top_shape.push_back(num_output_);
+#endif
   for (int i = 0; i < num_spatial_axes_; ++i) {
     top_shape.push_back(output_shape_[i]);
   }
+#ifdef USE_AICORE
+  top_shape.push_back(16);
+#endif
   for (int top_id = 0; top_id < top.size(); ++top_id) {
     top[top_id]->Reshape(top_shape);
   }

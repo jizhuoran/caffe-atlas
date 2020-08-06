@@ -604,6 +604,8 @@ message ContrastiveLossParameter {
 }
 
 message ConvolutionParameter {
+  optional uint32 in_output = 20; // The number of outputs for the layer UGLY As we do five
+  
   optional uint32 num_output = 1; // The number of outputs for the layer
   optional bool bias_term = 2 [default = true]; // whether to have bias terms
 

@@ -105,13 +105,14 @@ template void float2half<float>(int N, const float* float_data, _Float16* half_d
 template void float2half<double>(int N, const double* float_data, _Float16* half_data);
 
 
+
+
+
 template <typename Dtype>
 void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
 
-  four2five(bottom[0]->cpu_data(), this->bottom_five_fp16_.mutable_cpu_data(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
-  // float2half(bottom[0]->count(), bottom[0]->cpu_data(), this->bottom_five_fp16_.mutable_cpu_data());
-
+  float2half(bottom[0]->count(), bottom[0]->cpu_data(), this->bottom_five_fp16_.mutable_cpu_data());
   ochw2fracZ(this->blobs_[0]->cpu_data(), this->fracZ_fp16_.mutable_cpu_data(), this->num_output_, this->channels_, this->blobs_[0]->shape(2), this->blobs_[0]->shape(3));
 
   std::vector<void*> args = {(void*)this->bottom_five_fp16_.aicore_data(), (void*)this->fracZ_fp16_.aicore_data()};
@@ -125,14 +126,10 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
     }
     args.push_back((void*)this->bias_fp16_.aicore_data());
   }
-  args.push_back((void*)this->top_five_fp16_.mutable_aicore_data());
+  args.push_back((void*)top[0]->mutable_aicore_data());
 
   AICORE_CHECK(rtKernelLaunch(this->aicore_kernel_info_[0].kernel_, this->aicore_kernel_info_[0].block_num_, args.data(), args.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
   AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
-
-  // half2float(top[0]->count(),this->top_five_fp16_.cpu_data(), top[0]->mutable_cpu_data());
-  five2four(this->top_five_fp16_.cpu_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
- 
 }
 
 
@@ -144,6 +141,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 
   // Bias gradient, if necessary.
   if (this->bias_term_ && this->param_propagate_down_[1]) {
+    LOG(ERROR) << "NOT IMPLEMENTED";
     const Dtype* top_diff = top[0]->cpu_diff();
     Dtype* bias_diff = this->blobs_[1]->mutable_cpu_diff();
     for (int i = 0; i < this->num_; ++i) {
@@ -156,7 +154,7 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
     }
   }
 
-  four2five(top[0]->cpu_diff(), this->top_five_fp16_.mutable_cpu_diff(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
+  float2half(top[0]->count(), top[0]->cpu_diff(), this->top_five_fp16_.mutable_cpu_diff());
 
   std::vector<void*> args = { (void*)this->bottom_five_fp16_.aicore_data(), 
                               (void*)this->top_five_fp16_.aicore_diff(),
@@ -171,13 +169,10 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 
   std::vector<void*> args1 = { (void*)this->fracZ_fp16_.aicore_data(), 
                               (void*)this->top_five_fp16_.aicore_diff(),
-                              (void*)this->bottom_five_fp16_.mutable_aicore_diff()};
+                              (void*)bottom[0]->mutable_aicore_diff()};
 
   AICORE_CHECK(rtKernelLaunch(this->aicore_kernel_info_[2].kernel_, this->aicore_kernel_info_[2].block_num_, args1.data(), args1.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
   AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
-  five2four(this->bottom_five_fp16_.cpu_diff(), bottom[0]->mutable_cpu_diff(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
-
-
 }
 
 INSTANTIATE_LAYER_AICORE_FUNCS(ConvolutionLayer);
