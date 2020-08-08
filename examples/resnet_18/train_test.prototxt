@@ -1521,9 +1521,17 @@ layer {
   top: "group2_block2_sum"
 }
 layer {
+  type: "FourFive"
+  bottom: "group2_block2_sum"
+  top: "group2_block2_sum_debug_auto_in"
+  fourfive_param {
+    four2five: true
+  }
+}
+layer {
   name: "global_avg_pool"
   type: "Pooling"
-  bottom: "group2_block2_sum"
+  bottom: "group2_block2_sum_debug_auto_in"
   top: "global_avg_pool"
   pooling_param {
     pool: AVE
@@ -1531,9 +1539,18 @@ layer {
   }
 }
 layer {
+  type: "FourFive"
+  bottom: "global_avg_pool"
+  top: "global_avg_pool_debug_auto_out"
+  fourfive_param {
+    four2five: false
+    channels: 64
+  }
+}
+layer {
   name: "fc"
   type: "InnerProduct"
-  bottom: "global_avg_pool"
+  bottom: "global_avg_pool_debug_auto_out"
   top: "fc"
   param {
     lr_mult: 1.0

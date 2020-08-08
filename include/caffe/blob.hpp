@@ -235,6 +235,9 @@ class Blob {
   void FromProto(const BlobProto& proto, bool reshape = true);
   void ToProto(BlobProto* proto, bool write_diff = false) const;
 
+#ifdef USE_AICORE
+  Blob<_Float16>* fp16_copy_ = nullptr;
+#endif
   /// @brief Compute the sum of absolute values (L1 norm) of the data.
   Dtype asum_data() const;
   /// @brief Compute the sum of absolute values (L1 norm) of the diff.

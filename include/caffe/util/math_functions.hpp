@@ -14,12 +14,54 @@ namespace caffe {
 
 #ifdef USE_AICORE
 void caffe_aicore_memset(const size_t N, const int alpha, void* X);
-#endif
 
 template <typename Dtype>
-void five2four(const Dtype* five, Dtype* four, int batch_size, int channel_in, int in_height, int in_width);
+void half2float(int N, const _Float16* half_data, Dtype* float_data) {
+  #pragma omp parallel for
+  for(int i = 0; i < N; ++i) {
+    float_data[i] = static_cast<float>(half_data[i]);
+  }
+}
+
 template <typename Dtype>
-void four2five(const Dtype* four, Dtype* five, int batch_size, int channel_in, int in_height, int in_width);
+void float2half(int N, const Dtype* float_data, _Float16* half_data) {
+  #pragma omp parallel for
+  for(int i = 0; i < N; ++i) {
+    half_data[i] = static_cast<_Float16>(float_data[i]);
+  }
+}
+#endif
+
+template <typename Dtype1, typename Dtype2>
+void five2four(const Dtype1* five, Dtype2* four, int batch_size, int channel_in, int in_height, int in_width) {
+  auto five_array = *reinterpret_cast<const Dtype1 (*)[batch_size][(channel_in+15)/16][in_height][in_width][16]>(five);
+  auto four_array = *reinterpret_cast<Dtype2 (*)[batch_size][channel_in][in_height][in_width]>(four);
+  #pragma omp parallel for
+  for (int n_i = 0; n_i < batch_size; n_i++) {
+    for (int c_i = 0; c_i < channel_in; c_i++) {
+      for (int h_i = 0; h_i < in_height; h_i++) {
+        for (int w_i = 0; w_i < in_width; w_i++) {
+          four_array[n_i][c_i][h_i][w_i] = five_array[n_i][c_i/16][h_i][w_i][c_i%16];
+        }
+      }
+    }
+  }
+}
+template <typename Dtype1, typename Dtype2>
+void four2five(const Dtype1* four, Dtype2* five, int batch_size, int channel_in, int in_height, int in_width) {
+  auto five_array = *reinterpret_cast<Dtype2 (*)[batch_size][(channel_in+15)/16][in_height][in_width][16]>(five);
+  auto four_array = *reinterpret_cast<const Dtype1 (*)[batch_size][channel_in][in_height][in_width]>(four);
+  #pragma omp parallel for
+  for (int n_i = 0; n_i < batch_size; n_i++) {
+    for (int c_i = 0; c_i < channel_in; c_i++) {
+      for (int h_i = 0; h_i < in_height; h_i++) {
+        for (int w_i = 0; w_i < in_width; w_i++) {
+          five_array[n_i][c_i/16][h_i][w_i][c_i%16] = four_array[n_i][c_i][h_i][w_i];
+        }
+      }
+    }
+  }
+}
 
 
 // Caffe gemm provides a simpler interface to the gemm functions, with the

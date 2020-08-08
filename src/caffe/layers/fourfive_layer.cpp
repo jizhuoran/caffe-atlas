@@ -31,11 +31,26 @@ void FourFiveLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
 
   if(four2five_) {
-    four2five(bottom[0]->cpu_data(), top[0]->mutable_cpu_data(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
+    // if(bottom[0]->fp16_copy_ != nullptr && top[0]->fp16_copy_ != nullptr) {
+    //   LOG(ERROR) << "Interesting, why both are fp16 and fourfive conversion is still needed";
+    // } else if (bottom[0]->fp16_copy_ != nullptr) {
+    //   four2five(bottom[0]->fp16_copy_->cpu_data(), top[0]->mutable_cpu_data(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
+    // } else if (top[0]->fp16_copy_ != nullptr) {
+    //   four2five(bottom[0]->cpu_data(), top[0]->fp16_copy_->mutable_cpu_data(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
+    // } else {
+      four2five(bottom[0]->cpu_data(), top[0]->mutable_cpu_data(), bottom[0]->shape(0), bottom[0]->shape(1), bottom[0]->shape(2), bottom[0]->shape(3));
+    // }  
   } else {
-    five2four(bottom[0]->cpu_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
+    // if(bottom[0]->fp16_copy_ != nullptr && top[0]->fp16_copy_ != nullptr) {
+    //   LOG(ERROR) << "Interesting, why both are fp16 and fourfive conversion is still needed";
+    // } else if (bottom[0]->fp16_copy_ != nullptr) {
+    //   five2four(bottom[0]->fp16_copy_->cpu_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
+    // } else if (top[0]->fp16_copy_ != nullptr) {
+    //   five2four(bottom[0]->cpu_data(), top[0]->fp16_copy_->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
+    // } else {
+      five2four(bottom[0]->cpu_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
+    // }  
   }
-
 }
 
 template <typename Dtype>

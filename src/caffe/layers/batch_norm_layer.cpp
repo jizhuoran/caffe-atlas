@@ -7,6 +7,26 @@
 #include "caffe/util/math_functions.hpp"
 
 
+#define CUDA_KERNEL_LOOP(i, n) \
+  for (int i = blockIdx.x * blockDim.x + threadIdx.x; \
+       i < (n); \
+       i += blockDim.x * gridDim.x)
+
+
+#define FIVE_LOOP(statement) \
+  for(int n = 0; n < num; ++n) { \
+    for(int c1 = 0; c1 < five_channels_; ++c1) { \
+      for(int x = 0; x < spatial_dim; ++x) { \
+        for(int c0 = 0; c0 < 16; ++c0) { \
+            size_t index = n * five_channels_ * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0; \
+            statement \
+        } \
+      } \
+    } \
+  }
+  
+
+
 namespace caffe {
 
 template <typename Dtype>
@@ -17,10 +37,13 @@ void BatchNormLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   use_global_stats_ = this->phase_ == TEST;
   if (param.has_use_global_stats())
     use_global_stats_ = param.use_global_stats();
-  if (bottom[0]->num_axes() == 1)
+  if (bottom[0]->num_axes() == 1) {
     channels_ = 1 * CHANNEL_16;
-  else
+    five_channels_ = 1;
+  } else {
     channels_ = bottom[0]->shape(1) * CHANNEL_16;
+    five_channels_ = bottom[0]->shape(1);
+  }
 
   eps_ = param.eps();
   if (this->blobs_.size() > 0) {
@@ -62,6 +85,12 @@ void BatchNormLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
                 this->blobs_[i]->mutable_cpu_data());
     }
   }
+
+  need_relu_ = param.need_relu();
+  if(need_relu_) {
+    relu_indicator_.resize(bottom[0]->count());
+  }
+
   // Mask statistics from optimization by setting local learning rates
   // for mean, variance, and the bias correction to zero.
   for (int i = 0; i < this->blobs_.size(); ++i) {
@@ -161,17 +190,11 @@ void BatchNormLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     }
 
     #pragma omp parallel for reduction(+:mean_data_[:channels_], variance_data_[:channels_])
-    for(int n = 0; n < num; ++n) {
-      for(int c1 = 0; c1 < ((channels_+15)/16); ++c1) {
-        for(int x = 0; x < spatial_dim; ++x) {
-          for(int c0 = 0; c0 < 16; ++c0) {
-            float data_item = float(five_bottom_data[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0]);
-            mean_data_[c1 * 16 + c0] += data_item;
-            variance_data_[c1 * 16 + c0] += data_item * data_item;
-          }
-        }
-      }
-    }
+    FIVE_LOOP({
+      float data_item = five_bottom_data[index];
+      mean_data_[c1 * 16 + c0] += data_item;
+      variance_data_[c1 * 16 + c0] += data_item * data_item;
+    });
       
     for(int c = 0; c < channels_; ++c) {
       mean_data_[c] *= (float(1.) / (num * spatial_dim));
@@ -182,58 +205,55 @@ void BatchNormLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     }
 
     #pragma omp parallel for
-    for(int n = 0; n < num; ++n) {
-      for(int c1 = 0; c1 < ((channels_+15)/16); ++c1) {
-        for(int x = 0; x < spatial_dim; ++x) {
-          for(int c0 = 0; c0 < 16; ++c0) {
-            size_t index = n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0;
-            five_x_norm_data[index] = (five_bottom_data[index] - mean_data_[c1*16+c0]) * variance_data_[c1*16+c0];
-          }
-        }
-      }
-    }
+    FIVE_LOOP({
+      five_x_norm_data[index] = (five_bottom_data[index] - mean_data_[c1*16+c0]) * variance_data_[c1*16+c0];
+    });
   }
 
-  // five2four(five_x_norm_data, x_norm_.mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
-
-
+  Dtype* five_top_data = top[0]->mutable_cpu_data(); //five_top.mutable_cpu_data();
   if(has_scale_) {
-    Dtype* five_top_data = top[0]->mutable_cpu_data(); //five_top.mutable_cpu_data();
     auto scale_data = this->blobs_[3]->cpu_data();
     if(has_bias_) {
       const Dtype* bias_data = this->blobs_[4]->cpu_data();
-      #pragma omp parallel for
-      for (int n = 0; n < num; ++n) {
-        for(int c1 = 0; c1 < ((channels_+15)/16); ++c1) {
-          for (int x = 0; x < spatial_dim; ++x) {
-            for(int c0 = 0; c0 < 16; ++c0) {
-              five_top_data[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0] = scale_data[c1*16+c0] * five_x_norm_data[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0] + bias_data[c1*16+c0];
-            }
-          }
-        }
+      if(need_relu_) {
+        #pragma omp parallel for
+        FIVE_LOOP({
+          Dtype data_item = scale_data[c1*16+c0] * five_x_norm_data[index] + bias_data[c1*16+c0];
+          relu_indicator_[index] = data_item > Dtype(.0);
+          five_top_data[index] = relu_indicator_[index] ? data_item : Dtype(.0);
+        });
+      } else {
+        #pragma omp parallel for
+        FIVE_LOOP({
+          five_top_data[index] = scale_data[c1*16+c0] * five_x_norm_data[index] + bias_data[c1*16+c0];
+        });
       }
     } else {
-      #pragma omp parallel for
-      for (int n = 0; n < num; ++n) {
-        for(int c1 = 0; c1 < ((channels_+15)/16); ++c1) {
-          for (int x = 0; x < spatial_dim; ++x) {
-            for(int c0 = 0; c0 < 16; ++c0) {
-              five_top_data[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0] = scale_data[c1*16+c0] * five_x_norm_data[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0];
-            }
-          }
-        }
+      if(need_relu_) {
+        #pragma omp parallel for
+        FIVE_LOOP({
+          Dtype data_item = scale_data[c1*16+c0] * five_x_norm_data[index];
+          relu_indicator_[index] = data_item > Dtype(.0);
+          five_top_data[index] = relu_indicator_[index] ? data_item : Dtype(.0);
+        });
+      } else {
+        #pragma omp parallel for
+        FIVE_LOOP({
+          five_top_data[index] = scale_data[c1*16+c0] * five_x_norm_data[index];
+        });
       }
     }
   } else {
-    caffe_copy(x_norm_.count(), five_x_norm_data, top[0]->mutable_cpu_data());
-    // caffe_copy(five_x_norm.count(), five_x_norm_data, five_top.mutable_cpu_data());
+    if(need_relu_) {
+      #pragma omp parallel for
+      FIVE_LOOP({
+        relu_indicator_[index] = five_x_norm_data[index] > Dtype(.0);
+        five_top_data[index] = relu_indicator_[index] ? five_x_norm_data[index] : Dtype(.0);
+      });
+    } else {
+      caffe_copy(x_norm_.count(), five_x_norm_data, top[0]->mutable_cpu_data());
+    }
   }
-
-
-  // five2four(five_top.cpu_data(), top[0]->mutable_cpu_data(), top[0]->shape(0), top[0]->shape(1), top[0]->shape(2), top[0]->shape(3));
-  
-
-
 }
 
 template <typename Dtype>
@@ -247,51 +267,58 @@ void BatchNormLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   const Dtype* five_x_norm_data = x_norm_.cpu_data(); // five_x_norm.cpu_data();
   const Dtype* five_top_diff = top[0]->cpu_diff(); // five_top.cpu_diff();
 
-  if(has_bias_ && has_scale_) {
+  if(has_scale_) {
     Dtype* scale_diff = this->blobs_[3]->mutable_cpu_diff();
-    Dtype* bias_diff = this->blobs_[4]->mutable_cpu_diff();
     Dtype* five_bottom_diff = bottom[0]->mutable_cpu_diff(); // five_bottom.mutable_cpu_diff();
 
     const Dtype* scale_data = this->blobs_[3]->cpu_data();
-    
-    // #pragma omp parallel for
-    for(int c = 0; c < channels_; ++c) {
-      bias_diff[c] = Dtype(.0);
-      scale_diff[c] = Dtype(.0);
-    }
-
-    #pragma omp parallel for reduction(+:scale_diff[:channels_], bias_diff[:channels_])
-    for (int n = 0; n < num; ++n) {
-      for(int c1 = 0; c1 < ((channels_+15)/16); ++c1) {
-        for (int x = 0; x < spatial_dim; ++x) {
-          for(int c0 = 0; c0 < 16; ++c0) {
-            scale_diff[c1*16+c0] += five_top_diff[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0] * five_x_norm_data[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0];
-            bias_diff[c1*16+c0] += five_top_diff[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0];
-            five_bottom_diff[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0] = five_top_diff[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0] * scale_data[c1*16+c0];
-          }
-        }
-      }
-    }
-  } else if (has_scale_) {
-    Dtype* scale_diff = this->blobs_[3]->mutable_cpu_diff();
-    Dtype* five_bottom_diff = bottom[0]->mutable_cpu_diff(); // five_bottom.mutable_cpu_diff();
-
     for(int c = 0; c < channels_; ++c) {
       scale_diff[c] = Dtype(.0);
     }
 
-    const Dtype* scale_data = this->blobs_[3]->cpu_data();
-    #pragma omp parallel for reduction(+:scale_diff[:channels_])
-    for (int n = 0; n < num; ++n) {
-      for(int c1 = 0; c1 < ((channels_+15)/16); ++c1) {
-        for (int x = 0; x < spatial_dim; ++x) {
-          for(int c0 = 0; c0 < 16; ++c0) {
-            scale_diff[c1*16+c0] += five_top_diff[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0] * five_x_norm_data[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0];
-            five_bottom_diff[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0] = five_top_diff[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0] * scale_data[c1*16+c0];
-          }
-        }
+    if(has_bias_) {
+      Dtype* bias_diff = this->blobs_[4]->mutable_cpu_diff();
+      for(int c = 0; c < channels_; ++c) {
+        bias_diff[c] = Dtype(.0);
       }
-    }
+
+      if(need_relu_) {
+        #pragma omp parallel for reduction(+:scale_diff[:channels_], bias_diff[:channels_])
+        FIVE_LOOP({
+          Dtype relu_diff = relu_indicator_[index] ? five_top_diff[index] : Dtype(.0); 
+          scale_diff[c1*16+c0] += relu_diff * five_x_norm_data[index];
+          bias_diff[c1*16+c0] += relu_diff;
+          five_bottom_diff[index] = relu_diff * scale_data[c1*16+c0];
+        });
+      } else {
+        #pragma omp parallel for reduction(+:scale_diff[:channels_], bias_diff[:channels_])
+        FIVE_LOOP({
+          scale_diff[c1*16+c0] += five_top_diff[index] * five_x_norm_data[index];
+          bias_diff[c1*16+c0] += five_top_diff[index];
+          five_bottom_diff[index] = five_top_diff[index] * scale_data[c1*16+c0];
+        });
+      }
+
+      
+    } else {
+      if(need_relu_) {
+        #pragma omp parallel for reduction(+:scale_diff[:channels_])
+        FIVE_LOOP({
+          Dtype relu_diff = relu_indicator_[index] ? five_top_diff[index] : Dtype(.0); 
+          scale_diff[c1*16+c0] += relu_diff * five_x_norm_data[index];
+          five_bottom_diff[index] = relu_diff * scale_data[c1*16+c0];
+        });
+      } else {
+        #pragma omp parallel for reduction(+:scale_diff[:channels_])
+        FIVE_LOOP({
+          scale_diff[c1*16+c0] += five_top_diff[index] * five_x_norm_data[index];
+          five_bottom_diff[index] = five_top_diff[index] * scale_data[c1*16+c0];
+        });
+      }
+
+
+      
+    } 
   }
 
   const Dtype* top_diff;
@@ -323,29 +350,15 @@ void BatchNormLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   }
 
   #pragma omp parallel for reduction(+:mean_data_[:channels_], fp32_temp_data_[:channels_])
-  for (int n = 0; n < num; ++n) {
-    for(int c1 = 0; c1 < ((channels_+15)/16); ++c1) {
-      for (int x = 0; x < spatial_dim; ++x) {
-        for(int c0 = 0; c0 < 16; ++c0) {
-          mean_data_[c1*16+c0] += five_top_data[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0] * five_top_diff[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0];
-          fp32_temp_data_[c1*16+c0] += five_top_diff[n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0];
-        }
-      }
-    }
-  }
+  FIVE_LOOP({
+    mean_data_[c1*16+c0] += five_top_data[index] * five_top_diff[index];
+    fp32_temp_data_[c1*16+c0] += five_top_diff[index];
+  });
 
   #pragma omp parallel for
-  for (int n = 0; n < num; ++n) {
-    for(int c1 = 0; c1 < ((channels_+15)/16); ++c1) {
-      for (int x = 0; x < spatial_dim; ++x) {
-        for(int c0 = 0; c0 < 16; ++c0) {
-          size_t index = n * ((channels_+15)/16) * spatial_dim * CHANNEL_16 + c1 * spatial_dim * CHANNEL_16 + x * CHANNEL_16 + c0;
-          five_bottom_diff[index] = (five_top_diff[index] - Dtype(1. / (num * spatial_dim)) * (fp32_temp_data_[c1*16+c0] + (mean_data_[c1*16+c0] * five_top_data[index]))) * variance_data_[c1*16+c0];
-        }
-      }
-    }
-  }
-
+  FIVE_LOOP({
+    five_bottom_diff[index] = (five_top_diff[index] - Dtype(1. / (num * spatial_dim)) * (fp32_temp_data_[c1*16+c0] + (mean_data_[c1*16+c0] * five_top_data[index]))) * variance_data_[c1*16+c0];
+  });
 }
 
 #else

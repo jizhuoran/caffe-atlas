@@ -43,8 +43,17 @@ class PoolingLayer : public Layer<Dtype> {
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
   virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+#ifdef USE_AICORE
+  virtual void Forward_aicore(const vector<Blob<Dtype>*>& bottom,
+      const vector<Blob<Dtype>*>& top);
+  virtual void Backward_aicore(const vector<Blob<Dtype>*>& top,
+      const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+  Blob<_Float16> bottom_fp16_, top_fp16_;
+    
+#endif
 
   int kernel_h_, kernel_w_;
+  int pool_size_, bottom_spatial_dim_, top_spatial_dim_;
   int stride_h_, stride_w_;
   int pad_h_, pad_w_;
   int channels_;

@@ -1,4 +1,5 @@
 #include "caffe/layers/conv_layer.hpp"
+#include <chrono>
 
 namespace caffe {
 
@@ -84,37 +85,15 @@ template void four2five<double>(const double* four, _Float16* five, int batch_si
 
 
 template <typename Dtype>
-void half2float(int N, const _Float16* half_data, Dtype* float_data) {
-  #pragma omp parallel for
-  for(int i = 0; i < N; ++i) {
-    float_data[i] = static_cast<float>(half_data[i]);
-  }
-}
-template void half2float<float>(int N, const _Float16* half_data, float* float_data);
-template void half2float<double>(int N, const _Float16* half_data, double* float_data);
-
-
-template <typename Dtype>
-void float2half(int N, const Dtype* float_data, _Float16* half_data) {
-  #pragma omp parallel for
-  for(int i = 0; i < N; ++i) {
-    half_data[i] = static_cast<_Float16>(float_data[i]);
-  }
-}
-template void float2half<float>(int N, const float* float_data, _Float16* half_data);
-template void float2half<double>(int N, const double* float_data, _Float16* half_data);
-
-
-
-
-
-template <typename Dtype>
 void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
 
   float2half(bottom[0]->count(), bottom[0]->cpu_data(), this->bottom_five_fp16_.mutable_cpu_data());
   float2half(this->blobs_[0]->count(), this->blobs_[0]->cpu_data(), this->fracZ_fp16_.mutable_cpu_data());
-  // ochw2fracZ(this->blobs_[0]->cpu_data(), this->fracZ_fp16_.mutable_cpu_data(), this->num_output_, this->channels_, this->blobs_[0]->shape(2), this->blobs_[0]->shape(3));
+
+#ifdef PROFILE
+    std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
+#endif
 
   std::vector<void*> args = {(void*)this->bottom_five_fp16_.aicore_data(), (void*)this->fracZ_fp16_.aicore_data()};
   std::unique_ptr<Blob<_Float16>> bias_fp16;
@@ -131,6 +110,12 @@ void ConvolutionLayer<Dtype>::Forward_aicore(const vector<Blob<Dtype>*>& bottom,
 
   AICORE_CHECK(rtKernelLaunch(this->aicore_kernel_info_[0].kernel_, this->aicore_kernel_info_[0].block_num_, args.data(), args.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
   AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
+
+#ifdef PROFILE
+    std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
+    std::cout << "Real Conv FW time is " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
+#endif
+
 }
 
 

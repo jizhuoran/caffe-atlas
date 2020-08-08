@@ -341,6 +341,8 @@ void BaseConvolutionLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   if(Caffe::aicore_mode()) {
     bottom_five_fp16_.Reshape(num_, (channels_+15)/16, bottom[0]->shape(2), bottom[0]->shape(3) * 16);
     top_five_fp16_.Reshape(num_, (num_output_+15)/16, top[0]->shape(2), top[0]->shape(3) * 16);
+    bottom[0]->fp16_copy_ = &bottom_five_fp16_;
+    top[0]->fp16_copy_ = &top_five_fp16_;
   }
 #endif
 
