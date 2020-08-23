@@ -8,7 +8,13 @@ set(Caffe_COMPILE_OPTIONS "")
 # ---[ AICORE
 if(CROSS_BUILD)
   list(APPEND Caffe_LINKER_LIBS PUBLIC ${CMAKE_FIND_ROOT_PATH}/usr/lib64/libruntime.so)
+  list(APPEND Caffe_LINKER_LIBS PUBLIC /home/zrji/arm_root/mythings_16/usr/lib/libps.a)
+  list(APPEND Caffe_LINKER_LIBS PUBLIC /home/zrji/arm_root/mythings_16/usr/lib/libzmq.a)
+else()
+  list(APPEND Caffe_LINKER_LIBS PUBLIC /home/zrji/ps-lite/build/libps.a)
+  list(APPEND Caffe_LINKER_LIBS PUBLIC /home/zrji/ps-lite/deps/lib/libzmq.a)
 endif()
+
 
 
 # ---[ Boost

@@ -1,3 +1,4 @@
+#include <cstring>
 #include <string>
 #include <vector>
 
@@ -5,6 +6,8 @@
 #include "caffe/util/hdf5.hpp"
 #include "caffe/util/io.hpp"
 #include "caffe/util/upgrade_proto.hpp"
+#include "ps/ps.h"
+
 
 namespace caffe {
 
@@ -119,6 +122,61 @@ void SGDSolver<Dtype>::ApplyUpdate() {
     Regularize(param_id);
     ComputeUpdateValue(param_id, rate);
   }
+
+  const vector<Blob<Dtype>*>& net_params = this->net_->learnable_params();
+  if(this->ps_lite_vec.size() == 0) {
+    int num_parameter = 0;
+    for (int param_id = 0; param_id < this->net_->learnable_params().size();
+    ++param_id) {
+      num_parameter += net_params[param_id]->count();
+    }
+    this->ps_lite_vec.resize(num_parameter);
+  }
+
+
+  int offset = 0;
+  for (int param_id = 0; param_id < this->net_->learnable_params().size();
+    ++param_id) {
+    memcpy(this->ps_lite_vec.data() + offset, net_params[param_id]->cpu_diff(), net_params[param_id]->count() * sizeof(Dtype));
+    offset += net_params[param_id]->count();
+  }
+
+  ps::KVWorker<Dtype> kv(0, 0);
+  std::vector<ps::Key> keys(1);
+  std::vector<Dtype> weight_from_server;
+
+  for(int i = 0; i < 100; ++i) {
+    std::cout << this->ps_lite_vec[i] << " ";
+  }
+  for(int i = this->ps_lite_vec.size() - 100; i < this->ps_lite_vec.size(); ++i) {
+    std::cout << this->ps_lite_vec[i] << " ";
+  }
+  std::cout << " " << std::endl;
+
+  // LOG(INFO) << "Before Push!!" << ps::MyRank();
+  kv.Wait(kv.Push(keys, this->ps_lite_vec));
+  // LOG(INFO) << "After Push!!" << ps::MyRank();
+
+  // LOG(INFO) << "Before Pull!!" << ps::MyRank();
+  kv.Wait(kv.Pull(keys, &weight_from_server));
+
+  for(int i = 0; i < 100; ++i) {
+    std::cout << weight_from_server[i] << " ";
+  }
+  for(int i = this->ps_lite_vec.size() - 100; i < this->ps_lite_vec.size(); ++i) {
+    std::cout << weight_from_server[i] << " ";
+  }
+  std::cout << " " << std::endl;
+  // LOG(INFO) << "After Pull!!" << ps::MyRank();
+
+  offset = 0;
+  for (int param_id = 0; param_id < this->net_->learnable_params().size();
+    ++param_id) {
+    memcpy(net_params[param_id]->mutable_cpu_diff(), weight_from_server.data() + offset, net_params[param_id]->count() * sizeof(Dtype));
+    offset += net_params[param_id]->count();
+  }
+
+
   this->net_->Update();
 
   // Increment the internal iter_ counter -- its value should always indicate

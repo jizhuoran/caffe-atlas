@@ -152,13 +152,17 @@ void ConvolutionLayer<Dtype>::Backward_aicore(const vector<Blob<Dtype>*>& top,
 
   // fracZ2ochw(this->fracZ_fp32_.cpu_diff(), this->blobs_[0]->mutable_cpu_diff(), this->num_output_, this->channels_, this->blobs_[0]->shape(2), this->blobs_[0]->shape(3));
   
+  if(propagate_down[0]) {
+    std::vector<void*> args1 = { (void*)this->fracZ_fp16_.aicore_data(), 
+                                (void*)this->top_five_fp16_.aicore_diff(),
+                                (void*)bottom[0]->mutable_aicore_diff()};
 
-  std::vector<void*> args1 = { (void*)this->fracZ_fp16_.aicore_data(), 
-                              (void*)this->top_five_fp16_.aicore_diff(),
-                              (void*)bottom[0]->mutable_aicore_diff()};
-
-  AICORE_CHECK(rtKernelLaunch(this->aicore_kernel_info_[2].kernel_, this->aicore_kernel_info_[2].block_num_, args1.data(), args1.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
-  AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
+    AICORE_CHECK(rtKernelLaunch(this->aicore_kernel_info_[2].kernel_, this->aicore_kernel_info_[2].block_num_, args1.data(), args1.size() * sizeof(void*), NULL, Caffe::Get().aicore_stream));
+    AICORE_CHECK(rtStreamSynchronize(Caffe::Get().aicore_stream));
+  } else {
+    LOG(INFO) << "skip this layer when backprop";
+  }
+  
 }
 
 INSTANTIATE_LAYER_AICORE_FUNCS(ConvolutionLayer);
