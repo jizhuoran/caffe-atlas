@@ -13,19 +13,6 @@ using std::max;
 template <typename Dtype>
 void PoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
-
-#ifdef USE_AICORE
-  // if(Caffe::aicore_mode()) {
-  //   AicoreKerel fw_param = this->layer_param_.aicorekernel(0);
-  //   char* fw_stub = Caffe::Get().new_load_aicore_kernel(fw_param.kernelfile(), fw_param.kernelname());
-  //   this->aicore_kernel_info_.push_back(AICoreKernelInfo(fw_stub, fw_param.block_num()));
-
-  //   AicoreKerel bw_input_param = this->layer_param_.aicorekernel(1);
-  //   char* bw_input_stub = Caffe::Get().new_load_aicore_kernel(bw_input_param.kernelfile(), bw_input_param.kernelname());
-  //   this->aicore_kernel_info_.push_back(AICoreKernelInfo(bw_input_stub, bw_input_param.block_num()));
-  // }
-#endif
-
   PoolingParameter pool_param = this->layer_param_.pooling_param();
   if (pool_param.global_pooling()) {
     CHECK(!(pool_param.has_kernel_size() ||
@@ -50,8 +37,8 @@ void PoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   global_pooling_ = pool_param.global_pooling();
   round_mode_ = pool_param.round_mode();
   if (global_pooling_) {
-    kernel_h_ = bottom[0]->shape(2);
-    kernel_w_ = bottom[0]->shape(3);
+    kernel_h_ = bottom[0]->height();
+    kernel_w_ = bottom[0]->width();
   } else {
     if (pool_param.has_kernel_size()) {
       kernel_h_ = kernel_w_ = pool_param.kernel_size();
@@ -92,16 +79,15 @@ void PoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 template <typename Dtype>
 void PoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
-  CHECK_EQ(5, bottom[0]->num_axes()) << "Input must have 4 axes, "
+  CHECK_EQ(4, bottom[0]->num_axes()) << "Input must have 4 axes, "
       << "corresponding to (num, channels, height, width)";
-  channels_ = bottom[0]->shape(1);
-  height_ = bottom[0]->shape(2);
-  width_ = bottom[0]->shape(3);
+  channels_ = bottom[0]->channels();
+  height_ = bottom[0]->height();
+  width_ = bottom[0]->width();
   if (global_pooling_) {
-    kernel_h_ = bottom[0]->shape(2);
-    kernel_w_ = bottom[0]->shape(3);
+    kernel_h_ = bottom[0]->height();
+    kernel_w_ = bottom[0]->width();
   }
-  pool_size_ = kernel_h_ * kernel_w_;
   switch (round_mode_) {
   case PoolingParameter_RoundMode_CEIL:
     pooled_height_ = static_cast<int>(ceil(static_cast<float>(
@@ -130,37 +116,23 @@ void PoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
     CHECK_LT((pooled_height_ - 1) * stride_h_, height_ + pad_h_);
     CHECK_LT((pooled_width_ - 1) * stride_w_, width_ + pad_w_);
   }
-  top[0]->Reshape(std::vector<int>{bottom[0]->shape(0), channels_, pooled_height_,
-      pooled_width_, 16});
+  top[0]->Reshape(bottom[0]->num(), channels_, pooled_height_,
+      pooled_width_);
   if (top.size() > 1) {
     top[1]->ReshapeLike(*top[0]);
   }
   // If max pooling, we will initialize the vector index part.
   if (this->layer_param_.pooling_param().pool() ==
       PoolingParameter_PoolMethod_MAX && top.size() == 1) {
-    max_idx_.Reshape(std::vector<int>{bottom[0]->shape(0), channels_, pooled_height_,
-        pooled_width_, 16});
+    max_idx_.Reshape(bottom[0]->num(), channels_, pooled_height_,
+        pooled_width_);
   }
   // If stochastic pooling, we will initialize the random index part.
   if (this->layer_param_.pooling_param().pool() ==
       PoolingParameter_PoolMethod_STOCHASTIC) {
-    rand_idx_.Reshape(std::vector<int>{bottom[0]->shape(0), channels_, pooled_height_,
-      pooled_width_, 16});
+    rand_idx_.Reshape(bottom[0]->num(), channels_, pooled_height_,
+      pooled_width_);
   }
-
-  bottom_spatial_dim_ = bottom[0]->shape(2) * bottom[0]->shape(3) * bottom[0]->shape(4);
-  top_spatial_dim_ = top[0]->shape(2) * top[0]->shape(3) * top[0]->shape(4);
-  if(!global_pooling_) {
-    if(kernel_h_ == bottom[0]->shape(2) && kernel_w_ == bottom[0]->shape(3) && 
-        pad_h_ == 0 && pad_w_ == 0 && stride_h_ == 1 && stride_w_ == 1) { //then it is actually global_pooling_ 
-      global_pooling_ = true;
-    }
-  }
-
-#ifdef USE_AICORE
-  // bottom_fp16_.Reshape(bottom[0]->shape());
-  // top_fp16_.Reshape(top[0]->shape());
-#endif
 }
 
 // TODO(Yangqing): Is there a faster way to do pooling in the channel-first
@@ -187,199 +159,79 @@ void PoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       mask = max_idx_.mutable_cpu_data();
       caffe_set(top_count, -1, mask);
     }
-
-    if(global_pooling_) {
-      // caffe_set(top_count, Dtype(-FLT_MAX), top_data);
-      // // The main loop
-      // for (int n = 0; n < bottom[0]->shape(0); ++n) {
-      //   for (int c = 0; c < channels_; ++c) {
-      //     bottom_data = bottom[0]->cpu_data() + (n * channels_ + c) * bottom_spatial_dim_;
-      //     top_data = top[0]->mutable_cpu_data() + (n * channels_ + c) * bottom_spatial_dim_;top[0]->shape(2) * top[0]->shape(3) * 16;
-      //     if (use_top_mask) {
-      //       top_mask = top[1]->mutable_cpu_data() + (n * channels_ + c) * bottom_spatial_dim_;top[0]->shape(2) * top[0]->shape(3) * 16;
-      //     } else {
-      //       mask = max_idx_.mutable_cpu_data() + (n * channels_ + c) * bottom_spatial_dim_;top[0]->shape(2) * top[0]->shape(3) * 16;
-      //     }
-      //     for (int ph = 0; ph < pooled_height_; ++ph) {
-      //       for (int pw = 0; pw < pooled_width_; ++pw) {
-      //         int hstart = ph * stride_h_ - pad_h_;
-      //         int wstart = pw * stride_w_ - pad_w_;
-      //         int hend = min(hstart + kernel_h_, height_);
-      //         int wend = min(wstart + kernel_w_, width_);
-      //         hstart = max(hstart, 0);
-      //         wstart = max(wstart, 0);
-      //         int pool_index = ph * pooled_width_ + pw;
-      //         for (int h = hstart; h < hend; ++h) {
-      //             for (int w = wstart; w < wend; ++w) {
-      //               for (int c0 = 0; c0 < CHANNEL_16; ++c0) {
-      //               const int index = (h * width_ + w) * CHANNEL_16 + c0;
-      //               if (bottom_data[index] > top_data[pool_index * CHANNEL_16 + c0]) {
-      //                 top_data[pool_index * CHANNEL_16 + c0] = bottom_data[index];
-      //                 if (use_top_mask) {
-      //                   top_mask[pool_index * CHANNEL_16 + c0] = static_cast<Dtype>(index);
-      //                 } else {
-      //                   mask[pool_index * CHANNEL_16 + c0] = index;
-      //                 }
-      //               }
-      //             }
-      //           }
-      //         }
-      //       }
-      //     }
-      //   }
-      // }
-    } else {
-      caffe_set(top_count, Dtype(-FLT_MAX), top_data);
-      // The main loop
-      
-      if(use_top_mask) {
-        NOT_IMPLEMENTED;
-      }
-      if(pad_h_ == 0 && pad_w_ == 0) {
-        #pragma omp parallel for
-        for (int n = 0; n < bottom[0]->shape(0); ++n) {
-          for (int c = 0; c < channels_; ++c) {
-            bottom_data = bottom[0]->cpu_data() + (n * channels_ + c) * bottom_spatial_dim_;
-            top_data = top[0]->mutable_cpu_data() + (n * channels_ + c) * top_spatial_dim_;
-            mask = max_idx_.mutable_cpu_data() + (n * channels_ + c) * top_spatial_dim_;
-            for (int ph = 0; ph < pooled_height_; ++ph) {
-              for (int pw = 0; pw < pooled_width_; ++pw) {
-                int pool_index = ph * pooled_width_ + pw * CHANNEL_16;
-                for (int h = ph * stride_h_; h < ph * stride_h_+ kernel_h_; ++h) {
-                    for (int w = pw * stride_w_; w < pw * stride_w_ + kernel_w_; ++w) {
-                      const int index = (h * width_ + w) * CHANNEL_16;
-                      for (int c0 = 0; c0 < CHANNEL_16; ++c0) {
-                      if (bottom_data[index+c0] > top_data[pool_index + c0]) {
-                        top_data[pool_index + c0] = bottom_data[index+c0];
-                        mask[pool_index + c0] = index+c0;
-                      }
-                    }
+    caffe_set(top_count, Dtype(-FLT_MAX), top_data);
+    // The main loop
+    for (int n = 0; n < bottom[0]->num(); ++n) {
+      for (int c = 0; c < channels_; ++c) {
+        for (int ph = 0; ph < pooled_height_; ++ph) {
+          for (int pw = 0; pw < pooled_width_; ++pw) {
+            int hstart = ph * stride_h_ - pad_h_;
+            int wstart = pw * stride_w_ - pad_w_;
+            int hend = min(hstart + kernel_h_, height_);
+            int wend = min(wstart + kernel_w_, width_);
+            hstart = max(hstart, 0);
+            wstart = max(wstart, 0);
+            const int pool_index = ph * pooled_width_ + pw;
+            for (int h = hstart; h < hend; ++h) {
+              for (int w = wstart; w < wend; ++w) {
+                const int index = h * width_ + w;
+                if (bottom_data[index] > top_data[pool_index]) {
+                  top_data[pool_index] = bottom_data[index];
+                  if (use_top_mask) {
+                    top_mask[pool_index] = static_cast<Dtype>(index);
+                  } else {
+                    mask[pool_index] = index;
                   }
                 }
               }
             }
           }
-        }        
-      } else {
-        for (int n = 0; n < bottom[0]->shape(0); ++n) {
-          for (int c = 0; c < channels_; ++c) {
-            bottom_data = bottom[0]->cpu_data() + (n * channels_ + c) * bottom[0]->shape(2) * bottom[0]->shape(3) * 16;
-            top_data = top[0]->mutable_cpu_data() + (n * channels_ + c) * top[0]->shape(2) * top[0]->shape(3) * 16;
-            if (use_top_mask) {
-              top_mask = top[1]->mutable_cpu_data() + (n * channels_ + c) * top[0]->shape(2) * top[0]->shape(3) * 16;
-            } else {
-              mask = max_idx_.mutable_cpu_data() + (n * channels_ + c) * top[0]->shape(2) * top[0]->shape(3) * 16;
-            }
-            for (int ph = 0; ph < pooled_height_; ++ph) {
-              for (int pw = 0; pw < pooled_width_; ++pw) {
-                int hstart = ph * stride_h_ - pad_h_;
-                int wstart = pw * stride_w_ - pad_w_;
-                int hend = min(hstart + kernel_h_, height_);
-                int wend = min(wstart + kernel_w_, width_);
-                hstart = max(hstart, 0);
-                wstart = max(wstart, 0);
-                int pool_index = ph * pooled_width_ + pw;
-                for (int h = hstart; h < hend; ++h) {
-                    for (int w = wstart; w < wend; ++w) {
-                      for (int c0 = 0; c0 < CHANNEL_16; ++c0) {
-                      const int index = (h * width_ + w) * CHANNEL_16 + c0;
-                      if (bottom_data[index] > top_data[pool_index * CHANNEL_16 + c0]) {
-                        top_data[pool_index * CHANNEL_16 + c0] = bottom_data[index];
-                        if (use_top_mask) {
-                          top_mask[pool_index * CHANNEL_16 + c0] = static_cast<Dtype>(index);
-                        } else {
-                          mask[pool_index * CHANNEL_16 + c0] = index;
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+        }
+        // compute offset
+        bottom_data += bottom[0]->offset(0, 1);
+        top_data += top[0]->offset(0, 1);
+        if (use_top_mask) {
+          top_mask += top[0]->offset(0, 1);
+        } else {
+          mask += top[0]->offset(0, 1);
         }
       }
     }
     break;
   case PoolingParameter_PoolMethod_AVE:
+    #pragma omp parallel for
+    for (int i = 0; i < top_count; ++i) {
+      top_data[i] = 0;
+    }
+    // The main loop
+    for (int n = 0; n < bottom[0]->num(); ++n) {
+      for (int c = 0; c < channels_; ++c) {
+        bottom_data = bottom[0]->cpu_data() + (n * channels_ + c) * bottom[0]->offset(0, 1);
+        top_data = top[0]->mutable_cpu_data() + (n * channels_ + c) * top[0]->offset(0, 1);
+        for (int ph = 0; ph < pooled_height_; ++ph) {
+          for (int pw = 0; pw < pooled_width_; ++pw) {
+            int hstart = ph * stride_h_ - pad_h_;
+            int wstart = pw * stride_w_ - pad_w_;
+            int hend = min(hstart + kernel_h_, height_ + pad_h_);
+            int wend = min(wstart + kernel_w_, width_ + pad_w_);
+            int pool_size = (hend - hstart) * (wend - wstart);
+            hstart = max(hstart, 0);
+            wstart = max(wstart, 0);
+            hend = min(hend, height_);
+            wend = min(wend, width_);
+            for (int h = hstart; h < hend; ++h) {
+              for (int w = wstart; w < wend; ++w) {
+                top_data[ph * pooled_width_ + pw] +=
+                    bottom_data[h * width_ + w];
+              }
+            }
+            top_data[ph * pooled_width_ + pw] /= pool_size;
+          }
+        }
+        // compute offset
 
-    if(global_pooling_) {
-      #pragma omp parallel for
-      for (int n = 0; n < bottom[0]->shape(0); ++n) {
-        for (int c = 0; c < channels_; ++c) {
-          bottom_data = bottom[0]->cpu_data() + (n * channels_ + c) * bottom_spatial_dim_;
-          top_data = top[0]->mutable_cpu_data() + (n * channels_ + c) * top_spatial_dim_;
-          for (int x = 0; x < kernel_h_ * kernel_w_; ++x) { //global pooling we are safe to do so
-            for (int c0 = 0; c0 < CHANNEL_16; ++c0) {
-              top_data[c0] += bottom_data[x * CHANNEL_16 + c0];
-            }
-          }
-          for (int c0 = 0; c0 < CHANNEL_16; ++c0) {
-            top_data[c0] /= pool_size_;
-          }
-        }
-      }
-    } else {
-      #pragma omp parallel for
-      for (int i = 0; i < top_count; ++i) {
-        top_data[i] = 0;
-      }
-      // The main loop
-      if(pad_h_ == 0 && pad_w_ == 0) {
-        #pragma omp parallel for
-        for (int n = 0; n < bottom[0]->shape(0); ++n) {
-          for (int c = 0; c < channels_; ++c) {
-            bottom_data = bottom[0]->cpu_data() + (n * channels_ + c) * bottom_spatial_dim_;
-            top_data = top[0]->mutable_cpu_data() + (n * channels_ + c) * top_spatial_dim_;
-            for (int ph = 0; ph < pooled_height_; ++ph) {
-              for (int pw = 0; pw < pooled_width_; ++pw) {
-                for (int h = ph * stride_h_; h < ph * stride_h_ + kernel_h_; ++h) {
-                  for (int w = pw * stride_w_; w < pw * stride_w_ + kernel_w_; ++w) {
-                    for (int c0 = 0; c0 < CHANNEL_16; ++c0) {
-                      top_data[(ph * pooled_width_ + pw) * CHANNEL_16 + c0] +=
-                          bottom_data[(h * width_ + w) * CHANNEL_16 + c0];
-                    }
-                  }
-                }
-                for (int c0 = 0; c0 < CHANNEL_16; ++c0) {
-                  top_data[(ph * pooled_width_ + pw) * CHANNEL_16 + c0] /= pool_size_;
-                }
-              }
-            }
-          }
-        }
-      } else {
-        for (int n = 0; n < bottom[0]->shape(0); ++n) {
-          for (int c = 0; c < channels_; ++c) {
-            bottom_data = bottom[0]->cpu_data() + (n * channels_ + c) * bottom[0]->shape(2) * bottom[0]->shape(3) * 16;
-            top_data = top[0]->mutable_cpu_data() + (n * channels_ + c) * top[0]->shape(2) * top[0]->shape(3) * 16;
-            for (int ph = 0; ph < pooled_height_; ++ph) {
-              for (int pw = 0; pw < pooled_width_; ++pw) {
-                for (int c0 = 0; c0 < CHANNEL_16; ++c0) {
-                  int hstart = ph * stride_h_ - pad_h_;
-                  int wstart = pw * stride_w_ - pad_w_;
-                  int hend = min(hstart + kernel_h_, height_ + pad_h_);
-                  int wend = min(wstart + kernel_w_, width_ + pad_w_);
-                  int pool_size = (hend - hstart) * (wend - wstart);
-                  hstart = max(hstart, 0);
-                  wstart = max(wstart, 0);
-                  hend = min(hend, height_);
-                  wend = min(wend, width_);
-                  for (int h = hstart; h < hend; ++h) {
-                    for (int w = wstart; w < wend; ++w) {
-                      top_data[(ph * pooled_width_ + pw) * CHANNEL_16 + c0] +=
-                          bottom_data[(h * width_ + w) * CHANNEL_16 + c0];
-                    }
-                  }
-                  top_data[(ph * pooled_width_ + pw) * CHANNEL_16 + c0] /= pool_size;
-                }
-              }
-            }
-          }
-        }
       }
     }
-  
     break;
   case PoolingParameter_PoolMethod_STOCHASTIC:
     NOT_IMPLEMENTED;
@@ -408,70 +260,56 @@ void PoolingLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   case PoolingParameter_PoolMethod_MAX:
     // The main loop
     if (use_top_mask) {
-      NOT_IMPLEMENTED;
       top_mask = top[1]->cpu_data();
     } else {
       mask = max_idx_.cpu_data();
     }
-    #pragma omp parallel for
-    for (int n = 0; n < top[0]->shape(0); ++n) {
+    for (int n = 0; n < top[0]->num(); ++n) {
       for (int c = 0; c < channels_; ++c) {
-        bottom_diff = bottom[0]->mutable_cpu_diff() + (n * channels_ + c) * bottom_spatial_dim_;
-        top_diff = top[0]->cpu_diff() + (n * channels_ + c) * top_spatial_dim_;
-        mask = max_idx_.cpu_data() + (n * channels_ + c) * top_spatial_dim_;
         for (int ph = 0; ph < pooled_height_; ++ph) {
           for (int pw = 0; pw < pooled_width_; ++pw) {
-            for (int c0 = 0; c0 < CHANNEL_16; ++c0) {
-              const int index = (ph * pooled_width_ + pw) * CHANNEL_16 + c0;
-              bottom_diff[mask[index]] += top_diff[index];
-            }
+            const int index = ph * pooled_width_ + pw;
+            const int bottom_index =
+                use_top_mask ? top_mask[index] : mask[index];
+            bottom_diff[bottom_index] += top_diff[index];
           }
+        }
+        bottom_diff += bottom[0]->offset(0, 1);
+        top_diff += top[0]->offset(0, 1);
+        if (use_top_mask) {
+          top_mask += top[0]->offset(0, 1);
+        } else {
+          mask += top[0]->offset(0, 1);
         }
       }
     }
     break;
   case PoolingParameter_PoolMethod_AVE:
     // The main loop
-    if(global_pooling_) {
-      #pragma omp parallel for
-      for (int n = 0; n < top[0]->shape(0); ++n) {
-        for (int c = 0; c < channels_; ++c) {
-          bottom_diff = bottom[0]->mutable_cpu_diff() + (n * channels_ + c) * bottom_spatial_dim_;
-          top_diff = top[0]->cpu_diff() + (n * channels_ + c) * top_spatial_dim_;
-          for (int x = 0; x < kernel_h_ * kernel_w_; ++x) { //global pooling we are safe to do so
-            for (int c0 = 0; c0 < CHANNEL_16; ++c0) {
-              bottom_diff[x * CHANNEL_16 + c0] += top_diff[c0] / pool_size_;
-            }
-          }
-        }
-      }
-    } else {
-      for (int n = 0; n < top[0]->shape(0); ++n) {
-        for (int c = 0; c < channels_; ++c) {
-          bottom_diff = bottom[0]->mutable_cpu_diff() + (n * channels_ + c) * bottom[0]->shape(2) * bottom[0]->shape(3) * 16;
-          top_diff = top[0]->cpu_diff() + (n * channels_ + c) * top[0]->shape(2) * top[0]->shape(3) * 16;
-          for (int ph = 0; ph < pooled_height_; ++ph) {
-            for (int pw = 0; pw < pooled_width_; ++pw) {
-              for (int c0 = 0; c0 < CHANNEL_16; ++c0) {
-                int hstart = ph * stride_h_ - pad_h_;
-                int wstart = pw * stride_w_ - pad_w_;
-                int hend = min(hstart + kernel_h_, height_ + pad_h_);
-                int wend = min(wstart + kernel_w_, width_ + pad_w_);
-                int pool_size = (hend - hstart) * (wend - wstart);
-                hstart = max(hstart, 0);
-                wstart = max(wstart, 0);
-                hend = min(hend, height_);
-                wend = min(wend, width_);
-                for (int h = hstart; h < hend; ++h) {
-                  for (int w = wstart; w < wend; ++w) {
-                    bottom_diff[(h * width_ + w) * CHANNEL_16 + c0] +=
-                      top_diff[(ph * pooled_width_ + pw) * CHANNEL_16 + c0] / pool_size;
-                  }
-                }
+    for (int n = 0; n < top[0]->num(); ++n) {
+      for (int c = 0; c < channels_; ++c) {
+        for (int ph = 0; ph < pooled_height_; ++ph) {
+          for (int pw = 0; pw < pooled_width_; ++pw) {
+            int hstart = ph * stride_h_ - pad_h_;
+            int wstart = pw * stride_w_ - pad_w_;
+            int hend = min(hstart + kernel_h_, height_ + pad_h_);
+            int wend = min(wstart + kernel_w_, width_ + pad_w_);
+            int pool_size = (hend - hstart) * (wend - wstart);
+            hstart = max(hstart, 0);
+            wstart = max(wstart, 0);
+            hend = min(hend, height_);
+            wend = min(wend, width_);
+            for (int h = hstart; h < hend; ++h) {
+              for (int w = wstart; w < wend; ++w) {
+                bottom_diff[h * width_ + w] +=
+                  top_diff[ph * pooled_width_ + pw] / pool_size;
               }
             }
           }
         }
+        // offset
+        bottom_diff += bottom[0]->offset(0, 1);
+        top_diff += top[0]->offset(0, 1);
       }
     }
     break;

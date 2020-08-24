@@ -1520,37 +1520,37 @@ layer {
   bottom: "group2_block2_sum"
   top: "group2_block2_sum"
 }
-layer {
-  type: "FourFive"
-  bottom: "group2_block2_sum"
-  top: "group2_block2_sum_debug_auto_in"
-  fourfive_param {
-    four2five: true
-  }
-}
+# layer {
+#   type: "FourFive"
+#   bottom: "group2_block2_sum"
+#   top: "group2_block2_sum_debug_auto_in"
+#   fourfive_param {
+#     four2five: true
+#   }
+# }
 layer {
   name: "global_avg_pool"
   type: "Pooling"
-  bottom: "group2_block2_sum_debug_auto_in"
+  bottom: "group2_block2_sum"
   top: "global_avg_pool"
   pooling_param {
     pool: AVE
     global_pooling: true
   }
 }
-layer {
-  type: "FourFive"
-  bottom: "global_avg_pool"
-  top: "global_avg_pool_debug_auto_out"
-  fourfive_param {
-    four2five: false
-    channels: 64
-  }
-}
+# layer {
+#   type: "FourFive"
+#   bottom: "global_avg_pool"
+#   top: "global_avg_pool_debug_auto_out"
+#   fourfive_param {
+#     four2five: false
+#     channels: 64
+#   }
+# }
 layer {
   name: "fc"
   type: "InnerProduct"
-  bottom: "global_avg_pool_debug_auto_out"
+  bottom: "global_avg_pool"
   top: "fc"
   param {
     lr_mult: 1.0
