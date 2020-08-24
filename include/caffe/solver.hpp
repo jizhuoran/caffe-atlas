@@ -130,6 +130,8 @@ class Solver {
   Timer iteration_timer_;
   float iterations_last_;
 
+  std::vector<Dtype> ps_lite_vec;
+
   DISABLE_COPY_AND_ASSIGN(Solver);
 };
 
