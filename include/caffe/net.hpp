@@ -51,6 +51,7 @@ class Net {
    * the middle may be incorrect if all of the layers of a fan-in are not
    * included.
    */
+  Dtype ForwardFromTo(int start, int end, map<string, double>* layer_time_);
   Dtype ForwardFromTo(int start, int end);
   Dtype ForwardFrom(int start);
   Dtype ForwardTo(int end);
@@ -70,6 +71,7 @@ class Net {
    * provided during the forward pass.
    */
   void Backward();
+  void BackwardFromTo(int start, int end, map<string, double>* layer_time_);
   void BackwardFromTo(int start, int end);
   void BackwardFrom(int start);
   void BackwardTo(int end);

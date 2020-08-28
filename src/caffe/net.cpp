@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 #include <chrono>
-
+#include <iomanip>
 
 #ifdef USE_HDF5
 #include "hdf5.h"
@@ -517,6 +517,40 @@ void Net<Dtype>::AppendParam(const NetParameter& param, const int layer_id,
 }
 
 template <typename Dtype>
+Dtype Net<Dtype>::ForwardFromTo(int start, int end, map<string, double>* layer_time_) {
+  Caffe::Get().global_debug_count++;
+  CHECK_GE(start, 0);
+  CHECK_LT(end, layers_.size());
+  Dtype loss = 0;
+  for (int i = start; i <= end; ++i) {
+    std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
+    for (int c = 0; c < before_forward_.size(); ++c) {
+      before_forward_[c]->run(i);
+    }
+    Dtype layer_loss = layers_[i]->Forward(bottom_vecs_[i], top_vecs_[i]);
+    loss += layer_loss;
+    if (debug_info_) { ForwardDebugInfo(i); } //UGLY
+    for (int c = 0; c < after_forward_.size(); ++c) {
+      after_forward_[c]->run(i);
+    } 
+    std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
+    double total_time = (double)std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
+    
+    auto iter = (*layer_time_).find(layers_[i]->type());
+    if(iter == (*layer_time_).end())
+    {
+        (*layer_time_)[layers_[i]->type()] = total_time;
+    }
+    else
+    {
+        (*layer_time_)[layers_[i]->type()] += total_time;
+    }
+  }
+
+  return loss;
+}
+
+template <typename Dtype>
 Dtype Net<Dtype>::ForwardFromTo(int start, int end) {
   CHECK_GE(start, 0);
   CHECK_LT(end, layers_.size());
@@ -556,15 +590,35 @@ template <typename Dtype>
 const vector<Blob<Dtype>*>& Net<Dtype>::Forward(Dtype* loss) {
 #ifdef PROFILE
   std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
-#endif
+  //for statistic
+  map<string,double> layer_time;
+  if (loss != NULL) {
+    *loss = ForwardFromTo(0, layers_.size() - 1, &layer_time);
+  } else {
+    ForwardFromTo(0, layers_.size() - 1, &layer_time);
+  }
+#else
   if (loss != NULL) {
     *loss = ForwardFromTo(0, layers_.size() - 1);
   } else {
     ForwardFromTo(0, layers_.size() - 1);
   }
+#endif
+
 #ifdef PROFILE
   std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
   std::cout << "Total Forward Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
+  
+  //for statistic
+  map<string,double>::iterator iter;
+  double total_time = (double) std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
+  iter = layer_time.begin();
+  while(iter != layer_time.end())
+  {
+    std::cout<<std::setiosflags(ios::fixed)<<std::setprecision(4)<<iter->first<<":"<<iter->second/total_time<<" ";
+    iter++;
+  }
+  std::cout<<"\n";
 #endif
   return net_output_blobs_;
 }
@@ -579,6 +633,43 @@ const vector<Blob<Dtype>*>& Net<Dtype>::Forward(
     net_input_blobs_[i]->CopyFrom(*bottom[i]);
   }
   return Forward(loss);
+}
+
+template <typename Dtype>
+void Net<Dtype>::BackwardFromTo(int start, int end, map<string, double>* layer_time_) {
+  CHECK_GE(end, 0);
+  CHECK_LT(start, layers_.size());
+  for (int i = start; i >= end; --i) {
+  #ifdef PROFILE
+    std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
+  #endif
+    for (int c = 0; c < before_backward_.size(); ++c) {
+      before_backward_[c]->run(i);
+    }
+    if (layer_need_backward_[i]) {
+      layers_[i]->Backward(
+          top_vecs_[i], bottom_need_backward_[i], bottom_vecs_[i]);
+      if (debug_info_) { BackwardDebugInfo(i); }
+    }
+    for (int c = 0; c < after_backward_.size(); ++c) {
+      after_backward_[c]->run(i);
+    }
+#ifdef PROFILE
+    std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
+    double total_time = (double)std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
+    
+    auto iter = (*layer_time_).find(layers_[i]->type());
+    if(iter == (*layer_time_).end())
+    {
+        (*layer_time_)[layers_[i]->type()] = total_time;
+    }
+    else
+    {
+        (*layer_time_)[layers_[i]->type()] += total_time;
+    }
+    //std::cout << "Backward Layer " << i << ": " << layers_[i]->type() << " " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
+#endif
+  }
 }
 
 template <typename Dtype>
@@ -732,15 +823,26 @@ template <typename Dtype>
 void Net<Dtype>::Backward() {
 #ifdef PROFILE
   std::chrono::steady_clock::time_point begin_time = std::chrono::steady_clock::now();
-#endif
-
-
+  map<string,double> layer_time;
+  BackwardFromTo(layers_.size() - 1, 0, &layer_time);
+#else
   BackwardFromTo(layers_.size() - 1, 0);
+#endif
 
   
 #ifdef PROFILE
   std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
   std::cout << "Total Backward Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
+  //for statistic
+  double total_time = (double) std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
+  map<string,double>::iterator iter;
+  iter = layer_time.begin();
+  while(iter != layer_time.end())
+  {
+    std::cout<<std::setiosflags(ios::fixed)<<std::setprecision(4)<<iter->first<<":"<<iter->second/total_time<<" ";
+    iter++;
+  }
+  std::cout<<"\n";
 #endif
   if (debug_info_) {
     Dtype asum_data = 0, asum_diff = 0, sumsq_data = 0, sumsq_diff = 0;
@@ -750,8 +852,8 @@ void Net<Dtype>::Backward() {
       sumsq_data += learnable_params_[i]->sumsq_data();
       sumsq_diff += learnable_params_[i]->sumsq_diff();
     }
-    const Dtype l2norm_data = std::sqrt(sumsq_data);
-    const Dtype l2norm_diff = std::sqrt(sumsq_diff);
+    const Dtype l2norm_data = sqrt(sumsq_data);
+    const Dtype l2norm_diff = sqrt(sumsq_diff);
     LOG(ERROR) << "    [Backward] All net params (data, diff): "
                << "L1 norm = (" << asum_data << ", " << asum_diff << "); "
                << "L2 norm = (" << l2norm_data << ", " << l2norm_diff << ")";
