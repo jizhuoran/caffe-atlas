@@ -611,14 +611,14 @@ const vector<Blob<Dtype>*>& Net<Dtype>::Forward(Dtype* loss) {
   
   //for statistic
   map<string,double>::iterator iter;
-  double total_time = (double) std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
+  //double total_time = (double) std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
   iter = layer_time.begin();
   while(iter != layer_time.end())
   {
-    std::cout<<std::setiosflags(ios::fixed)<<std::setprecision(4)<<iter->first<<":"<<iter->second/total_time<<" ";
+    Caffe::Get().pie_chart_forward<<std::setiosflags(ios::fixed)<<std::setprecision(4)<<iter->first<<":"<<iter->second<<" ";
     iter++;
   }
-  std::cout<<"\n";
+  Caffe::Get().pie_chart_forward<<"\n";
 #endif
   return net_output_blobs_;
 }
@@ -834,15 +834,15 @@ void Net<Dtype>::Backward() {
   std::chrono::steady_clock::time_point end_time = std::chrono::steady_clock::now();
   std::cout << "Total Backward Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() << "[ms]" << std::endl;
   //for statistic
-  double total_time = (double) std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
+  //double total_time = (double) std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
   map<string,double>::iterator iter;
   iter = layer_time.begin();
   while(iter != layer_time.end())
   {
-    std::cout<<std::setiosflags(ios::fixed)<<std::setprecision(4)<<iter->first<<":"<<iter->second/total_time<<" ";
+    Caffe::Get().pie_chart_backward<<std::setiosflags(ios::fixed)<<std::setprecision(4)<<iter->first<<":"<<iter->second<<" ";
     iter++;
   }
-  std::cout<<"\n";
+  Caffe::Get().pie_chart_backward<<"\n";
 #endif
   if (debug_info_) {
     Dtype asum_data = 0, asum_diff = 0, sumsq_data = 0, sumsq_diff = 0;

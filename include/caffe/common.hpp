@@ -174,6 +174,10 @@ public:
   int global_debug_count = 0;
 #endif
 
+#ifdef PROFILE
+  std::ofstream pie_chart_forward;
+  std::ofstream pie_chart_backward;
+#endif
   // Returns the mode: running on CPU or GPU.
   inline static Brew mode() { return Get().mode_; }
   inline static bool aicore_mode() {return Get().aicore_mode_; }

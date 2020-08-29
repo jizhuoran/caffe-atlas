@@ -58,9 +58,19 @@ Caffe::Caffe()
   AICORE_CHECK(rtSetDevice(0));
   AICORE_CHECK(rtStreamCreate(&aicore_stream, 0));
 #endif
+
+#ifdef PROFILE
+  pie_chart_forward.open("pie_chart_forward");
+  pie_chart_backward.open("pie_chart_backward");
+#endif
 }
 
-Caffe::~Caffe() { }
+Caffe::~Caffe() {
+  #ifdef PROFILE
+    pie_chart_forward.close();
+    pie_chart_backward.close();
+  #endif 
+}
 
 #ifdef USE_AICORE
 char * readBinFile(const char *file_name, uint64_t *fileSize) {
